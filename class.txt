@@ -1,5 +1,0 @@
-FK : Khoa ngoai
-PK : Khoa chinh
-
-
-NhanVien(
