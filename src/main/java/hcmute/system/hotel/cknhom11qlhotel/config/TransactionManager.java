@@ -2,7 +2,9 @@ package hcmute.system.hotel.cknhom11qlhotel.config;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TransactionManager {
     public <T> T runInTransaction(JpaWork<T> work) throws Exception {
         EntityManager em = Jpa.em();
