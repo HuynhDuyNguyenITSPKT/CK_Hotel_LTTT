@@ -1,15 +1,93 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <body>
-<section class="space-y-4 section-panel" id="section-dashboard" th:fragment="panel">
-    <h2 class="text-2xl font-bold">Dashboard quản trị</h2>
+<section class="space-y-6 section-panel" id="section-dashboard" th:fragment="panel">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 class="text-2xl font-bold">Dashboard quản trị</h2>
+        <span class="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">Báo cáo thời gian thực</span>
+    </div>
+
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div class="rounded-xl bg-white p-4 shadow-sm"><p class="text-sm text-slate-500">Doanh thu</p><p class="text-2xl font-bold" id="stat-revenue">0</p></div>
-        <div class="rounded-xl bg-white p-4 shadow-sm"><p class="text-sm text-slate-500">Hóa đơn</p><p class="text-2xl font-bold" id="stat-invoices">0</p></div>
-        <div class="rounded-xl bg-white p-4 shadow-sm"><p class="text-sm text-slate-500">Khách hàng</p><p class="text-2xl font-bold" id="stat-customers">0</p></div>
-        <div class="rounded-xl bg-white p-4 shadow-sm"><p class="text-sm text-slate-500">Phòng</p><p class="text-2xl font-bold" id="stat-rooms">0</p></div>
+        <div class="rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 p-4 text-white shadow-sm"><p class="text-sm text-indigo-100">Doanh thu</p><p class="text-2xl font-bold" id="stat-revenue">0</p></div>
+        <div class="rounded-2xl bg-white p-4 shadow-sm"><p class="text-sm text-slate-500">Hóa đơn</p><p class="text-2xl font-bold" id="stat-invoices">0</p></div>
+        <div class="rounded-2xl bg-white p-4 shadow-sm"><p class="text-sm text-slate-500">Khách hàng</p><p class="text-2xl font-bold" id="stat-customers">0</p></div>
+        <div class="rounded-2xl bg-white p-4 shadow-sm"><p class="text-sm text-slate-500">Phòng</p><p class="text-2xl font-bold" id="stat-rooms">0</p></div>
+    </div>
+
+    <section class="rounded-2xl bg-white p-5 shadow-sm">
+        <h3 class="mb-4 text-lg font-semibold">Biểu đồ doanh thu theo tháng</h3>
+        <canvas height="120" id="revenueChart"></canvas>
+    </section>
+
+    <section class="rounded-2xl bg-white p-5 shadow-sm">
+        <div class="flex flex-wrap items-end gap-3">
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500" for="report-day">Ngày</label>
+                <input class="rounded-lg border px-3 py-2 text-sm" id="report-day" max="31" min="1" placeholder="VD: 26" type="number">
+            </div>
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500" for="report-month">Tháng</label>
+                <input class="rounded-lg border px-3 py-2 text-sm" id="report-month" max="12" min="1" placeholder="VD: 3" type="number">
+            </div>
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500" for="report-year">Năm</label>
+                <input class="rounded-lg border px-3 py-2 text-sm" id="report-year" min="2000" placeholder="VD: 2026" type="number">
+            </div>
+            <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white" id="btn-apply-filter" type="button">Áp dụng lọc</button>
+            <button class="rounded-lg border px-4 py-2 text-sm font-semibold" id="btn-clear-filter" type="button">Xóa lọc</button>
+            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600" id="report-filter-label">Đang xem: tất cả dữ liệu</span>
+        </div>
+    </section>
+
+    <div class="grid gap-4 xl:grid-cols-2">
+        <section class="rounded-2xl bg-white p-5 shadow-sm">
+            <div class="mb-3 flex items-center justify-between gap-2">
+                <h3 class="text-lg font-semibold">Báo cáo hóa đơn gần nhất</h3>
+                <div class="space-x-2">
+                    <button class="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white" id="export-invoices-excel" type="button">Excel</button>
+                    <button class="rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white" id="export-invoices-pdf" type="button">PDF</button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead>
+                    <tr class="border-b text-left">
+                        <th class="p-2">Mã HĐ</th>
+                        <th class="p-2">Đặt phòng</th>
+                        <th class="p-2">Nhân viên</th>
+                        <th class="p-2">Tổng tiền</th>
+                        <th class="p-2">Ngày tạo</th>
+                    </tr>
+                    </thead>
+                    <tbody id="table-invoices"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="rounded-2xl bg-white p-5 shadow-sm">
+            <div class="mb-3 flex items-center justify-between gap-2">
+                <h3 class="text-lg font-semibold">Báo cáo thanh toán gần nhất</h3>
+                <div class="space-x-2">
+                    <button class="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white" id="export-payments-excel" type="button">Excel</button>
+                    <button class="rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white" id="export-payments-pdf" type="button">PDF</button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead>
+                    <tr class="border-b text-left">
+                        <th class="p-2">Mã TT</th>
+                        <th class="p-2">Mã HĐ</th>
+                        <th class="p-2">Phương thức</th>
+                        <th class="p-2">Số tiền</th>
+                        <th class="p-2">Ngày thanh toán</th>
+                    </tr>
+                    </thead>
+                    <tbody id="table-payments"></tbody>
+                </table>
+            </div>
+        </section>
     </div>
 </section>
 </body>
 </html>
-

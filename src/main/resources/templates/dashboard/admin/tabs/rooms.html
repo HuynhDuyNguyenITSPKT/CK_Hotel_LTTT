@@ -13,6 +13,25 @@
         <button class="rounded-lg bg-indigo-600 px-4 py-2 text-white md:col-span-4" type="submit">Thêm phòng</button>
     </form>
     <div class="overflow-x-auto"><table class="min-w-full text-sm"><thead><tr class="border-b text-left"><th class="p-2">Số phòng</th><th class="p-2">Loại</th><th class="p-2">Trạng thái</th><th class="p-2">Thao tác</th></tr></thead><tbody id="table-rooms"></tbody></table></div>
+
+    <div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 px-4" id="modal-room">
+        <div class="w-full max-w-xl rounded-2xl bg-white p-5 shadow-xl">
+            <h4 class="text-lg font-semibold">Cập nhật phòng</h4>
+            <form class="mt-4 grid gap-3 md:grid-cols-2" id="form-room-edit">
+                <input id="room-edit-id" type="hidden">
+                <input class="rounded-lg border px-3 py-2" id="room-edit-soPhong" placeholder="Số phòng" required>
+                <select class="rounded-lg border px-3 py-2" id="room-edit-trangThai" required>
+                    <option value="AVAILABLE">AVAILABLE</option><option value="OCCUPIED">OCCUPIED</option><option value="MAINTENANCE">MAINTENANCE</option><option value="CLEANING">CLEANING</option>
+                </select>
+                <input class="rounded-lg border px-3 py-2" id="room-edit-loaiPhongId" placeholder="ID loại phòng" required type="number">
+                <input class="rounded-lg border px-3 py-2" id="room-edit-imageUrl" placeholder="Image URL">
+                <div class="md:col-span-2 flex justify-end gap-2">
+                    <button class="rounded-lg border px-4 py-2" data-close="modal-room" type="button">Hủy</button>
+                    <button class="rounded-lg bg-indigo-600 px-4 py-2 text-white" type="submit">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </section>
 </body>
 </html>

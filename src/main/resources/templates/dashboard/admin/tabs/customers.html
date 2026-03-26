@@ -10,6 +10,22 @@
         <button class="rounded-lg bg-indigo-600 px-4 py-2 text-white md:col-span-3" type="submit">Thêm khách hàng</button>
     </form>
     <div class="overflow-x-auto"><table class="min-w-full text-sm"><thead><tr class="border-b text-left"><th class="p-2">Tên</th><th class="p-2">SĐT</th><th class="p-2">Email</th><th class="p-2">Thao tác</th></tr></thead><tbody id="table-customers"></tbody></table></div>
+
+    <div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 px-4" id="modal-customer">
+        <div class="w-full max-w-xl rounded-2xl bg-white p-5 shadow-xl">
+            <h4 class="text-lg font-semibold">Cập nhật khách hàng</h4>
+            <form class="mt-4 grid gap-3 md:grid-cols-2" id="form-customer-edit">
+                <input id="customer-edit-id" type="hidden">
+                <input class="rounded-lg border px-3 py-2" id="customer-edit-ten" placeholder="Tên khách hàng" required>
+                <input class="rounded-lg border px-3 py-2" id="customer-edit-sdt" placeholder="Số điện thoại" required>
+                <input class="rounded-lg border px-3 py-2 md:col-span-2" id="customer-edit-email" placeholder="Email" type="email">
+                <div class="md:col-span-2 flex justify-end gap-2">
+                    <button class="rounded-lg border px-4 py-2" data-close="modal-customer" type="button">Hủy</button>
+                    <button class="rounded-lg bg-indigo-600 px-4 py-2 text-white" type="submit">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </section>
 </body>
 </html>

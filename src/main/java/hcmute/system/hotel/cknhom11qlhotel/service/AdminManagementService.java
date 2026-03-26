@@ -6,18 +6,23 @@ import hcmute.system.hotel.cknhom11qlhotel.model.dto.CreateEmployeeForm;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.CustomerRequest;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.CustomerResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.DashboardStatsResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.InvoiceReportResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.PaymentReportResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.PromotionRequest;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.PromotionResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RevenueChartResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RoomRequest;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RoomResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.ServiceRequest;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.ServiceResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.DichVu;
+import hcmute.system.hotel.cknhom11qlhotel.model.enity.HoaDon;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.KhachHang;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.KhuyenMai;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.LoaiPhong;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.NhanVien;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.Phong;
+import hcmute.system.hotel.cknhom11qlhotel.model.enity.ThanhToan;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.TaiKhoan;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.AccountStatus;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.EmployeeRole;
@@ -28,13 +33,22 @@ import hcmute.system.hotel.cknhom11qlhotel.repository.KhuyenMaiRepository;
 import hcmute.system.hotel.cknhom11qlhotel.repository.LoaiPhongRepository;
 import hcmute.system.hotel.cknhom11qlhotel.repository.NhanVienRepository;
 import hcmute.system.hotel.cknhom11qlhotel.repository.PhongRepository;
+import hcmute.system.hotel.cknhom11qlhotel.repository.ThanhToanRepository;
 import hcmute.system.hotel.cknhom11qlhotel.repository.TaiKhoanRepository;
 import hcmute.system.hotel.cknhom11qlhotel.service.impl.IAdminManagementService;
+import hcmute.system.hotel.cknhom11qlhotel.util.ReportExportUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
 
 @Service
 public class AdminManagementService implements IAdminManagementService {
@@ -47,6 +61,8 @@ public class AdminManagementService implements IAdminManagementService {
     private final KhuyenMaiRepository khuyenMaiRepository;
     private final KhachHangRepository khachHangRepository;
     private final HoaDonRepository hoaDonRepository;
+    private final ThanhToanRepository thanhToanRepository;
+    private final ReportExportUtil reportExportUtil;
 
     public AdminManagementService(TaiKhoanRepository taiKhoanRepository,
                                   NhanVienRepository nhanVienRepository,
@@ -55,7 +71,9 @@ public class AdminManagementService implements IAdminManagementService {
                                   DichVuRepository dichVuRepository,
                                   KhuyenMaiRepository khuyenMaiRepository,
                                   KhachHangRepository khachHangRepository,
-                                  HoaDonRepository hoaDonRepository) {
+                                  HoaDonRepository hoaDonRepository,
+                                  ThanhToanRepository thanhToanRepository,
+                                  ReportExportUtil reportExportUtil) {
         this.taiKhoanRepository = taiKhoanRepository;
         this.nhanVienRepository = nhanVienRepository;
         this.phongRepository = phongRepository;
@@ -64,6 +82,8 @@ public class AdminManagementService implements IAdminManagementService {
         this.khuyenMaiRepository = khuyenMaiRepository;
         this.khachHangRepository = khachHangRepository;
         this.hoaDonRepository = hoaDonRepository;
+        this.thanhToanRepository = thanhToanRepository;
+        this.reportExportUtil = reportExportUtil;
     }
 
     @Override
@@ -168,6 +188,103 @@ public class AdminManagementService implements IAdminManagementService {
 
     @Override
     @Transactional(readOnly = true)
+    public RevenueChartResponse getRevenueChart() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
+        Map<YearMonth, BigDecimal> groupedRevenue = hoaDonRepository.findAllByOrderByNgayTaoAsc().stream()
+                .collect(LinkedHashMap::new,
+                        (acc, invoice) -> acc.merge(
+                                YearMonth.from(invoice.getNgayTao()),
+                                invoice.getTongTien(),
+                                BigDecimal::add),
+                        Map::putAll);
+
+        List<YearMonth> sortedKeys = groupedRevenue.keySet().stream()
+                .sorted(Comparator.naturalOrder())
+                .toList();
+
+        List<String> labels = sortedKeys.stream().map(formatter::format).toList();
+        List<BigDecimal> values = sortedKeys.stream().map(groupedRevenue::get).toList();
+        return new RevenueChartResponse(labels, values);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<InvoiceReportResponse> getLatestInvoices() {
+        return hoaDonRepository.findTop10ByOrderByNgayTaoDesc().stream()
+                .map(this::toInvoiceReport)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PaymentReportResponse> getLatestPayments() {
+        return thanhToanRepository.findTop10ByOrderByNgayThanhToanDesc().stream()
+                .map(this::toPaymentReport)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<InvoiceReportResponse> getInvoicesByFilters(Integer day, Integer month, Integer year) {
+        Predicate<HoaDon> filter = buildInvoiceFilter(day, month, year);
+        return hoaDonRepository.findTop10ByOrderByNgayTaoDesc().stream()
+                .filter(filter)
+                .map(this::toInvoiceReport)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PaymentReportResponse> getPaymentsByFilters(Integer day, Integer month, Integer year) {
+        Predicate<ThanhToan> filter = buildPaymentFilter(day, month, year);
+        return thanhToanRepository.findTop10ByOrderByNgayThanhToanDesc().stream()
+                .filter(filter)
+                .map(this::toPaymentReport)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] exportInvoicesExcel(Integer day, Integer month, Integer year) {
+        List<InvoiceReportResponse> rows = getInvoicesByFilters(day, month, year);
+        return reportExportUtil.exportToExcel(
+                "hoa_don",
+                List.of("Ma hoa don", "Ma dat phong", "Nhan vien", "Tong tien", "Ngay tao"),
+                rows.stream().map(this::invoiceRow).toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] exportPaymentsExcel(Integer day, Integer month, Integer year) {
+        List<PaymentReportResponse> rows = getPaymentsByFilters(day, month, year);
+        return reportExportUtil.exportToExcel(
+                "thanh_toan",
+                List.of("Ma thanh toan", "Ma hoa don", "Phuong thuc", "So tien", "Ngay thanh toan"),
+                rows.stream().map(this::paymentRow).toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] exportInvoicesPdf(Integer day, Integer month, Integer year) {
+        List<InvoiceReportResponse> rows = getInvoicesByFilters(day, month, year);
+        return reportExportUtil.exportToPdf(
+                "Bao cao hoa don",
+                List.of("Ma hoa don", "Ma dat phong", "Nhan vien", "Tong tien", "Ngay tao"),
+                rows.stream().map(this::invoiceRow).toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] exportPaymentsPdf(Integer day, Integer month, Integer year) {
+        List<PaymentReportResponse> rows = getPaymentsByFilters(day, month, year);
+        return reportExportUtil.exportToPdf(
+                "Bao cao thanh toan",
+                List.of("Ma thanh toan", "Ma hoa don", "Phuong thuc", "So tien", "Ngay thanh toan"),
+                rows.stream().map(this::paymentRow).toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<RoomResponse> getRooms() {
         return phongRepository.findAllByOrderByIdDesc().stream().map(this::toRoomResponse).toList();
     }
@@ -177,18 +294,18 @@ public class AdminManagementService implements IAdminManagementService {
     public RoomResponse createRoom(RoomRequest request) {
         validateRoomRequest(request);
 
-        String soPhong = request.soPhong().trim();
+        String soPhong = request.getSoPhong().trim();
         if (phongRepository.existsBySoPhong(soPhong)) {
             throw new IllegalArgumentException("Số phòng đã tồn tại");
         }
 
-        LoaiPhong loaiPhong = loaiPhongRepository.findById(request.loaiPhongId())
+        LoaiPhong loaiPhong = loaiPhongRepository.findById(request.getLoaiPhongId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy loại phòng"));
 
         Phong phong = new Phong();
         phong.setSoPhong(soPhong);
-        phong.setImageUrl(trimToNull(request.imageUrl()));
-        phong.setTrangThai(request.trangThai());
+        phong.setImageUrl(trimToNull(request.getImageUrl()));
+        phong.setTrangThai(request.getTrangThai());
         phong.setLoaiPhong(loaiPhong);
         return toRoomResponse(phongRepository.save(phong));
     }
@@ -201,17 +318,17 @@ public class AdminManagementService implements IAdminManagementService {
         Phong phong = phongRepository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phòng"));
 
-        String soPhong = request.soPhong().trim();
+        String soPhong = request.getSoPhong().trim();
         if (!soPhong.equalsIgnoreCase(phong.getSoPhong()) && phongRepository.existsBySoPhong(soPhong)) {
             throw new IllegalArgumentException("Số phòng đã tồn tại");
         }
 
-        LoaiPhong loaiPhong = loaiPhongRepository.findById(request.loaiPhongId())
+        LoaiPhong loaiPhong = loaiPhongRepository.findById(request.getLoaiPhongId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy loại phòng"));
 
         phong.setSoPhong(soPhong);
-        phong.setImageUrl(trimToNull(request.imageUrl()));
-        phong.setTrangThai(request.trangThai());
+        phong.setImageUrl(trimToNull(request.getImageUrl()));
+        phong.setTrangThai(request.getTrangThai());
         phong.setLoaiPhong(loaiPhong);
         return toRoomResponse(phong);
     }
@@ -239,9 +356,9 @@ public class AdminManagementService implements IAdminManagementService {
         validateServiceRequest(request);
 
         DichVu dichVu = new DichVu();
-        dichVu.setTen(request.ten().trim());
-        dichVu.setImageUrl(trimToNull(request.imageUrl()));
-        dichVu.setGia(request.gia());
+        dichVu.setTen(request.getTen().trim());
+        dichVu.setImageUrl(trimToNull(request.getImageUrl()));
+        dichVu.setGia(request.getGia());
         return toServiceResponse(dichVuRepository.save(dichVu));
     }
 
@@ -252,9 +369,9 @@ public class AdminManagementService implements IAdminManagementService {
 
         DichVu dichVu = dichVuRepository.findById(serviceId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy dịch vụ"));
-        dichVu.setTen(request.ten().trim());
-        dichVu.setImageUrl(trimToNull(request.imageUrl()));
-        dichVu.setGia(request.gia());
+        dichVu.setTen(request.getTen().trim());
+        dichVu.setImageUrl(trimToNull(request.getImageUrl()));
+        dichVu.setGia(request.getGia());
         return toServiceResponse(dichVu);
     }
 
@@ -281,9 +398,9 @@ public class AdminManagementService implements IAdminManagementService {
         validatePromotionRequest(request);
 
         KhuyenMai khuyenMai = new KhuyenMai();
-        khuyenMai.setTen(request.ten().trim());
-        khuyenMai.setLoaiGiam(request.loaiGiam());
-        khuyenMai.setGiaTri(request.giaTri());
+        khuyenMai.setTen(request.getTen().trim());
+        khuyenMai.setLoaiGiam(request.getLoaiGiam());
+        khuyenMai.setGiaTri(request.getGiaTri());
         return toPromotionResponse(khuyenMaiRepository.save(khuyenMai));
     }
 
@@ -294,9 +411,9 @@ public class AdminManagementService implements IAdminManagementService {
 
         KhuyenMai khuyenMai = khuyenMaiRepository.findById(promotionId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khuyến mãi"));
-        khuyenMai.setTen(request.ten().trim());
-        khuyenMai.setLoaiGiam(request.loaiGiam());
-        khuyenMai.setGiaTri(request.giaTri());
+        khuyenMai.setTen(request.getTen().trim());
+        khuyenMai.setLoaiGiam(request.getLoaiGiam());
+        khuyenMai.setGiaTri(request.getGiaTri());
         return toPromotionResponse(khuyenMai);
     }
 
@@ -322,18 +439,18 @@ public class AdminManagementService implements IAdminManagementService {
     public CustomerResponse createCustomer(CustomerRequest request) {
         validateCustomerRequest(request);
 
-        String sdt = request.sdt().trim();
+        String sdt = request.getSdt().trim();
         if (khachHangRepository.existsBySdt(sdt)) {
             throw new IllegalArgumentException("Số điện thoại đã tồn tại");
         }
 
-        String email = trimToNull(request.email());
+        String email = trimToNull(request.getEmail());
         if (email != null && khachHangRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Email đã tồn tại");
         }
 
         KhachHang khachHang = new KhachHang();
-        khachHang.setTen(request.ten().trim());
+        khachHang.setTen(request.getTen().trim());
         khachHang.setSdt(sdt);
         khachHang.setEmail(email);
         return toCustomerResponse(khachHangRepository.save(khachHang));
@@ -347,18 +464,18 @@ public class AdminManagementService implements IAdminManagementService {
         KhachHang khachHang = khachHangRepository.findById(customerId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khách hàng"));
 
-        String sdt = request.sdt().trim();
+        String sdt = request.getSdt().trim();
         if (!sdt.equalsIgnoreCase(khachHang.getSdt()) && khachHangRepository.existsBySdt(sdt)) {
             throw new IllegalArgumentException("Số điện thoại đã tồn tại");
         }
 
-        String email = trimToNull(request.email());
+        String email = trimToNull(request.getEmail());
         if (email != null && !email.equalsIgnoreCase(trimToNull(khachHang.getEmail()))
                 && khachHangRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Email đã tồn tại");
         }
 
-        khachHang.setTen(request.ten().trim());
+        khachHang.setTen(request.getTen().trim());
         khachHang.setSdt(sdt);
         khachHang.setEmail(email);
         return toCustomerResponse(khachHang);
@@ -396,6 +513,64 @@ public class AdminManagementService implements IAdminManagementService {
         return new CustomerResponse(khachHang.getId(), khachHang.getTen(), khachHang.getSdt(), khachHang.getEmail());
     }
 
+    private InvoiceReportResponse toInvoiceReport(HoaDon hoaDon) {
+        return new InvoiceReportResponse(
+                hoaDon.getId(),
+                hoaDon.getDatPhong() != null ? hoaDon.getDatPhong().getId() : null,
+                hoaDon.getNhanVien() != null ? hoaDon.getNhanVien().getTen() : "",
+                hoaDon.getTongTien(),
+                hoaDon.getNgayTao());
+    }
+
+    private PaymentReportResponse toPaymentReport(ThanhToan thanhToan) {
+        return new PaymentReportResponse(
+                thanhToan.getId(),
+                thanhToan.getHoaDon() != null ? thanhToan.getHoaDon().getId() : null,
+                thanhToan.getPhuongThuc(),
+                thanhToan.getSoTien(),
+                thanhToan.getNgayThanhToan());
+    }
+
+    private Predicate<HoaDon> buildInvoiceFilter(Integer day, Integer month, Integer year) {
+        return invoice -> {
+            LocalDate date = invoice.getNgayTao().toLocalDate();
+            boolean yearOk = year == null || date.getYear() == year;
+            boolean monthOk = month == null || date.getMonthValue() == month;
+            boolean dayOk = day == null || date.getDayOfMonth() == day;
+            return yearOk && monthOk && dayOk;
+        };
+    }
+
+    private Predicate<ThanhToan> buildPaymentFilter(Integer day, Integer month, Integer year) {
+        return payment -> {
+            LocalDate date = payment.getNgayThanhToan().toLocalDate();
+            boolean yearOk = year == null || date.getYear() == year;
+            boolean monthOk = month == null || date.getMonthValue() == month;
+            boolean dayOk = day == null || date.getDayOfMonth() == day;
+            return yearOk && monthOk && dayOk;
+        };
+    }
+
+    private List<String> invoiceRow(InvoiceReportResponse row) {
+        return List.of(
+                String.valueOf(row.getHoaDonId()),
+                row.getDatPhongId() == null ? "" : String.valueOf(row.getDatPhongId()),
+                row.getNhanVien() == null ? "" : row.getNhanVien(),
+                row.getTongTien() == null ? "0" : row.getTongTien().toPlainString(),
+                row.getNgayTao() == null ? "" : row.getNgayTao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+        );
+    }
+
+    private List<String> paymentRow(PaymentReportResponse row) {
+        return List.of(
+                String.valueOf(row.getThanhToanId()),
+                row.getHoaDonId() == null ? "" : String.valueOf(row.getHoaDonId()),
+                row.getPhuongThuc() == null ? "" : row.getPhuongThuc().name(),
+                row.getSoTien() == null ? "0" : row.getSoTien().toPlainString(),
+                row.getNgayThanhToan() == null ? "" : row.getNgayThanhToan().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+        );
+    }
+
     private void validateCreateForm(CreateEmployeeForm form) {
         if (form == null
                 || isBlank(form.getEmployeeName())
@@ -408,26 +583,26 @@ public class AdminManagementService implements IAdminManagementService {
     }
 
     private void validateRoomRequest(RoomRequest request) {
-        if (request == null || isBlank(request.soPhong()) || request.trangThai() == null || request.loaiPhongId() == null) {
+        if (request == null || isBlank(request.getSoPhong()) || request.getTrangThai() == null || request.getLoaiPhongId() == null) {
             throw new IllegalArgumentException("Dữ liệu phòng không hợp lệ");
         }
     }
 
     private void validateServiceRequest(ServiceRequest request) {
-        if (request == null || isBlank(request.ten()) || request.gia() == null || request.gia().signum() <= 0) {
+        if (request == null || isBlank(request.getTen()) || request.getGia() == null || request.getGia().signum() <= 0) {
             throw new IllegalArgumentException("Dữ liệu dịch vụ không hợp lệ");
         }
     }
 
     private void validatePromotionRequest(PromotionRequest request) {
-        if (request == null || isBlank(request.ten()) || request.loaiGiam() == null
-                || request.giaTri() == null || request.giaTri().signum() <= 0) {
+        if (request == null || isBlank(request.getTen()) || request.getLoaiGiam() == null
+                || request.getGiaTri() == null || request.getGiaTri().signum() <= 0) {
             throw new IllegalArgumentException("Dữ liệu khuyến mãi không hợp lệ");
         }
     }
 
     private void validateCustomerRequest(CustomerRequest request) {
-        if (request == null || isBlank(request.ten()) || isBlank(request.sdt())) {
+        if (request == null || isBlank(request.getTen()) || isBlank(request.getSdt())) {
             throw new IllegalArgumentException("Dữ liệu khách hàng không hợp lệ");
         }
     }

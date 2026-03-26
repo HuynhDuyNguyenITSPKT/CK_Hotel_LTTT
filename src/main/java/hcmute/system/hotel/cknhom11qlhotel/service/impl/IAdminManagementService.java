@@ -6,8 +6,11 @@ import hcmute.system.hotel.cknhom11qlhotel.model.dto.CreateEmployeeForm;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.CustomerRequest;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.CustomerResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.DashboardStatsResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.InvoiceReportResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.PaymentReportResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.PromotionRequest;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.PromotionResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RevenueChartResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RoomRequest;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RoomResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.ServiceRequest;
@@ -29,6 +32,24 @@ public interface IAdminManagementService {
     void updateEmployeeRole(Long employeeId, EmployeeRole role);
 
     DashboardStatsResponse getDashboardStats();
+
+    RevenueChartResponse getRevenueChart();
+
+    List<InvoiceReportResponse> getLatestInvoices();
+
+    List<PaymentReportResponse> getLatestPayments();
+
+    List<InvoiceReportResponse> getInvoicesByFilters(Integer day, Integer month, Integer year);
+
+    List<PaymentReportResponse> getPaymentsByFilters(Integer day, Integer month, Integer year);
+
+    byte[] exportInvoicesExcel(Integer day, Integer month, Integer year);
+
+    byte[] exportPaymentsExcel(Integer day, Integer month, Integer year);
+
+    byte[] exportInvoicesPdf(Integer day, Integer month, Integer year);
+
+    byte[] exportPaymentsPdf(Integer day, Integer month, Integer year);
 
     List<RoomResponse> getRooms();
 

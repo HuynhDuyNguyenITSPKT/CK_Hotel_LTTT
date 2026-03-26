@@ -10,6 +10,22 @@
         <button class="rounded-lg bg-indigo-600 px-4 py-2 text-white md:col-span-3" type="submit">Thêm dịch vụ</button>
     </form>
     <div class="overflow-x-auto"><table class="min-w-full text-sm"><thead><tr class="border-b text-left"><th class="p-2">Tên</th><th class="p-2">Giá</th><th class="p-2">Thao tác</th></tr></thead><tbody id="table-services"></tbody></table></div>
+
+    <div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 px-4" id="modal-service">
+        <div class="w-full max-w-xl rounded-2xl bg-white p-5 shadow-xl">
+            <h4 class="text-lg font-semibold">Cập nhật dịch vụ</h4>
+            <form class="mt-4 grid gap-3 md:grid-cols-2" id="form-service-edit">
+                <input id="service-edit-id" type="hidden">
+                <input class="rounded-lg border px-3 py-2" id="service-edit-ten" placeholder="Tên dịch vụ" required>
+                <input class="rounded-lg border px-3 py-2" id="service-edit-gia" placeholder="Giá" required type="number" step="0.01">
+                <input class="rounded-lg border px-3 py-2 md:col-span-2" id="service-edit-imageUrl" placeholder="Image URL">
+                <div class="md:col-span-2 flex justify-end gap-2">
+                    <button class="rounded-lg border px-4 py-2" data-close="modal-service" type="button">Hủy</button>
+                    <button class="rounded-lg bg-indigo-600 px-4 py-2 text-white" type="submit">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </section>
 </body>
 </html>

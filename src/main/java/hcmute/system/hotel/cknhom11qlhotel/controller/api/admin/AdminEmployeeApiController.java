@@ -48,11 +48,11 @@ public class AdminEmployeeApiController {
         }
 
         CreateEmployeeForm form = new CreateEmployeeForm();
-        form.setEmployeeName(request.employeeName());
-        form.setRole(request.role());
-        form.setUsername(request.username());
-        form.setEmail(request.email());
-        form.setPassword(request.password());
+        form.setEmployeeName(request.getEmployeeName());
+        form.setRole(request.getRole());
+        form.setUsername(request.getUsername());
+        form.setEmail(request.getEmail());
+        form.setPassword(request.getPassword());
 
         adminManagementService.createEmployeeWithAccount(form);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiMessage("Tạo nhân viên thành công"));
@@ -67,7 +67,7 @@ public class AdminEmployeeApiController {
             return forbidden;
         }
 
-        adminManagementService.updateEmployeeRole(employeeId, request.role());
+        adminManagementService.updateEmployeeRole(employeeId, request.getRole());
         return ResponseEntity.ok(new ApiMessage("Cập nhật vai trò nhân viên thành công"));
     }
 }

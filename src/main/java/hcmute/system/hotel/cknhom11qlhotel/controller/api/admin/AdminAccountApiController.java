@@ -44,7 +44,7 @@ public class AdminAccountApiController {
             return forbidden;
         }
 
-        adminManagementService.updateAccountStatus(accountId, request.status());
+        adminManagementService.updateAccountStatus(accountId, request.getStatus());
         return ResponseEntity.ok(new ApiMessage("Cập nhật trạng thái tài khoản thành công"));
     }
 }
