@@ -6,6 +6,19 @@
 
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
+        <class>hcmute.system.hotel.cknhom11qlhotel.model.enity.ChiTietDatPhong</class>
+        <class>hcmute.system.hotel.cknhom11qlhotel.model.enity.DatPhong</class>
+        <class>hcmute.system.hotel.cknhom11qlhotel.model.enity.DichVu</class>
+        <class>hcmute.system.hotel.cknhom11qlhotel.model.enity.HoaDon</class>
+        <class>hcmute.system.hotel.cknhom11qlhotel.model.enity.KhachHang</class>
+        <class>hcmute.system.hotel.cknhom11qlhotel.model.enity.KhuyenMai</class>
+        <class>hcmute.system.hotel.cknhom11qlhotel.model.enity.LoaiPhong</class>
+        <class>hcmute.system.hotel.cknhom11qlhotel.model.enity.NhanVien</class>
+        <class>hcmute.system.hotel.cknhom11qlhotel.model.enity.Phong</class>
+        <class>hcmute.system.hotel.cknhom11qlhotel.model.enity.SuDungDichVu</class>
+        <class>hcmute.system.hotel.cknhom11qlhotel.model.enity.TaiKhoan</class>
+        <class>hcmute.system.hotel.cknhom11qlhotel.model.enity.ThanhToan</class>
+
         <properties>
             <!-- MySQL connection -->
             <property name="jakarta.persistence.jdbc.url"
