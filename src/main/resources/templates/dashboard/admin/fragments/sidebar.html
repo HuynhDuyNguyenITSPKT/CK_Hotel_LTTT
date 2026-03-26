@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside class="bg-slate-900 text-slate-100" th:fragment="sidebar(currentUser)">
+    <div class="border-b border-slate-800 px-6 py-5">
+        <h1 class="text-lg font-bold"><i class="fa-solid fa-hotel mr-2"></i>Hotel Admin</h1>
+        <p class="mt-2 text-sm text-slate-300" th:text="'Xin chào, ' + ${currentUser.employeeName}"></p>
+    </div>
+    <nav class="space-y-1 px-3 py-4 text-sm">
+        <button class="nav-btn w-full rounded-lg px-3 py-2 text-left hover:bg-slate-800" data-section="section-dashboard">
+            <i class="fa-solid fa-chart-column mr-2"></i>Tổng quan
+        </button>
+        <button class="nav-btn w-full rounded-lg px-3 py-2 text-left hover:bg-slate-800" data-section="section-accounts">
+            <i class="fa-solid fa-user-shield mr-2"></i>Tài khoản
+        </button>
+        <button class="nav-btn w-full rounded-lg px-3 py-2 text-left hover:bg-slate-800" data-section="section-employees">
+            <i class="fa-solid fa-users-gear mr-2"></i>Nhân viên
+        </button>
+        <button class="nav-btn w-full rounded-lg px-3 py-2 text-left hover:bg-slate-800" data-section="section-rooms">
+            <i class="fa-solid fa-door-open mr-2"></i>Phòng
+        </button>
+        <button class="nav-btn w-full rounded-lg px-3 py-2 text-left hover:bg-slate-800" data-section="section-services">
+            <i class="fa-solid fa-bell-concierge mr-2"></i>Dịch vụ
+        </button>
+        <button class="nav-btn w-full rounded-lg px-3 py-2 text-left hover:bg-slate-800" data-section="section-promotions">
+            <i class="fa-solid fa-tags mr-2"></i>Khuyến mãi
+        </button>
+        <button class="nav-btn w-full rounded-lg px-3 py-2 text-left hover:bg-slate-800" data-section="section-customers">
+            <i class="fa-solid fa-address-book mr-2"></i>Khách hàng
+        </button>
+    </nav>
+    <div class="px-6 pb-6">
+        <form method="post" th:action="@{/logout}">
+            <button class="w-full rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700" type="submit">
+                <i class="fa-solid fa-right-from-bracket mr-2"></i>Đăng xuất
+            </button>
+        </form>
+    </div>
+</aside>
+</body>
+</html>
+

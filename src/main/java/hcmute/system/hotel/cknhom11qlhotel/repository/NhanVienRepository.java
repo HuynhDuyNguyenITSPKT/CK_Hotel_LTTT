@@ -2,25 +2,27 @@ package hcmute.system.hotel.cknhom11qlhotel.repository;
 
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.NhanVien;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.EmployeeRole;
-import jakarta.persistence.EntityManager;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface NhanVienRepository {
+public interface NhanVienRepository extends JpaRepository<NhanVien, Long> {
 
-    long countByRole(EntityManager em, EmployeeRole role);
+    long countByRole(EmployeeRole role);
 
-    long countByTaiKhoanId(EntityManager em, Long taiKhoanId);
+    long countByTaiKhoanId(Long taiKhoanId);
 
-    Optional<NhanVien> findByTaiKhoanId(EntityManager em, Long taiKhoanId);
+    @Query("select n from NhanVien n join fetch n.taiKhoan t where t.id = :taiKhoanId")
+    Optional<NhanVien> findByTaiKhoanId(Long taiKhoanId);
 
-    Optional<NhanVien> findByUsername(EntityManager em, String username);
+    @Query("select n from NhanVien n join fetch n.taiKhoan t where lower(t.username) = lower(:username)")
+    Optional<NhanVien> findByUsername(String username);
 
-    Optional<NhanVien> findById(EntityManager em, Long id);
+    @Query("select n from NhanVien n join fetch n.taiKhoan t where n.id = :id")
+    Optional<NhanVien> findByIdWithTaiKhoan(Long id);
 
-    List<NhanVien> findAllWithTaiKhoan(EntityManager em);
-
-    void save(EntityManager em, NhanVien nhanVien);
+    @Query("select n from NhanVien n join fetch n.taiKhoan t order by n.id desc")
+    List<NhanVien> findAllWithTaiKhoan();
 }
-

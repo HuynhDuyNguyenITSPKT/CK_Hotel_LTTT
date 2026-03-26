@@ -1,6 +1,5 @@
 package hcmute.system.hotel.cknhom11qlhotel.service;
 
-import hcmute.system.hotel.cknhom11qlhotel.config.TransactionManager;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.LoginSession;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.NhanVien;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.TaiKhoan;
@@ -10,52 +9,47 @@ import hcmute.system.hotel.cknhom11qlhotel.service.impl.IAuthService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 public class AuthService implements IAuthService {
 
-	private final TransactionManager transactionManager;
-	private final NhanVienRepository nhanVienRepository;
+    private final NhanVienRepository nhanVienRepository;
 
-	public AuthService(TransactionManager transactionManager, NhanVienRepository nhanVienRepository) {
-		this.transactionManager = transactionManager;
-		this.nhanVienRepository = nhanVienRepository;
-	}
+    public AuthService(NhanVienRepository nhanVienRepository) {
+        this.nhanVienRepository = nhanVienRepository;
+    }
 
-	@Override
-	public Optional<LoginSession> authenticate(String username, String password) {
-		if (username == null || password == null || username.isBlank() || password.isBlank()) {
-			return Optional.empty();
-		}
+    @Override
+    public Optional<LoginSession> authenticate(String username, String password) {
+        if (Stream.of(username, password).anyMatch(this::isBlank)) {
+            return Optional.empty();
+        }
 
-		String normalized = username.trim();
-		try {
-			return transactionManager.runInTransaction(em -> {
-				Optional<NhanVien> nhanVienOpt = nhanVienRepository.findByUsername(em, normalized);
+        String normalizedUsername = username.trim();
+        String normalizedPassword = password.trim();
 
-				if (nhanVienOpt.isEmpty()) {
-					return Optional.empty();
-				}
+        return nhanVienRepository.findByUsername(normalizedUsername)
+                .filter(this::isAccountActive)
+                .filter(nhanVien -> normalizedPassword.equals(nhanVien.getTaiKhoan().getPassword()))
+                .map(this::toLoginSession);
+    }
 
-				NhanVien nhanVien = nhanVienOpt.get();
-				TaiKhoan taiKhoan = nhanVien.getTaiKhoan();
-				if (taiKhoan.getTrangThai() != AccountStatus.ACTIVE) {
-					return Optional.empty();
-				}
+    private boolean isAccountActive(NhanVien nhanVien) {
+        TaiKhoan taiKhoan = nhanVien.getTaiKhoan();
+        return taiKhoan != null && taiKhoan.getTrangThai() == AccountStatus.ACTIVE;
+    }
 
-				if (!password.equals(taiKhoan.getPassword())) {
-					return Optional.empty();
-				}
+    private LoginSession toLoginSession(NhanVien nhanVien) {
+        TaiKhoan taiKhoan = nhanVien.getTaiKhoan();
+        return new LoginSession(
+                nhanVien.getId(),
+                taiKhoan.getUsername(),
+                nhanVien.getTen(),
+                nhanVien.getRole());
+    }
 
-				return Optional.of(new LoginSession(
-						nhanVien.getId(),
-						taiKhoan.getUsername(),
-						nhanVien.getTen(),
-						nhanVien.getRole()));
-			});
-		} catch (Exception ex) {
-			throw new IllegalStateException("Khong the dang nhap", ex);
-		}
-	}
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
+    }
 }
-

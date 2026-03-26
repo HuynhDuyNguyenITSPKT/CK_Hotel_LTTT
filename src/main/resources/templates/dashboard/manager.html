@@ -4,67 +4,46 @@
     <meta charset="UTF-8">
     <title>Bảng điều khiển quản lý</title>
     <meta content="width=device-width, initial-scale=1" name="viewport">
-    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-light">
-<nav class="navbar navbar-expand-lg bg-primary navbar-dark shadow-sm">
-    <div class="container-fluid px-4">
-        <a class="navbar-brand fw-semibold" th:href="@{/manager/dashboard}">Hotel Manager</a>
-        <div class="d-flex align-items-center gap-3 text-white">
-            <span class="small" th:text="'Xin chào, ' + ${currentUser.employeeName}"></span>
-            <form class="m-0" method="post" th:action="@{/logout}">
-                <button class="btn btn-outline-light btn-sm" type="submit">Đăng xuất</button>
+<body class="bg-slate-100 text-slate-800">
+<div class="min-h-screen lg:grid lg:grid-cols-[260px_1fr]">
+    <aside class="bg-indigo-900 text-indigo-50">
+        <div class="px-6 py-5 border-b border-indigo-800">
+            <h1 class="font-bold text-lg"><i class="fa-solid fa-user-tie mr-2"></i>Manager Panel</h1>
+            <p class="text-sm text-indigo-200 mt-2" th:text="'Xin chào, ' + ${currentUser.employeeName}"></p>
+        </div>
+        <nav class="px-4 py-4 space-y-2 text-sm">
+            <div class="rounded-lg bg-indigo-800 px-3 py-2"><i class="fa-solid fa-chart-line mr-2"></i>Tổng quan</div>
+            <div class="rounded-lg hover:bg-indigo-800 px-3 py-2"><i class="fa-solid fa-bed mr-2"></i>Tình trạng phòng</div>
+            <div class="rounded-lg hover:bg-indigo-800 px-3 py-2"><i class="fa-solid fa-clipboard-list mr-2"></i>Đặt phòng chờ duyệt</div>
+            <div class="rounded-lg hover:bg-indigo-800 px-3 py-2"><i class="fa-solid fa-users mr-2"></i>Phân công ca</div>
+        </nav>
+        <div class="px-6 pb-6">
+            <form method="post" th:action="@{/logout}">
+                <button class="w-full rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700" type="submit">Đăng xuất</button>
             </form>
         </div>
-    </div>
-</nav>
+    </aside>
 
-<main class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 m-0">Bảng điều khiển quản lý</h1>
-        <span class="badge text-bg-primary">Role: MANAGER</span>
-    </div>
-
-    <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <h2 class="h6 text-secondary">Phòng trống hôm nay</h2>
-                    <p class="display-6 fw-semibold mb-0">24</p>
-                </div>
-            </div>
+    <main class="p-6 space-y-4">
+        <h2 class="text-2xl font-bold">Bảng điều khiển quản lý</h2>
+        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div class="rounded-xl bg-white p-4 shadow-sm"><p class="text-sm text-slate-500">Phòng trống hôm nay</p><p class="text-2xl font-bold">24</p></div>
+            <div class="rounded-xl bg-white p-4 shadow-sm"><p class="text-sm text-slate-500">Đặt phòng chờ duyệt</p><p class="text-2xl font-bold">08</p></div>
+            <div class="rounded-xl bg-white p-4 shadow-sm"><p class="text-sm text-slate-500">Khách check-in dự kiến</p><p class="text-2xl font-bold">16</p></div>
+            <div class="rounded-xl bg-white p-4 shadow-sm"><p class="text-sm text-slate-500">Doanh thu dự kiến</p><p class="text-2xl font-bold">42.000.000</p></div>
         </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <h2 class="h6 text-secondary">Đặt phòng chờ xử lý</h2>
-                    <p class="display-6 fw-semibold mb-0">08</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <h2 class="h6 text-secondary">Doanh thu dự kiến</h2>
-                    <p class="display-6 fw-semibold mb-0">42M</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="card border-0 shadow-sm">
-        <div class="card-body">
-            <h2 class="h5">Công việc ưu tiên</h2>
-            <ul class="mb-0">
-                <li>Kiểm tra tình trạng phòng sắp check-in.</li>
-                <li>Duyệt danh sách đặt phòng online.</li>
-                <li>Phân công ca trực cho nhân viên lễ tân.</li>
+        <section class="rounded-xl bg-white p-4 shadow-sm">
+            <h3 class="font-semibold">Việc ưu tiên trong ngày</h3>
+            <ul class="mt-3 list-disc space-y-2 pl-5 text-sm">
+                <li>Kiểm tra phòng sắp check-in và phòng đang bảo trì.</li>
+                <li>Duyệt danh sách đặt phòng online đang chờ xác nhận.</li>
+                <li>Phân công ca trực cho lễ tân theo lưu lượng khách.</li>
             </ul>
-        </div>
-    </div>
-</main>
-
-<script crossorigin="anonymous" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        </section>
+    </main>
+</div>
 </body>
 </html>
-
