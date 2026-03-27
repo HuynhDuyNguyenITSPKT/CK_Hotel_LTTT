@@ -12,5 +12,7 @@ public interface PhongRepository extends JpaRepository<Phong, Long> {
     List<Phong> findAllByOrderByIdDesc();
 
     boolean existsBySoPhong(String soPhong);
+
+    boolean existsByLoaiPhong_Id(Long loaiPhongId);
 }
 

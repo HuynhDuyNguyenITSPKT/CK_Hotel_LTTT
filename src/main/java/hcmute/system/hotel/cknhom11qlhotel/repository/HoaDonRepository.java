@@ -16,6 +16,9 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Long> {
     @EntityGraph(attributePaths = {"nhanVien", "datPhong"})
     List<HoaDon> findTop10ByOrderByNgayTaoDesc();
 
+    @EntityGraph(attributePaths = {"nhanVien", "datPhong"})
+    List<HoaDon> findAllByOrderByNgayTaoDesc();
+
     List<HoaDon> findAllByOrderByNgayTaoAsc();
 }
 

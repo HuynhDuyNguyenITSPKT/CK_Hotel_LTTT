@@ -13,6 +13,7 @@ import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.PromotionResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RevenueChartResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RoomRequest;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RoomResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RoomTypeRequest;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.ServiceRequest;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.ServiceResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.LoaiPhong;
@@ -53,6 +54,12 @@ public interface IAdminManagementService {
     List<RoomResponse> getRooms();
 
     List<LoaiPhong> getRoomTypes();
+
+    LoaiPhong createRoomType(RoomTypeRequest request, MultipartFile imageFile);
+
+    LoaiPhong updateRoomType(Long roomTypeId, RoomTypeRequest request, MultipartFile imageFile);
+
+    void deleteRoomType(Long roomTypeId);
 
     RoomResponse createRoom(RoomRequest request, MultipartFile imageFile);
 

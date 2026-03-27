@@ -48,6 +48,13 @@
             </tbody>
         </table>
     </div>
+    <div class="mt-4 flex items-center justify-between text-sm text-slate-600" th:if="${totalPages > 1}">
+        <p th:text="'Trang ' + ${page} + ' / ' + ${totalPages} + ' - Tổng: ' + ${totalItems}"></p>
+        <div class="flex gap-2">
+            <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/admin/dashboard(tab='customers',page=${page-1},size=${size})}" th:if="${hasPrev}">Trước</a>
+            <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/admin/dashboard(tab='customers',page=${page+1},size=${size})}" th:if="${hasNext}">Sau</a>
+        </div>
+    </div>
 </section>
 </body>
 </html>

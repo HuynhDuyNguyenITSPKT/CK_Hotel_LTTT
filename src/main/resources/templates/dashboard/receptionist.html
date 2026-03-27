@@ -9,7 +9,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800">
 <div class="min-h-screen lg:grid lg:grid-cols-[260px_1fr]">
-    <aside class="bg-emerald-800 text-emerald-50">
+    <aside class="bg-emerald-800 text-emerald-50 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
         <div class="px-6 py-5 border-b border-emerald-700">
             <h1 class="font-bold text-lg"><i class="fa-solid fa-bell-concierge mr-2"></i>Reception Panel</h1>
             <p class="text-sm text-emerald-200 mt-2" th:text="'Xin chào, ' + ${currentUser.employeeName}"></p>
@@ -43,10 +43,28 @@
                 <table class="min-w-full text-sm">
                     <thead><tr class="border-b text-left"><th class="p-2">Khách hàng</th><th class="p-2">Loại yêu cầu</th><th class="p-2">Trạng thái</th></tr></thead>
                     <tbody>
-                    <tr class="border-b"><td class="p-2">Trần Thị B</td><td class="p-2">Check-out</td><td class="p-2"><span class="rounded-full bg-amber-100 px-2 py-1 text-amber-700">Chờ xử lý</span></td></tr>
-                    <tr class="border-b"><td class="p-2">Phạm Văn C</td><td class="p-2">Gia hạn phòng</td><td class="p-2"><span class="rounded-full bg-cyan-100 px-2 py-1 text-cyan-700">Đã tiếp nhận</span></td></tr>
+                    <tr class="border-b" th:classappend="${iter.odd} ? ' bg-slate-50'" th:each="request,iter : ${receptionistRequests}">
+                        <td class="p-2" th:text="${request.customerName}"></td>
+                        <td class="p-2" th:text="${request.requestType}"></td>
+                        <td class="p-2">
+                            <span class="rounded-full px-2 py-1"
+                                  th:classappend="${request.tone == 'amber'} ? ' bg-amber-100 text-amber-700' : ' bg-cyan-100 text-cyan-700'"
+                                  th:text="${request.status}"></span>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
+            </div>
+            <div class="mt-4 flex items-center justify-between text-sm text-slate-600" th:if="${receptionistTotalPages > 1}">
+                <p th:text="'Trang ' + ${receptionistPage} + ' / ' + ${receptionistTotalPages} + ' - Tổng: ' + ${receptionistTotalItems}"></p>
+                <div class="flex gap-2">
+                    <a class="rounded border px-3 py-1 hover:bg-slate-100"
+                       th:href="@{/receptionist/dashboard(page=${receptionistPage-1},size=${receptionistSize})}"
+                       th:if="${receptionistHasPrev}">Trước</a>
+                    <a class="rounded border px-3 py-1 hover:bg-slate-100"
+                       th:href="@{/receptionist/dashboard(page=${receptionistPage+1},size=${receptionistSize})}"
+                       th:if="${receptionistHasNext}">Sau</a>
+                </div>
             </div>
         </section>
     </main>

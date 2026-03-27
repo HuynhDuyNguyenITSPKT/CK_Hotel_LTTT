@@ -13,6 +13,7 @@ import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.PromotionResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RevenueChartResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RoomRequest;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RoomResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RoomTypeRequest;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.ServiceRequest;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.ServiceResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.DichVu;
@@ -217,7 +218,7 @@ public class AdminManagementService implements IAdminManagementService {
     @Transactional(readOnly = true)
     public List<InvoiceReportResponse> getInvoicesByFilters(Integer day, Integer month, Integer year) {
         Predicate<HoaDon> filter = buildInvoiceFilter(day, month, year);
-        return hoaDonRepository.findTop10ByOrderByNgayTaoDesc().stream()
+        return hoaDonRepository.findAllByOrderByNgayTaoDesc().stream()
                 .filter(filter)
                 .map(this::toInvoiceReport)
                 .toList();
@@ -227,7 +228,7 @@ public class AdminManagementService implements IAdminManagementService {
     @Transactional(readOnly = true)
     public List<PaymentReportResponse> getPaymentsByFilters(Integer day, Integer month, Integer year) {
         Predicate<ThanhToan> filter = buildPaymentFilter(day, month, year);
-        return thanhToanRepository.findTop10ByOrderByNgayThanhToanDesc().stream()
+        return thanhToanRepository.findAllByOrderByNgayThanhToanDesc().stream()
                 .filter(filter)
                 .map(this::toPaymentReport)
                 .toList();
@@ -285,6 +286,58 @@ public class AdminManagementService implements IAdminManagementService {
         return loaiPhongRepository.findAll().stream()
                 .sorted(Comparator.comparing(LoaiPhong::getId))
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public LoaiPhong createRoomType(RoomTypeRequest request, MultipartFile imageFile) {
+        validateRoomTypeRequest(request);
+
+        String tenLoai = request.getTenLoai().trim();
+        if (loaiPhongRepository.existsByTenLoaiIgnoreCase(tenLoai)) {
+            throw new IllegalArgumentException("Tên loại phòng đã tồn tại");
+        }
+
+        LoaiPhong loaiPhong = new LoaiPhong();
+        loaiPhong.setTenLoai(tenLoai);
+        loaiPhong.setMoTa(trimToNull(request.getMoTa()));
+        loaiPhong.setImageUrl(resolveImageUrl(request.getImageUrl(), imageFile, "hotel/room-types"));
+        loaiPhong.setGiaCoBan(request.getGiaCoBan());
+        return loaiPhongRepository.save(loaiPhong);
+    }
+
+    @Override
+    @Transactional
+    public LoaiPhong updateRoomType(Long roomTypeId, RoomTypeRequest request, MultipartFile imageFile) {
+        validateRoomTypeRequest(request);
+
+        LoaiPhong loaiPhong = loaiPhongRepository.findById(roomTypeId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy loại phòng"));
+
+        String tenLoai = request.getTenLoai().trim();
+        if (!tenLoai.equalsIgnoreCase(loaiPhong.getTenLoai()) && loaiPhongRepository.existsByTenLoaiIgnoreCase(tenLoai)) {
+            throw new IllegalArgumentException("Tên loại phòng đã tồn tại");
+        }
+
+        String imageUrl = resolveImageUrl(request.getImageUrl(), imageFile, "hotel/room-types");
+
+        loaiPhong.setTenLoai(tenLoai);
+        loaiPhong.setMoTa(trimToNull(request.getMoTa()));
+        loaiPhong.setImageUrl(imageUrl != null ? imageUrl : loaiPhong.getImageUrl());
+        loaiPhong.setGiaCoBan(request.getGiaCoBan());
+        return loaiPhong;
+    }
+
+    @Override
+    @Transactional
+    public void deleteRoomType(Long roomTypeId) {
+        if (!loaiPhongRepository.existsById(roomTypeId)) {
+            throw new IllegalArgumentException("Không tìm thấy loại phòng");
+        }
+        if (phongRepository.existsByLoaiPhong_Id(roomTypeId)) {
+            throw new IllegalArgumentException("Không thể xóa loại phòng đang được sử dụng");
+        }
+        loaiPhongRepository.deleteById(roomTypeId);
     }
 
     @Override
@@ -587,6 +640,12 @@ public class AdminManagementService implements IAdminManagementService {
     private void validateRoomRequest(RoomRequest request) {
         if (request == null || isBlank(request.getSoPhong()) || request.getTrangThai() == null || request.getLoaiPhongId() == null) {
             throw new IllegalArgumentException("Dữ liệu phòng không hợp lệ");
+        }
+    }
+
+    private void validateRoomTypeRequest(RoomTypeRequest request) {
+        if (request == null || isBlank(request.getTenLoai()) || request.getGiaCoBan() == null || request.getGiaCoBan().signum() <= 0) {
+            throw new IllegalArgumentException("Dữ liệu loại phòng không hợp lệ");
         }
     }
 

@@ -10,5 +10,8 @@ public interface ThanhToanRepository extends JpaRepository<ThanhToan, Long> {
 
     @EntityGraph(attributePaths = {"hoaDon"})
     List<ThanhToan> findTop10ByOrderByNgayThanhToanDesc();
+
+    @EntityGraph(attributePaths = {"hoaDon"})
+    List<ThanhToan> findAllByOrderByNgayThanhToanDesc();
 }
 

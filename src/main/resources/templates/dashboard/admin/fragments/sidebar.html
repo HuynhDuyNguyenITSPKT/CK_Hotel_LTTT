@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <body>
-<aside class="relative overflow-hidden bg-slate-950 text-slate-100" th:fragment="sidebar(currentUser, activeTab)">
+<aside class="relative overflow-hidden bg-slate-950 text-slate-100 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto" th:fragment="sidebar(currentUser, activeTab)">
     <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,rgba(20,184,166,0.35),transparent_42%),radial-gradient(circle_at_100%_15%,rgba(249,115,22,0.28),transparent_36%)]"></div>
     <div class="relative border-b border-slate-800/90 px-6 py-6">
         <span class="inline-flex items-center rounded-full border border-amber-300/40 bg-amber-200/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-200">Control Room</span>
@@ -20,6 +20,9 @@
         </a>
         <a class="block w-full rounded-xl px-3 py-2.5 text-left transition hover:bg-slate-800/80" th:classappend="${activeTab == 'rooms'} ? ' bg-slate-800 ring-1 ring-slate-700'" th:href="@{/admin/dashboard(tab='rooms')}">
             <i class="fa-solid fa-door-open mr-2"></i>Phòng
+        </a>
+        <a class="block w-full rounded-xl px-3 py-2.5 text-left transition hover:bg-slate-800/80" th:classappend="${activeTab == 'room-types'} ? ' bg-slate-800 ring-1 ring-slate-700'" th:href="@{/admin/dashboard(tab='room-types')}">
+            <i class="fa-solid fa-bed mr-2"></i>Loại phòng
         </a>
         <a class="block w-full rounded-xl px-3 py-2.5 text-left transition hover:bg-slate-800/80" th:classappend="${activeTab == 'services'} ? ' bg-slate-800 ring-1 ring-slate-700'" th:href="@{/admin/dashboard(tab='services')}">
             <i class="fa-solid fa-bell-concierge mr-2"></i>Dịch vụ

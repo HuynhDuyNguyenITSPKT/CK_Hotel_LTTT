@@ -40,6 +40,8 @@ public class AdminController {
                             @RequestParam(required = false) Integer year,
                             @RequestParam(defaultValue = "dashboard") String tab,
                             @RequestParam(defaultValue = "1") int page,
+                            @RequestParam(defaultValue = "1") int invoicePage,
+                            @RequestParam(defaultValue = "1") int paymentPage,
                             @RequestParam(defaultValue = "10") int size,
                             HttpSession session,
                             Model model) {
@@ -57,11 +59,11 @@ public class AdminController {
 
         model.addAttribute("stats", adminManagementService.getDashboardStats());
         model.addAttribute("revenueChart", adminManagementService.getRevenueChart());
-        model.addAttribute("invoiceReports", adminManagementService.getInvoicesByFilters(day, month, year));
-        model.addAttribute("paymentReports", adminManagementService.getPaymentsByFilters(day, month, year));
         model.addAttribute("filterDay", day);
         model.addAttribute("filterMonth", month);
         model.addAttribute("filterYear", year);
+
+        addDashboardReportPages(model, day, month, year, invoicePage, paymentPage, safeSize);
 
         model.addAttribute("statuses", AccountStatus.values());
         model.addAttribute("roles", EmployeeRole.values());
@@ -70,6 +72,24 @@ public class AdminController {
 
         loadTabData(model, tab, safePage, safeSize);
         return "dashboard/admin";
+    }
+
+    private void addDashboardReportPages(Model model,
+                                         Integer day,
+                                         Integer month,
+                                         Integer year,
+                                         int invoicePage,
+                                         int paymentPage,
+                                         int size) {
+        var invoiceRows = adminManagementService.getInvoicesByFilters(day, month, year);
+        PaginationResult<?> invoiceResult = paginate(invoiceRows, invoicePage, size);
+        model.addAttribute("invoiceReports", invoiceResult.items());
+        addPaginationModel(model, invoiceResult, "invoice");
+
+        var paymentRows = adminManagementService.getPaymentsByFilters(day, month, year);
+        PaginationResult<?> paymentResult = paginate(paymentRows, paymentPage, size);
+        model.addAttribute("paymentReports", paymentResult.items());
+        addPaginationModel(model, paymentResult, "payment");
     }
 
     @GetMapping("/admin/reports/invoices/excel")
@@ -145,6 +165,7 @@ public class AdminController {
             case "accounts" -> addAccountsPage(model, page, size);
             case "employees" -> addEmployeesPage(model, page, size);
             case "rooms" -> addRoomsPage(model, page, size);
+            case "room-types" -> addRoomTypesPage(model, page, size);
             case "services" -> addServicesPage(model, page, size);
             case "promotions" -> addPromotionsPage(model, page, size);
             case "customers" -> addCustomersPage(model, page, size);
@@ -174,6 +195,13 @@ public class AdminController {
         addPaginationModel(model, result);
     }
 
+    private void addRoomTypesPage(Model model, int page, int size) {
+        var all = adminManagementService.getRoomTypes();
+        PaginationResult<?> result = paginate(all, page, size);
+        model.addAttribute("roomTypes", result.items());
+        addPaginationModel(model, result);
+    }
+
     private void addServicesPage(Model model, int page, int size) {
         var all = adminManagementService.getServices();
         PaginationResult<?> result = paginate(all, page, size);
@@ -199,9 +227,10 @@ public class AdminController {
         int totalItems = source == null ? 0 : source.size();
         int totalPages = Math.max(1, (int) Math.ceil((double) totalItems / size));
         int safePage = Math.max(1, Math.min(page, totalPages));
-        int fromIndex = Math.min((safePage - 1) * size, totalItems);
-        int toIndex = Math.min(fromIndex + size, totalItems);
-        List<T> items = totalItems == 0 ? List.of() : source.subList(fromIndex, toIndex);
+        long skip = (long) (safePage - 1) * size;
+        List<T> items = totalItems == 0
+                ? List.of()
+                : source.stream().skip(skip).limit(size).toList();
         return new PaginationResult<>(items, safePage, totalPages, totalItems);
     }
 
@@ -211,6 +240,14 @@ public class AdminController {
         model.addAttribute("totalItems", result.totalItems());
         model.addAttribute("hasPrev", result.page() > 1);
         model.addAttribute("hasNext", result.page() < result.totalPages());
+    }
+
+    private void addPaginationModel(Model model, PaginationResult<?> result, String prefix) {
+        model.addAttribute(prefix + "Page", result.page());
+        model.addAttribute(prefix + "TotalPages", result.totalPages());
+        model.addAttribute(prefix + "TotalItems", result.totalItems());
+        model.addAttribute(prefix + "HasPrev", result.page() > 1);
+        model.addAttribute(prefix + "HasNext", result.page() < result.totalPages());
     }
 
     private static class PaginationResult<T> {
