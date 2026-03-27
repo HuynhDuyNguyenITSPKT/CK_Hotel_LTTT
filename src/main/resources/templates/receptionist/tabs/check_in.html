@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section class="space-y-4" id="section-check-in" th:fragment="panel" th:if="${activeTab == 'check-in'}">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 class="text-2xl font-bold">Check-in</h2>
+        <span class="rounded-full bg-cyan-100 px-3 py-1 text-xs font-semibold text-cyan-700">Trạng thái booking: PENDING / CONFIRMED</span>
+    </div>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead>
+                <tr class="border-b text-left">
+                    <th class="p-2">Mã đặt phòng</th>
+                    <th class="p-2">Khách hàng</th>
+                    <th class="p-2">SĐT</th>
+                    <th class="p-2">Số phòng</th>
+                    <th class="p-2">Ngày nhận</th>
+                    <th class="p-2">Ngày trả</th>
+                    <th class="p-2">Trạng thái</th>
+                    <th class="p-2">Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr class="border-b" th:classappend="${iter.odd} ? ' bg-slate-50'" th:each="row,iter : ${danhSachCheckIn}">
+                    <td class="p-2 font-semibold text-slate-700" th:text="${row.maDatPhong}"></td>
+                    <td class="p-2" th:text="${row.tenKhachHang}"></td>
+                    <td class="p-2" th:text="${row.soDienThoai}"></td>
+                    <td class="p-2" th:text="${row.soPhong}"></td>
+                    <td class="p-2" th:text="${#temporals.format(row.ngayNhan, 'dd/MM/yyyy')}"></td>
+                    <td class="p-2" th:text="${#temporals.format(row.ngayTra, 'dd/MM/yyyy')}"></td>
+                    <td class="p-2">
+                        <span class="rounded-full px-2 py-1 text-xs font-semibold"
+                              th:classappend="${row.trangThai.name() == 'PENDING'} ? ' bg-amber-100 text-amber-700' : ' bg-sky-100 text-sky-700'"
+                              th:text="${row.trangThai}"></span>
+                    </td>
+                    <td class="p-2">
+                        <form method="post" th:action="@{/receptionist/check-in/{id}(id=${row.datPhongId})}">
+                            <button class="rounded-lg bg-cyan-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-cyan-700" type="submit">Check-in</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(danhSachCheckIn)}">
+                    <td class="p-3 text-center text-slate-500" colspan="8">Không có booking check-in.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4 flex items-center justify-between text-sm text-slate-600" th:if="${totalPages > 1}">
+            <p th:text="'Trang ' + ${page} + ' / ' + ${totalPages} + ' - Tổng: ' + ${totalItems}"></p>
+            <div class="flex gap-2">
+                <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/receptionist/dashboard(tab='check-in',page=${page-1},size=${size})}" th:if="${hasPrev}">Trước</a>
+                <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/receptionist/dashboard(tab='check-in',page=${page+1},size=${size})}" th:if="${hasNext}">Sau</a>
+            </div>
+        </div>
+    </section>
+</section>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section class="space-y-4" id="section-hoa-don-thanh-toan" th:fragment="panel" th:if="${activeTab == 'hoa-don-thanh-toan'}">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 class="text-2xl font-bold">Hóa đơn và thanh toán</h2>
+        <span class="rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700">Theo dõi công nợ và tiến độ thu tiền từng booking</span>
+    </div>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead>
+                <tr class="border-b text-left">
+                    <th class="p-2">Mã hóa đơn</th>
+                    <th class="p-2">Mã đặt phòng</th>
+                    <th class="p-2">Khách hàng</th>
+                    <th class="p-2">Danh sách phòng</th>
+                    <th class="p-2">Ngày tạo</th>
+                    <th class="p-2">Tổng tiền</th>
+                    <th class="p-2">Đã thanh toán</th>
+                    <th class="p-2">Còn lại</th>
+                    <th class="p-2">Trạng thái</th>
+                    <th class="p-2">Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr class="border-b" th:classappend="${iter.odd} ? ' bg-slate-50'" th:each="row,iter : ${danhSachHoaDonThanhToan}">
+                    <td class="p-2 font-semibold text-slate-700" th:text="${row.maHoaDon}"></td>
+                    <td class="p-2" th:text="${row.maDatPhong}"></td>
+                    <td class="p-2" th:text="${row.tenKhachHang}"></td>
+                    <td class="p-2" th:text="${row.danhSachPhong}"></td>
+                    <td class="p-2 text-slate-500" th:text="${row.ngayTaoHoaDon != null ? #temporals.format(row.ngayTaoHoaDon, 'dd/MM/yyyy HH:mm') : '--'}"></td>
+                    <td class="p-2 font-semibold text-orange-700" th:text="${#numbers.formatDecimal(row.tongTienHoaDon, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
+                    <td class="p-2 font-medium text-sky-700" th:text="${#numbers.formatDecimal(row.tongDaThanhToan, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
+                    <td class="p-2 font-semibold" th:classappend="${row.soTienConLai.signum() <= 0} ? ' text-emerald-700' : ' text-rose-700'"
+                        th:text="${#numbers.formatDecimal(row.soTienConLai, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
+                    <td class="p-2">
+                        <span class="rounded-full px-2 py-1 text-xs font-semibold"
+                              th:classappend="${row.sacThaiThanhToan == 'amber'} ? ' bg-amber-100 text-amber-700' : (${row.sacThaiThanhToan == 'sky'} ? ' bg-sky-100 text-sky-700' : (${row.sacThaiThanhToan == 'emerald'} ? ' bg-emerald-100 text-emerald-700' : ' bg-slate-100 text-slate-700'))"
+                              th:text="${row.trangThaiThanhToan}"></span>
+                    </td>
+                    <td class="p-2">
+                        <a class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                           th:href="@{/receptionist/dashboard(tab='check-out')}">Đi tới thu tiền</a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(danhSachHoaDonThanhToan)}">
+                    <td class="p-3 text-center text-slate-500" colspan="10">Chưa có dữ liệu hóa đơn/thanh toán.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4 flex items-center justify-between text-sm text-slate-600" th:if="${totalPages > 1}">
+            <p th:text="'Trang ' + ${page} + ' / ' + ${totalPages} + ' - Tổng: ' + ${totalItems}"></p>
+            <div class="flex gap-2">
+                <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/receptionist/dashboard(tab='hoa-don-thanh-toan',page=${page-1},size=${size})}" th:if="${hasPrev}">Trước</a>
+                <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/receptionist/dashboard(tab='hoa-don-thanh-toan',page=${page+1},size=${size})}" th:if="${hasNext}">Sau</a>
+            </div>
+        </div>
+    </section>
+</section>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Bảng điều khiển lễ tân - Hệ thống khách sạn</title>
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --reception-bg: #eef6f7;
+            --reception-text: #1c2f34;
+            --reception-glass: rgba(255, 255, 255, 0.86);
+        }
+
+        body.reception-shell {
+            font-family: "Be Vietnam Pro", sans-serif;
+            color: var(--reception-text);
+            background:
+                    radial-gradient(circle at 9% 10%, rgba(34, 211, 238, 0.22), transparent 34%),
+                    radial-gradient(circle at 88% 12%, rgba(16, 185, 129, 0.2), transparent 36%),
+                    linear-gradient(180deg, #f8fbfc 0%, var(--reception-bg) 100%);
+        }
+
+        .reception-title {
+            font-family: "Space Grotesk", sans-serif;
+            letter-spacing: -0.02em;
+        }
+
+        .reception-glass {
+            background: var(--reception-glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.24);
+        }
+
+        .reception-fade {
+            animation: receptionFade 0.45s ease both;
+        }
+
+        @keyframes receptionFade {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="reception-shell">
+<div class="min-h-screen lg:grid lg:grid-cols-[290px_1fr]">
+    <aside th:replace="~{receptionist/fragments/sidebar :: sidebar(${currentUser}, ${activeTab})}"></aside>
+
+    <main class="px-4 py-6 sm:px-6 lg:px-8">
+        <header class="reception-glass reception-fade mb-5 rounded-2xl px-5 py-5 sm:px-6">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-700">Vận hành tiền sảnh</p>
+                    <h1 class="reception-title mt-2 text-2xl font-extrabold sm:text-3xl">Bảng điều khiển lễ tân</h1>
+                    <p class="mt-2 text-sm text-slate-600">Theo dõi check-in, check-out, quản lý phòng và xử lý đặt phòng theo đúng quy trình entity.</p>
+                </div>
+                <div class="rounded-xl border border-cyan-100 bg-cyan-50 px-4 py-3 text-sm text-cyan-700">
+                    <p class="font-semibold" th:text="${currentUser.employeeName}"></p>
+                    <p class="text-xs uppercase tracking-wide">Vai trò: Lễ tân</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="reception-fade mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+             th:if="${success}" th:text="${success}"></div>
+        <div class="reception-fade mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+             th:if="${error}" th:text="${error}"></div>
+
+        <section class="reception-fade" th:replace="~{receptionist/tabs/tong_quan :: panel}"></section>
+        <section class="reception-fade" th:replace="~{receptionist/tabs/check_in :: panel}"></section>
+        <section class="reception-fade" th:replace="~{receptionist/tabs/check_out :: panel}"></section>
+        <section class="reception-fade" th:replace="~{receptionist/tabs/quan_ly_phong :: panel}"></section>
+        <section class="reception-fade" th:replace="~{receptionist/tabs/dat_phong :: panel}"></section>
+        <section class="reception-fade" th:replace="~{receptionist/tabs/hoa_don_thanh_toan :: panel}"></section>
+    </main>
+</div>
+</body>
+</html>

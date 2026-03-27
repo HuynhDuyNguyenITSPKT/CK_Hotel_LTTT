@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section class="space-y-4" id="section-quan-ly-phong" th:fragment="panel" th:if="${activeTab == 'quan-ly-phong'}">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 class="text-2xl font-bold">Quản lý phòng</h2>
+        <span class="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">Cập nhật nhanh trạng thái phòng tại quầy</span>
+    </div>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead>
+                <tr class="border-b text-left">
+                    <th class="p-2">Số phòng</th>
+                    <th class="p-2">Loại phòng</th>
+                    <th class="p-2">Giá cơ bản</th>
+                    <th class="p-2">Trạng thái</th>
+                    <th class="p-2">Ảnh</th>
+                    <th class="p-2">Cập nhật</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr class="border-b" th:classappend="${iter.odd} ? ' bg-slate-50'" th:each="row,iter : ${danhSachPhong}">
+                    <td class="p-2 font-semibold text-slate-700" th:text="${row.soPhong}"></td>
+                    <td class="p-2" th:text="${row.tenLoaiPhong}"></td>
+                    <td class="p-2 text-orange-700" th:text="${#numbers.formatDecimal(row.giaCoBan, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
+                    <td class="p-2" th:text="${row.trangThai}"></td>
+                    <td class="p-2">
+                        <img alt="Room" class="h-14 w-24 rounded-lg object-cover ring-1 ring-slate-200" th:if="${row.imageUrl}" th:src="${row.imageUrl}">
+                        <span class="text-slate-400" th:if="${row.imageUrl == null or row.imageUrl.isBlank()}">Không có</span>
+                    </td>
+                    <td class="p-2">
+                        <form class="flex items-center gap-2" method="post" th:action="@{/receptionist/rooms/{id}/status(id=${row.phongId})}">
+                            <select class="rounded-lg border px-2 py-1" name="trangThai">
+                                <option th:each="status : ${roomStatuses}" th:selected="${status == row.trangThai}" th:text="${status}" th:value="${status}"></option>
+                            </select>
+                            <button class="rounded-lg bg-slate-900 px-3 py-1 text-xs font-semibold text-white" type="submit">Lưu</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(danhSachPhong)}">
+                    <td class="p-3 text-center text-slate-500" colspan="6">Không có phòng.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4 flex items-center justify-between text-sm text-slate-600" th:if="${totalPages > 1}">
+            <p th:text="'Trang ' + ${page} + ' / ' + ${totalPages} + ' - Tổng: ' + ${totalItems}"></p>
+            <div class="flex gap-2">
+                <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/receptionist/dashboard(tab='quan-ly-phong',page=${page-1},size=${size})}" th:if="${hasPrev}">Trước</a>
+                <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/receptionist/dashboard(tab='quan-ly-phong',page=${page+1},size=${size})}" th:if="${hasNext}">Sau</a>
+            </div>
+        </div>
+    </section>
+</section>
+</body>
+</html>

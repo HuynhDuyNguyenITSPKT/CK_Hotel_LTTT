@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section class="space-y-4" id="section-dat-phong" th:fragment="panel" th:if="${activeTab == 'dat-phong'}">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 class="text-2xl font-bold">Đặt phòng</h2>
+        <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">Quy trình: KhachHang -> DatPhong -> ChiTietDatPhong</span>
+    </div>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h3 class="mb-4 text-lg font-semibold">Tạo booking mới</h3>
+        <form class="grid gap-3 md:grid-cols-2 xl:grid-cols-3" method="post" th:action="@{/receptionist/bookings}" th:object="${bookingForm}">
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Tên khách hàng</label>
+                <input class="w-full rounded-lg border px-3 py-2" placeholder="VD: Nguyễn Văn A" th:field="*{tenKhachHang}" type="text">
+            </div>
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">SĐT</label>
+                <input class="w-full rounded-lg border px-3 py-2" placeholder="VD: 0909xxxxxx" th:field="*{sdt}" type="text">
+            </div>
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Email</label>
+                <input class="w-full rounded-lg border px-3 py-2" placeholder="VD: abc@email.com" th:field="*{email}" type="email">
+            </div>
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Phòng</label>
+                <select class="w-full rounded-lg border px-3 py-2" th:field="*{phongId}">
+                    <option value="">-- Chọn phòng --</option>
+                    <option th:each="p : ${phongChoDat}" th:text="${p.soPhong} + ' - ' + ${p.tenLoaiPhong} + ' (' + ${p.trangThai} + ')'" th:value="${p.phongId}"></option>
+                </select>
+            </div>
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Ngày nhận</label>
+                <input class="w-full rounded-lg border px-3 py-2" th:field="*{ngayNhan}" type="date">
+            </div>
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Ngày trả</label>
+                <input class="w-full rounded-lg border px-3 py-2" th:field="*{ngayTra}" type="date">
+            </div>
+            <div class="md:col-span-2 xl:col-span-3">
+                <button class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700" type="submit">Tạo đặt phòng</button>
+            </div>
+        </form>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h3 class="mb-3 text-lg font-semibold">Danh sách đặt phòng</h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead>
+                <tr class="border-b text-left">
+                    <th class="p-2">Mã đặt phòng</th>
+                    <th class="p-2">Khách hàng</th>
+                    <th class="p-2">SĐT</th>
+                    <th class="p-2">Số phòng</th>
+                    <th class="p-2">Ngày đặt</th>
+                    <th class="p-2">Ngày nhận</th>
+                    <th class="p-2">Ngày trả</th>
+                    <th class="p-2">Trạng thái</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr class="border-b" th:classappend="${iter.odd} ? ' bg-slate-50'" th:each="row,iter : ${danhSachDatPhong}">
+                    <td class="p-2 font-semibold text-slate-700" th:text="${row.maDatPhong}"></td>
+                    <td class="p-2" th:text="${row.tenKhachHang}"></td>
+                    <td class="p-2" th:text="${row.soDienThoai}"></td>
+                    <td class="p-2" th:text="${row.soPhong}"></td>
+                    <td class="p-2" th:text="${#temporals.format(row.ngayDat, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td class="p-2" th:text="${#temporals.format(row.ngayNhan, 'dd/MM/yyyy')}"></td>
+                    <td class="p-2" th:text="${#temporals.format(row.ngayTra, 'dd/MM/yyyy')}"></td>
+                    <td class="p-2" th:text="${row.trangThai}"></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(danhSachDatPhong)}">
+                    <td class="p-3 text-center text-slate-500" colspan="8">Không có dữ liệu booking.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4 flex items-center justify-between text-sm text-slate-600" th:if="${totalPages > 1}">
+            <p th:text="'Trang ' + ${page} + ' / ' + ${totalPages} + ' - Tổng: ' + ${totalItems}"></p>
+            <div class="flex gap-2">
+                <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/receptionist/dashboard(tab='dat-phong',page=${page-1},size=${size})}" th:if="${hasPrev}">Trước</a>
+                <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/receptionist/dashboard(tab='dat-phong',page=${page+1},size=${size})}" th:if="${hasNext}">Sau</a>
+            </div>
+        </div>
+    </section>
+</section>
+</body>
+</html>
