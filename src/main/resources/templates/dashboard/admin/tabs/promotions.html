@@ -20,6 +20,7 @@
                 <th class="p-2">Tên</th>
                 <th class="p-2">Loại giảm</th>
                 <th class="p-2">Giá trị</th>
+                <th class="p-2">Chi tiết</th>
                 <th class="p-2">Cập nhật</th>
                 <th class="p-2">Xóa</th>
             </tr>
@@ -33,6 +34,9 @@
                           th:text="${promotion.loaiGiam}"></span>
                 </td>
                 <td class="p-2 font-medium text-indigo-700" th:text="${promotion.giaTri}"></td>
+                <td class="p-2">
+                    <button class="rounded bg-teal-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-teal-700" data-detail-section="Khuyến mãi" data-row-detail-btn type="button">Chi tiết</button>
+                </td>
                 <td class="p-2">
                     <form class="grid gap-2 md:grid-cols-4" method="post" th:action="@{/admin/promotions/{id}/update(id=${promotion.id})}">
                         <input class="rounded border px-2 py-1" name="ten" required th:value="${promotion.ten}">

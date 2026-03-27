@@ -1,4 +1,4 @@
-package hcmute.system.hotel.cknhom11qlhotel.service;
+package hcmute.system.hotel.cknhom11qlhotel.service.impl;
 
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.AdminAccountView;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.AdminEmployeeView;
@@ -35,10 +35,12 @@ import hcmute.system.hotel.cknhom11qlhotel.repository.NhanVienRepository;
 import hcmute.system.hotel.cknhom11qlhotel.repository.PhongRepository;
 import hcmute.system.hotel.cknhom11qlhotel.repository.ThanhToanRepository;
 import hcmute.system.hotel.cknhom11qlhotel.repository.TaiKhoanRepository;
-import hcmute.system.hotel.cknhom11qlhotel.service.impl.IAdminManagementService;
+import hcmute.system.hotel.cknhom11qlhotel.service.CloudinaryUploadService;
+import hcmute.system.hotel.cknhom11qlhotel.service.IAdminManagementService;
 import hcmute.system.hotel.cknhom11qlhotel.util.ReportExportUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -63,6 +65,7 @@ public class AdminManagementService implements IAdminManagementService {
     private final HoaDonRepository hoaDonRepository;
     private final ThanhToanRepository thanhToanRepository;
     private final ReportExportUtil reportExportUtil;
+    private final CloudinaryUploadService cloudinaryUploadService;
 
     public AdminManagementService(TaiKhoanRepository taiKhoanRepository,
                                   NhanVienRepository nhanVienRepository,
@@ -73,7 +76,8 @@ public class AdminManagementService implements IAdminManagementService {
                                   KhachHangRepository khachHangRepository,
                                   HoaDonRepository hoaDonRepository,
                                   ThanhToanRepository thanhToanRepository,
-                                  ReportExportUtil reportExportUtil) {
+                                  ReportExportUtil reportExportUtil,
+                                  CloudinaryUploadService cloudinaryUploadService) {
         this.taiKhoanRepository = taiKhoanRepository;
         this.nhanVienRepository = nhanVienRepository;
         this.phongRepository = phongRepository;
@@ -84,6 +88,7 @@ public class AdminManagementService implements IAdminManagementService {
         this.hoaDonRepository = hoaDonRepository;
         this.thanhToanRepository = thanhToanRepository;
         this.reportExportUtil = reportExportUtil;
+        this.cloudinaryUploadService = cloudinaryUploadService;
     }
 
     @Override
@@ -284,7 +289,7 @@ public class AdminManagementService implements IAdminManagementService {
 
     @Override
     @Transactional
-    public RoomResponse createRoom(RoomRequest request) {
+    public RoomResponse createRoom(RoomRequest request, MultipartFile imageFile) {
         validateRoomRequest(request);
 
         String soPhong = request.getSoPhong().trim();
@@ -297,7 +302,7 @@ public class AdminManagementService implements IAdminManagementService {
 
         Phong phong = new Phong();
         phong.setSoPhong(soPhong);
-        phong.setImageUrl(trimToNull(request.getImageUrl()));
+        phong.setImageUrl(resolveImageUrl(request.getImageUrl(), imageFile, "hotel/rooms"));
         phong.setTrangThai(request.getTrangThai());
         phong.setLoaiPhong(loaiPhong);
         return toRoomResponse(phongRepository.save(phong));
@@ -305,7 +310,7 @@ public class AdminManagementService implements IAdminManagementService {
 
     @Override
     @Transactional
-    public RoomResponse updateRoom(Long roomId, RoomRequest request) {
+    public RoomResponse updateRoom(Long roomId, RoomRequest request, MultipartFile imageFile) {
         validateRoomRequest(request);
 
         Phong phong = phongRepository.findById(roomId)
@@ -319,8 +324,10 @@ public class AdminManagementService implements IAdminManagementService {
         LoaiPhong loaiPhong = loaiPhongRepository.findById(request.getLoaiPhongId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy loại phòng"));
 
+        String imageUrl = resolveImageUrl(request.getImageUrl(), imageFile, "hotel/rooms");
+
         phong.setSoPhong(soPhong);
-        phong.setImageUrl(trimToNull(request.getImageUrl()));
+        phong.setImageUrl(imageUrl != null ? imageUrl : phong.getImageUrl());
         phong.setTrangThai(request.getTrangThai());
         phong.setLoaiPhong(loaiPhong);
         return toRoomResponse(phong);
@@ -345,25 +352,27 @@ public class AdminManagementService implements IAdminManagementService {
 
     @Override
     @Transactional
-    public ServiceResponse createService(ServiceRequest request) {
+    public ServiceResponse createService(ServiceRequest request, MultipartFile imageFile) {
         validateServiceRequest(request);
 
         DichVu dichVu = new DichVu();
         dichVu.setTen(request.getTen().trim());
-        dichVu.setImageUrl(trimToNull(request.getImageUrl()));
+        dichVu.setImageUrl(resolveImageUrl(request.getImageUrl(), imageFile, "hotel/services"));
         dichVu.setGia(request.getGia());
         return toServiceResponse(dichVuRepository.save(dichVu));
     }
 
     @Override
     @Transactional
-    public ServiceResponse updateService(Long serviceId, ServiceRequest request) {
+    public ServiceResponse updateService(Long serviceId, ServiceRequest request, MultipartFile imageFile) {
         validateServiceRequest(request);
 
         DichVu dichVu = dichVuRepository.findById(serviceId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy dịch vụ"));
+        String imageUrl = resolveImageUrl(request.getImageUrl(), imageFile, "hotel/services");
+
         dichVu.setTen(request.getTen().trim());
-        dichVu.setImageUrl(trimToNull(request.getImageUrl()));
+        dichVu.setImageUrl(imageUrl != null ? imageUrl : dichVu.getImageUrl());
         dichVu.setGia(request.getGia());
         return toServiceResponse(dichVu);
     }
@@ -610,5 +619,13 @@ public class AdminManagementService implements IAdminManagementService {
         }
         String trimmed = value.trim();
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private String resolveImageUrl(String fallbackUrl, MultipartFile imageFile, String folder) {
+        String uploadedImageUrl = cloudinaryUploadService.uploadImage(imageFile, folder);
+        if (!isBlank(uploadedImageUrl)) {
+            return uploadedImageUrl;
+        }
+        return trimToNull(fallbackUrl);
     }
 }

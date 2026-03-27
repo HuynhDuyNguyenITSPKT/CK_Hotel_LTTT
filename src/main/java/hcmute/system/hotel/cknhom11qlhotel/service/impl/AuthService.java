@@ -1,11 +1,11 @@
-package hcmute.system.hotel.cknhom11qlhotel.service;
+package hcmute.system.hotel.cknhom11qlhotel.service.impl;
 
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.LoginSession;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.NhanVien;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.TaiKhoan;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.AccountStatus;
 import hcmute.system.hotel.cknhom11qlhotel.repository.NhanVienRepository;
-import hcmute.system.hotel.cknhom11qlhotel.service.impl.IAuthService;
+import hcmute.system.hotel.cknhom11qlhotel.service.IAuthService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

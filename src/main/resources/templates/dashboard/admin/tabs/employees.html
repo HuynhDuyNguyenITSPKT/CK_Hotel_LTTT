@@ -15,7 +15,7 @@
     </form>
     <div class="overflow-x-auto">
         <table class="min-w-full text-sm">
-            <thead><tr class="border-b text-left"><th class="p-2">Tên</th><th class="p-2">Role</th><th class="p-2">Username</th><th class="p-2">Email</th><th class="p-2">Trạng thái TK</th></tr></thead>
+            <thead><tr class="border-b text-left"><th class="p-2">Tên</th><th class="p-2">Role</th><th class="p-2">Username</th><th class="p-2">Email</th><th class="p-2">Trạng thái TK</th><th class="p-2">Chi tiết</th></tr></thead>
             <tbody>
             <tr class="border-b" th:classappend="${iter.odd} ? ' bg-slate-50'" th:each="employee,iter : ${employees}">
                 <td class="p-2" th:text="${employee.employeeName}"></td>
@@ -33,6 +33,9 @@
                     <span class="rounded-full px-2 py-1 text-xs font-semibold"
                           th:classappend="${employee.status.name() == 'ACTIVE'} ? ' bg-emerald-100 text-emerald-700' : ' bg-rose-100 text-rose-700'"
                           th:text="${employee.status}"></span>
+                </td>
+                <td class="p-2">
+                    <button class="rounded bg-teal-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-teal-700" data-detail-section="Nhân viên" data-row-detail-btn type="button">Chi tiết</button>
                 </td>
             </tr>
             </tbody>

@@ -2,7 +2,7 @@ package hcmute.system.hotel.cknhom11qlhotel.controller;
 
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.LoginSession;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.EmployeeRole;
-import hcmute.system.hotel.cknhom11qlhotel.service.impl.IAuthService;
+import hcmute.system.hotel.cknhom11qlhotel.service.IAuthService;
 import hcmute.system.hotel.cknhom11qlhotel.util.SessionKeys;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;

@@ -2,11 +2,13 @@ package hcmute.system.hotel.cknhom11qlhotel.controller.admin;
 
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.LoginSession;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RoomRequest;
-import hcmute.system.hotel.cknhom11qlhotel.service.impl.IAdminManagementService;
+import hcmute.system.hotel.cknhom11qlhotel.service.IAdminManagementService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -23,6 +25,7 @@ public class AdminRoomController {
 
     @PostMapping("/admin/rooms")
     public String createRoom(RoomRequest request,
+                             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
                              HttpSession session,
                              RedirectAttributes redirectAttributes) {
         LoginSession currentUser = authorizationSupport.requireAdmin(session);
@@ -31,10 +34,12 @@ public class AdminRoomController {
         }
 
         try {
-            adminManagementService.createRoom(request);
+            adminManagementService.createRoom(request, imageFile);
             redirectAttributes.addFlashAttribute("success", "Thêm phòng thành công");
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", "Có lỗi khi upload ảnh phòng. Vui lòng kiểm tra cấu hình Cloudinary.");
         }
 
         return "redirect:/admin/dashboard?tab=rooms";
@@ -43,6 +48,7 @@ public class AdminRoomController {
     @PostMapping("/admin/rooms/{roomId}/update")
     public String updateRoom(@PathVariable Long roomId,
                              RoomRequest request,
+                             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
                              HttpSession session,
                              RedirectAttributes redirectAttributes) {
         LoginSession currentUser = authorizationSupport.requireAdmin(session);
@@ -51,10 +57,12 @@ public class AdminRoomController {
         }
 
         try {
-            adminManagementService.updateRoom(roomId, request);
+            adminManagementService.updateRoom(roomId, request, imageFile);
             redirectAttributes.addFlashAttribute("success", "Cập nhật phòng thành công");
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", "Có lỗi khi upload ảnh phòng. Vui lòng kiểm tra cấu hình Cloudinary.");
         }
 
         return "redirect:/admin/dashboard?tab=rooms";

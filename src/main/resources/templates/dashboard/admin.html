@@ -4,29 +4,111 @@
     <meta charset="UTF-8">
     <title>Admin Dashboard - Hệ thống khách sạn</title>
     <meta content="width=device-width, initial-scale=1" name="viewport">
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --admin-bg: #f3f6f4;
+            --admin-text: #203335;
+            --admin-muted: #5d7174;
+            --admin-brand: #0f766e;
+            --admin-accent: #f97316;
+            --admin-panel: rgba(255, 255, 255, 0.86);
+        }
+
+        body.admin-shell {
+            font-family: "Be Vietnam Pro", sans-serif;
+            color: var(--admin-text);
+            background:
+                    radial-gradient(circle at 10% 15%, rgba(15, 118, 110, 0.14), transparent 38%),
+                    radial-gradient(circle at 85% 10%, rgba(249, 115, 22, 0.15), transparent 32%),
+                    linear-gradient(180deg, #f7faf9 0%, var(--admin-bg) 100%);
+        }
+
+        .admin-title {
+            font-family: "Plus Jakarta Sans", sans-serif;
+            letter-spacing: -0.02em;
+        }
+
+        .admin-float-up {
+            animation: adminFloatUp 0.55s ease both;
+        }
+
+        .admin-glass {
+            background: var(--admin-panel);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .admin-soft-line {
+            border-color: rgba(148, 163, 184, 0.28);
+        }
+
+        @keyframes adminFloatUp {
+            from {
+                transform: translateY(10px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
 </head>
-<body class="bg-slate-100 text-slate-800">
+<body class="admin-shell">
 <div class="min-h-screen lg:grid lg:grid-cols-[280px_1fr]">
     <aside th:replace="~{dashboard/admin/fragments/sidebar :: sidebar(${currentUser}, ${activeTab})}"></aside>
 
     <main class="px-4 py-6 sm:px-6 lg:px-8">
-        <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+        <header class="admin-glass admin-float-up mb-5 rounded-2xl px-5 py-5 sm:px-6">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-teal-700">Hotel Operations Center</p>
+                    <h1 class="admin-title mt-2 text-2xl font-extrabold sm:text-3xl">Bảng điều khiển quản trị</h1>
+                    <p class="mt-2 text-sm text-slate-600">Theo dõi vận hành khách sạn, quản lý dữ liệu và đồng bộ hình ảnh phòng/dịch vụ trên Cloudinary.</p>
+                </div>
+                <div class="rounded-xl border border-teal-100 bg-teal-50 px-4 py-3 text-sm text-teal-700">
+                    <p class="font-semibold" th:text="${currentUser.employeeName}"></p>
+                    <p class="text-xs uppercase tracking-wide">Quyền quản trị viên</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-float-up mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
              th:if="${success}" th:text="${success}"></div>
-        <div class="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+        <div class="admin-float-up mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
              th:if="${error}" th:text="${error}"></div>
 
-        <section th:replace="~{dashboard/admin/tabs/dashboard :: panel}"></section>
-        <section th:replace="~{dashboard/admin/tabs/accounts :: panel}"></section>
-        <section th:replace="~{dashboard/admin/tabs/employees :: panel}"></section>
-        <section th:replace="~{dashboard/admin/tabs/rooms :: panel}"></section>
-        <section th:replace="~{dashboard/admin/tabs/services :: panel}"></section>
-        <section th:replace="~{dashboard/admin/tabs/promotions :: panel}"></section>
-        <section th:replace="~{dashboard/admin/tabs/customers :: panel}"></section>
+        <section class="admin-float-up" th:replace="~{dashboard/admin/tabs/dashboard :: panel}"></section>
+        <section class="admin-float-up" th:replace="~{dashboard/admin/tabs/accounts :: panel}"></section>
+        <section class="admin-float-up" th:replace="~{dashboard/admin/tabs/employees :: panel}"></section>
+        <section class="admin-float-up" th:replace="~{dashboard/admin/tabs/rooms :: panel}"></section>
+        <section class="admin-float-up" th:replace="~{dashboard/admin/tabs/services :: panel}"></section>
+        <section class="admin-float-up" th:replace="~{dashboard/admin/tabs/promotions :: panel}"></section>
+        <section class="admin-float-up" th:replace="~{dashboard/admin/tabs/customers :: panel}"></section>
     </main>
 </div>
+
+<div class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/55 p-4" id="rowDetailModal">
+    <div class="w-full max-w-2xl rounded-2xl bg-white shadow-2xl ring-1 ring-slate-200">
+        <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+            <h3 class="admin-title text-xl font-extrabold text-slate-800" id="rowDetailTitle">Chi tiết dữ liệu</h3>
+            <button class="rounded-lg px-2 py-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" id="rowDetailCloseBtn" type="button">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="max-h-[70vh] overflow-y-auto px-5 py-4" id="rowDetailContent"></div>
+        <div class="border-t border-slate-200 px-5 py-3 text-right">
+            <button class="rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-teal-700" id="rowDetailFooterCloseBtn" type="button">Đóng</button>
+        </div>
+    </div>
+</div>
+
 <script th:inline="javascript">
     const labels = /*[[${revenueChart.labels}]]*/ [];
     const values = /*[[${revenueChart.values}]]*/ [];
@@ -39,8 +121,8 @@
                 datasets: [{
                     label: "Doanh thu (VND)",
                     data: values,
-                    borderColor: "#4f46e5",
-                    backgroundColor: "rgba(79, 70, 229, 0.15)",
+                    borderColor: "#0f766e",
+                    backgroundColor: "rgba(15, 118, 110, 0.2)",
                     fill: true,
                     tension: 0.3
                 }]
@@ -51,6 +133,108 @@
             }
         });
     }
+
+    const rowDetailModal = document.getElementById("rowDetailModal");
+    const rowDetailTitle = document.getElementById("rowDetailTitle");
+    const rowDetailContent = document.getElementById("rowDetailContent");
+    const rowDetailCloseBtn = document.getElementById("rowDetailCloseBtn");
+    const rowDetailFooterCloseBtn = document.getElementById("rowDetailFooterCloseBtn");
+
+    function closeRowDetailModal() {
+        rowDetailModal.classList.add("hidden");
+        rowDetailModal.classList.remove("flex");
+        rowDetailContent.innerHTML = "";
+    }
+
+    function extractCellValue(cell) {
+        const image = cell.querySelector("img");
+        if (image && image.getAttribute("src")) {
+            return { type: "image", value: image.getAttribute("src") };
+        }
+
+        const inputs = Array.from(cell.querySelectorAll("input"))
+            .filter((input) => input.type !== "hidden" && input.type !== "file")
+            .map((input) => input.value)
+            .filter((value) => value && value.trim().length > 0);
+        if (inputs.length > 0) {
+            return { type: "text", value: inputs.join(" | ") };
+        }
+
+        const selects = Array.from(cell.querySelectorAll("select"))
+            .map((select) => select.options[select.selectedIndex]?.text || "")
+            .filter((value) => value && value.trim().length > 0);
+        if (selects.length > 0) {
+            return { type: "text", value: selects.join(" | ") };
+        }
+
+        const text = cell.textContent.replace(/\s+/g, " ").trim();
+        return { type: "text", value: text || "(trống)" };
+    }
+
+    function openRowDetailModal(button) {
+        const row = button.closest("tr");
+        const table = row?.closest("table");
+        if (!row || !table) {
+            return;
+        }
+
+        const sectionLabel = button.getAttribute("data-detail-section") || "Bản ghi";
+        rowDetailTitle.textContent = `Chi tiết: ${sectionLabel}`;
+
+        const headers = Array.from(table.querySelectorAll("thead th"));
+        const cells = Array.from(row.querySelectorAll("td"));
+        const actionHeaders = new Set(["Cập nhật", "Xóa", "Chi tiết"]);
+
+        const detailItems = [];
+        for (let i = 0; i < Math.min(headers.length, cells.length); i += 1) {
+            const headerText = headers[i].textContent.replace(/\s+/g, " ").trim();
+            if (!headerText || actionHeaders.has(headerText)) {
+                continue;
+            }
+            detailItems.push({
+                label: headerText,
+                data: extractCellValue(cells[i])
+            });
+        }
+
+        if (detailItems.length === 0) {
+            rowDetailContent.innerHTML = '<p class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">Không có dữ liệu chi tiết để hiển thị.</p>';
+        } else {
+            rowDetailContent.innerHTML = detailItems.map((item) => {
+                if (item.data.type === "image") {
+                    return `
+                        <div class="mb-3 rounded-xl border border-slate-200 p-3">
+                            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">${item.label}</p>
+                            <img src="${item.data.value}" alt="${item.label}" class="h-36 w-full rounded-lg object-cover ring-1 ring-slate-200">
+                            <a href="${item.data.value}" target="_blank" rel="noopener noreferrer" class="mt-2 inline-block text-xs font-semibold text-teal-700 hover:text-teal-800">Mở ảnh gốc</a>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="mb-3 rounded-xl border border-slate-200 p-3">
+                        <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">${item.label}</p>
+                        <p class="text-sm font-medium text-slate-800">${item.data.value}</p>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        rowDetailModal.classList.remove("hidden");
+        rowDetailModal.classList.add("flex");
+    }
+
+    document.querySelectorAll("[data-row-detail-btn]").forEach((button) => {
+        button.addEventListener("click", () => openRowDetailModal(button));
+    });
+
+    rowDetailCloseBtn?.addEventListener("click", closeRowDetailModal);
+    rowDetailFooterCloseBtn?.addEventListener("click", closeRowDetailModal);
+    rowDetailModal?.addEventListener("click", (event) => {
+        if (event.target === rowDetailModal) {
+            closeRowDetailModal();
+        }
+    });
 </script>
 </body>
 </html>

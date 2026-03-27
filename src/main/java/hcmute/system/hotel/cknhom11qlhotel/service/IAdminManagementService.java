@@ -1,4 +1,4 @@
-package hcmute.system.hotel.cknhom11qlhotel.service.impl;
+package hcmute.system.hotel.cknhom11qlhotel.service;
 
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.AdminAccountView;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.AdminEmployeeView;
@@ -18,6 +18,7 @@ import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.ServiceResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.LoaiPhong;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.AccountStatus;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.EmployeeRole;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -53,17 +54,17 @@ public interface IAdminManagementService {
 
     List<LoaiPhong> getRoomTypes();
 
-    RoomResponse createRoom(RoomRequest request);
+    RoomResponse createRoom(RoomRequest request, MultipartFile imageFile);
 
-    RoomResponse updateRoom(Long roomId, RoomRequest request);
+    RoomResponse updateRoom(Long roomId, RoomRequest request, MultipartFile imageFile);
 
     void deleteRoom(Long roomId);
 
     List<ServiceResponse> getServices();
 
-    ServiceResponse createService(ServiceRequest request);
+    ServiceResponse createService(ServiceRequest request, MultipartFile imageFile);
 
-    ServiceResponse updateService(Long serviceId, ServiceRequest request);
+    ServiceResponse updateService(Long serviceId, ServiceRequest request, MultipartFile imageFile);
 
     void deleteService(Long serviceId);
 
