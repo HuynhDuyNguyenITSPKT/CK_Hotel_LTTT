@@ -207,21 +207,6 @@ public class AdminManagementService implements IAdminManagementService {
         return new RevenueChartResponse(labels, values);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<InvoiceReportResponse> getLatestInvoices() {
-        return hoaDonRepository.findTop10ByOrderByNgayTaoDesc().stream()
-                .map(this::toInvoiceReport)
-                .toList();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<PaymentReportResponse> getLatestPayments() {
-        return thanhToanRepository.findTop10ByOrderByNgayThanhToanDesc().stream()
-                .map(this::toPaymentReport)
-                .toList();
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -287,6 +272,14 @@ public class AdminManagementService implements IAdminManagementService {
     @Transactional(readOnly = true)
     public List<RoomResponse> getRooms() {
         return phongRepository.findAllByOrderByIdDesc().stream().map(this::toRoomResponse).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<LoaiPhong> getRoomTypes() {
+        return loaiPhongRepository.findAll().stream()
+                .sorted(Comparator.comparing(LoaiPhong::getId))
+                .toList();
     }
 
     @Override

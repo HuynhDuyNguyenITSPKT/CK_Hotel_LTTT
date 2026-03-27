@@ -5,16 +5,18 @@
     <title>Admin Dashboard - Hệ thống khách sạn</title>
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios@1.7.9/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-slate-100 text-slate-800">
 <div class="min-h-screen lg:grid lg:grid-cols-[280px_1fr]">
-    <aside th:replace="~{dashboard/admin/fragments/sidebar :: sidebar(${currentUser})}"></aside>
+    <aside th:replace="~{dashboard/admin/fragments/sidebar :: sidebar(${currentUser}, ${activeTab})}"></aside>
 
     <main class="px-4 py-6 sm:px-6 lg:px-8">
-        <div class="mb-4 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm hidden" id="toast"></div>
+        <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+             th:if="${success}" th:text="${success}"></div>
+        <div class="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+             th:if="${error}" th:text="${error}"></div>
 
         <section th:replace="~{dashboard/admin/tabs/dashboard :: panel}"></section>
         <section th:replace="~{dashboard/admin/tabs/accounts :: panel}"></section>
@@ -25,7 +27,30 @@
         <section th:replace="~{dashboard/admin/tabs/customers :: panel}"></section>
     </main>
 </div>
-
-<script th:src="@{/js/admin-dashboard.js}"></script>
+<script th:inline="javascript">
+    const labels = /*[[${revenueChart.labels}]]*/ [];
+    const values = /*[[${revenueChart.values}]]*/ [];
+    const canvas = document.getElementById("revenueChart");
+    if (canvas) {
+        new Chart(canvas, {
+            type: "line",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Doanh thu (VND)",
+                    data: values,
+                    borderColor: "#4f46e5",
+                    backgroundColor: "rgba(79, 70, 229, 0.15)",
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {legend: {display: true}}
+            }
+        });
+    }
+</script>
 </body>
 </html>

@@ -1,35 +1,68 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <body>
-<section class="hidden section-panel mt-6 rounded-xl bg-white p-4 shadow-sm space-y-4" id="section-rooms" th:fragment="panel">
+<section class="mt-6 rounded-xl bg-white p-4 shadow-sm space-y-4" id="section-rooms" th:fragment="panel" th:if="${activeTab == 'rooms'}">
     <h3 class="text-lg font-semibold">Quản lý phòng</h3>
-    <form class="grid gap-3 md:grid-cols-4" id="form-room-create">
+
+    <form class="grid gap-3 md:grid-cols-4" method="post" th:action="@{/admin/rooms}">
         <input class="rounded-lg border px-3 py-2" name="soPhong" placeholder="Số phòng" required>
         <select class="rounded-lg border px-3 py-2" name="trangThai" required>
-            <option value="AVAILABLE">AVAILABLE</option><option value="OCCUPIED">OCCUPIED</option><option value="MAINTENANCE">MAINTENANCE</option><option value="CLEANING">CLEANING</option>
+            <option th:each="status : ${roomStatuses}" th:text="${status}" th:value="${status}"></option>
         </select>
-        <input class="rounded-lg border px-3 py-2" name="loaiPhongId" placeholder="ID loại phòng" required type="number">
+        <select class="rounded-lg border px-3 py-2" name="loaiPhongId" required>
+            <option value="">Chọn loại phòng</option>
+            <option th:each="roomType : ${roomTypes}" th:text="${roomType.tenLoai}" th:value="${roomType.id}"></option>
+        </select>
         <input class="rounded-lg border px-3 py-2" name="imageUrl" placeholder="Image URL">
         <button class="rounded-lg bg-indigo-600 px-4 py-2 text-white md:col-span-4" type="submit">Thêm phòng</button>
     </form>
-    <div class="overflow-x-auto"><table class="min-w-full text-sm"><thead><tr class="border-b text-left"><th class="p-2">Số phòng</th><th class="p-2">Loại</th><th class="p-2">Trạng thái</th><th class="p-2">Thao tác</th></tr></thead><tbody id="table-rooms"></tbody></table></div>
 
-    <div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 px-4" id="modal-room">
-        <div class="w-full max-w-xl rounded-2xl bg-white p-5 shadow-xl">
-            <h4 class="text-lg font-semibold">Cập nhật phòng</h4>
-            <form class="mt-4 grid gap-3 md:grid-cols-2" id="form-room-edit">
-                <input id="room-edit-id" type="hidden">
-                <input class="rounded-lg border px-3 py-2" id="room-edit-soPhong" placeholder="Số phòng" required>
-                <select class="rounded-lg border px-3 py-2" id="room-edit-trangThai" required>
-                    <option value="AVAILABLE">AVAILABLE</option><option value="OCCUPIED">OCCUPIED</option><option value="MAINTENANCE">MAINTENANCE</option><option value="CLEANING">CLEANING</option>
-                </select>
-                <input class="rounded-lg border px-3 py-2" id="room-edit-loaiPhongId" placeholder="ID loại phòng" required type="number">
-                <input class="rounded-lg border px-3 py-2" id="room-edit-imageUrl" placeholder="Image URL">
-                <div class="md:col-span-2 flex justify-end gap-2">
-                    <button class="rounded-lg border px-4 py-2" data-close="modal-room" type="button">Hủy</button>
-                    <button class="rounded-lg bg-indigo-600 px-4 py-2 text-white" type="submit">Lưu thay đổi</button>
-                </div>
-            </form>
+    <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+            <thead>
+            <tr class="border-b text-left">
+                <th class="p-2">Số phòng</th>
+                <th class="p-2">Loại phòng</th>
+                <th class="p-2">Trạng thái</th>
+                <th class="p-2">Cập nhật</th>
+                <th class="p-2">Xóa</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="border-b" th:classappend="${iter.odd} ? ' bg-slate-50'" th:each="room,iter : ${rooms}">
+                <td class="p-2" th:text="${room.soPhong}"></td>
+                <td class="p-2" th:text="${room.tenLoaiPhong}"></td>
+                <td class="p-2">
+                    <span class="rounded-full px-2 py-1 text-xs font-semibold"
+                          th:classappend="${room.trangThai.name() == 'AVAILABLE'} ? ' bg-emerald-100 text-emerald-700' : (${room.trangThai.name() == 'OCCUPIED'} ? ' bg-indigo-100 text-indigo-700' : ' bg-amber-100 text-amber-700')"
+                          th:text="${room.trangThai}"></span>
+                </td>
+                <td class="p-2">
+                    <form class="grid gap-2 md:grid-cols-4" method="post" th:action="@{/admin/rooms/{id}/update(id=${room.id})}">
+                        <input class="rounded border px-2 py-1" name="soPhong" required th:value="${room.soPhong}">
+                        <select class="rounded border px-2 py-1" name="trangThai" required>
+                            <option th:each="status : ${roomStatuses}" th:selected="${status == room.trangThai}" th:text="${status}" th:value="${status}"></option>
+                        </select>
+                        <select class="rounded border px-2 py-1" name="loaiPhongId" required>
+                            <option th:each="roomType : ${roomTypes}" th:selected="${roomType.id == room.loaiPhongId}" th:text="${roomType.tenLoai}" th:value="${roomType.id}"></option>
+                        </select>
+                        <button class="rounded bg-amber-500 px-3 py-1 text-white" type="submit">Lưu</button>
+                    </form>
+                </td>
+                <td class="p-2">
+                    <form method="post" th:action="@{/admin/rooms/{id}/delete(id=${room.id})}">
+                        <button class="rounded bg-rose-600 px-3 py-1 text-white" type="submit">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="mt-4 flex items-center justify-between text-sm text-slate-600" th:if="${totalPages > 1}">
+        <p th:text="'Trang ' + ${page} + ' / ' + ${totalPages} + ' - Tổng: ' + ${totalItems}"></p>
+        <div class="flex gap-2">
+            <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/admin/dashboard(tab='rooms',page=${page-1},size=${size})}" th:if="${hasPrev}">Trước</a>
+            <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/admin/dashboard(tab='rooms',page=${page+1},size=${size})}" th:if="${hasNext}">Sau</a>
         </div>
     </div>
 </section>

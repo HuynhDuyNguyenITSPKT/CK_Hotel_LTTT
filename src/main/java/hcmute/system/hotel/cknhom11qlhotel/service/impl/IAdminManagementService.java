@@ -15,6 +15,7 @@ import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RoomRequest;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RoomResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.ServiceRequest;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.ServiceResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.enity.LoaiPhong;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.AccountStatus;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.EmployeeRole;
 
@@ -35,9 +36,6 @@ public interface IAdminManagementService {
 
     RevenueChartResponse getRevenueChart();
 
-    List<InvoiceReportResponse> getLatestInvoices();
-
-    List<PaymentReportResponse> getLatestPayments();
 
     List<InvoiceReportResponse> getInvoicesByFilters(Integer day, Integer month, Integer year);
 
@@ -52,6 +50,8 @@ public interface IAdminManagementService {
     byte[] exportPaymentsPdf(Integer day, Integer month, Integer year);
 
     List<RoomResponse> getRooms();
+
+    List<LoaiPhong> getRoomTypes();
 
     RoomResponse createRoom(RoomRequest request);
 

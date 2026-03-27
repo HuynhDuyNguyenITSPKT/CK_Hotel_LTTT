@@ -1,32 +1,49 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <body>
-<section class="hidden section-panel mt-6 rounded-xl bg-white p-4 shadow-sm space-y-4" id="section-customers" th:fragment="panel">
+<section class="mt-6 rounded-xl bg-white p-4 shadow-sm space-y-4" id="section-customers" th:fragment="panel" th:if="${activeTab == 'customers'}">
     <h3 class="text-lg font-semibold">Quản lý khách hàng</h3>
-    <form class="grid gap-3 md:grid-cols-3" id="form-customer-create">
+
+    <form class="grid gap-3 md:grid-cols-3" method="post" th:action="@{/admin/customers}">
         <input class="rounded-lg border px-3 py-2" name="ten" placeholder="Tên khách hàng" required>
         <input class="rounded-lg border px-3 py-2" name="sdt" placeholder="Số điện thoại" required>
         <input class="rounded-lg border px-3 py-2" name="email" placeholder="Email" type="email">
         <button class="rounded-lg bg-indigo-600 px-4 py-2 text-white md:col-span-3" type="submit">Thêm khách hàng</button>
     </form>
-    <div class="overflow-x-auto"><table class="min-w-full text-sm"><thead><tr class="border-b text-left"><th class="p-2">Tên</th><th class="p-2">SĐT</th><th class="p-2">Email</th><th class="p-2">Thao tác</th></tr></thead><tbody id="table-customers"></tbody></table></div>
 
-    <div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 px-4" id="modal-customer">
-        <div class="w-full max-w-xl rounded-2xl bg-white p-5 shadow-xl">
-            <h4 class="text-lg font-semibold">Cập nhật khách hàng</h4>
-            <form class="mt-4 grid gap-3 md:grid-cols-2" id="form-customer-edit">
-                <input id="customer-edit-id" type="hidden">
-                <input class="rounded-lg border px-3 py-2" id="customer-edit-ten" placeholder="Tên khách hàng" required>
-                <input class="rounded-lg border px-3 py-2" id="customer-edit-sdt" placeholder="Số điện thoại" required>
-                <input class="rounded-lg border px-3 py-2 md:col-span-2" id="customer-edit-email" placeholder="Email" type="email">
-                <div class="md:col-span-2 flex justify-end gap-2">
-                    <button class="rounded-lg border px-4 py-2" data-close="modal-customer" type="button">Hủy</button>
-                    <button class="rounded-lg bg-indigo-600 px-4 py-2 text-white" type="submit">Lưu thay đổi</button>
-                </div>
-            </form>
-        </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+            <thead>
+            <tr class="border-b text-left">
+                <th class="p-2">Tên</th>
+                <th class="p-2">SĐT</th>
+                <th class="p-2">Email</th>
+                <th class="p-2">Cập nhật</th>
+                <th class="p-2">Xóa</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="border-b" th:each="customer : ${customers}">
+                <td class="p-2" th:text="${customer.ten}"></td>
+                <td class="p-2" th:text="${customer.sdt}"></td>
+                <td class="p-2" th:text="${customer.email}"></td>
+                <td class="p-2">
+                    <form class="grid gap-2 md:grid-cols-4" method="post" th:action="@{/admin/customers/{id}/update(id=${customer.id})}">
+                        <input class="rounded border px-2 py-1" name="ten" required th:value="${customer.ten}">
+                        <input class="rounded border px-2 py-1" name="sdt" required th:value="${customer.sdt}">
+                        <input class="rounded border px-2 py-1" name="email" th:value="${customer.email}" type="email">
+                        <button class="rounded bg-amber-500 px-3 py-1 text-white" type="submit">Lưu</button>
+                    </form>
+                </td>
+                <td class="p-2">
+                    <form method="post" th:action="@{/admin/customers/{id}/delete(id=${customer.id})}">
+                        <button class="rounded bg-rose-600 px-3 py-1 text-white" type="submit">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </section>
 </body>
 </html>
-
