@@ -4,10 +4,41 @@
 <section class="space-y-4" id="section-check-out" th:fragment="panel" th:if="${activeTab == 'check-out'}">
     <div class="flex flex-wrap items-center justify-between gap-2">
         <h2 class="text-2xl font-bold">Check-out</h2>
-        <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">Thu tiền đủ hóa đơn trước, sau đó mới check-out</span>
+        <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">Trang này chỉ check-out, chỉ cho trả phòng khi đã thanh toán đủ</span>
     </div>
 
     <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <form class="mb-4 grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 md:grid-cols-5" method="get" th:action="@{/receptionist/dashboard}">
+            <input name="tab" type="hidden" value="check-out">
+            <input name="page" type="hidden" value="1">
+            <input name="size" th:value="${size}" type="hidden">
+            <div class="md:col-span-2">
+                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Lọc trạng thái thanh toán</label>
+                <select class="w-full rounded-lg border px-3 py-2" name="checkoutPaymentStatus">
+                    <option th:selected="${checkoutPaymentStatus == null or checkoutPaymentStatus.isBlank()}" value="">Tất cả</option>
+                    <option th:selected="${checkoutPaymentStatus == 'chua-thanh-toan'}" value="chua-thanh-toan">Chưa thanh toán</option>
+                    <option th:selected="${checkoutPaymentStatus == 'thanh-toan-mot-phan'}" value="thanh-toan-mot-phan">Thanh toán một phần</option>
+                    <option th:selected="${checkoutPaymentStatus == 'da-thanh-toan'}" value="da-thanh-toan">Đã thanh toán</option>
+                </select>
+            </div>
+            <div class="md:col-span-2">
+                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Sắp xếp</label>
+                <select class="w-full rounded-lg border px-3 py-2" name="checkoutSort">
+                    <option th:selected="${checkoutSort == null or checkoutSort == 'moi-nhat'}" value="moi-nhat">Mới nhất</option>
+                    <option th:selected="${checkoutSort == 'cu-nhat'}" value="cu-nhat">Cũ nhất</option>
+                    <option th:selected="${checkoutSort == 'ngay-tra-tang'}" value="ngay-tra-tang">Ngày trả tăng dần</option>
+                    <option th:selected="${checkoutSort == 'ngay-tra-giam'}" value="ngay-tra-giam">Ngày trả giảm dần</option>
+                    <option th:selected="${checkoutSort == 'con-lai-giam'}" value="con-lai-giam">Công nợ còn lại giảm dần</option>
+                    <option th:selected="${checkoutSort == 'con-lai-tang'}" value="con-lai-tang">Công nợ còn lại tăng dần</option>
+                </select>
+            </div>
+            <div class="flex items-end gap-2">
+                <button class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700" type="submit">Áp dụng</button>
+                <a class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-white"
+                   th:href="@{/receptionist/dashboard(tab='check-out',page=1,size=${size})}">Đặt lại</a>
+            </div>
+        </form>
+
         <div class="overflow-x-auto">
             <table class="min-w-full text-sm">
                 <thead>
@@ -42,32 +73,12 @@
                     <td class="p-2" th:text="${row.trangThaiDatPhong}"></td>
                     <td class="p-2">
                         <div class="space-y-2">
-                            <form class="grid gap-2" method="post" th:action="@{/receptionist/dat-phong/{id}/dich-vu(id=${row.datPhongId})}"
-                                  th:if="${row.trangThaiDatPhong.name() == 'CHECKED_IN'}">
-                                <select class="w-full rounded-lg border px-2 py-1 text-xs" name="dichVuId">
-                                    <option th:each="dv : ${danhSachDichVu}" th:text="${dv.tenDichVu} + ' - ' + ${#numbers.formatDecimal(dv.gia, 0, 'COMMA', 0, 'POINT')} + ' VND'" th:value="${dv.dichVuId}"></option>
-                                </select>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <input class="w-full rounded-lg border px-2 py-1 text-xs" min="1" name="soLuong" step="1" type="number" value="1">
-                                    <button class="rounded-lg bg-indigo-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-indigo-700" type="submit">Thêm dịch vụ</button>
-                                </div>
-                            </form>
+                            <button class="js-open-checkout-confirm w-full rounded-lg bg-emerald-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-emerald-700"
+                                    th:attr="data-checkout-action=@{/receptionist/check-out/{id}(id=${row.datPhongId})},data-booking-code=${row.maDatPhong},data-guest=${row.tenKhachHang},data-room=${row.soPhong},data-can-checkout=${row.trangThaiDatPhong.name() == 'CHECKED_IN' and row.daThanhToanDu},data-so-tien-con-lai=${row.soTienConLai}"
+                                    type="button">Xác nhận check-out</button>
 
-                            <form class="grid gap-2" method="post" th:action="@{/receptionist/thanh-toan/{id}(id=${row.datPhongId})}"
-                                  th:if="${row.trangThaiDatPhong.name() == 'CHECKED_IN' and !row.daThanhToanDu}">
-                                <input class="w-full rounded-lg border px-2 py-1 text-xs" min="1" name="soTienThanhToan"
-                                       step="1" th:attr="max=${row.soTienConLai.longValue()}" th:value="${row.soTienConLai.longValue()}" type="number">
-                                <select class="w-full rounded-lg border px-2 py-1 text-xs" name="phuongThuc">
-                                    <option th:each="method : ${paymentMethods}" th:text="${method}" th:value="${method}"></option>
-                                </select>
-                                <button class="rounded-lg bg-sky-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-sky-700" type="submit">Thu tiền</button>
-                            </form>
-
-                            <form method="post" th:action="@{/receptionist/check-out/{id}(id=${row.datPhongId})}">
-                                <button class="w-full rounded-lg bg-emerald-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-emerald-700"
-                                        th:disabled="${row.trangThaiDatPhong.name() != 'CHECKED_IN' or !row.daThanhToanDu}"
-                                        type="submit">Check-out</button>
-                            </form>
+                            <a class="inline-flex w-full items-center justify-center rounded-lg border border-rose-300 px-3 py-1 text-xs font-semibold text-rose-700 transition hover:bg-rose-50"
+                               th:href="@{/receptionist/dashboard(tab='hoa-don-thanh-toan')}">Sang Hóa đơn để thu tiền/KM</a>
                         </div>
                     </td>
                 </tr>
@@ -78,13 +89,111 @@
             </table>
         </div>
 
-        <div class="mt-4 flex items-center justify-between text-sm text-slate-600" th:if="${totalPages > 1}">
+        <div class="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600" th:if="${totalPages > 1}">
             <p th:text="'Trang ' + ${page} + ' / ' + ${totalPages} + ' - Tổng: ' + ${totalItems}"></p>
-            <div class="flex gap-2">
-                <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/receptionist/dashboard(tab='check-out',page=${page-1},size=${size})}" th:if="${hasPrev}">Trước</a>
-                <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/receptionist/dashboard(tab='check-out',page=${page+1},size=${size})}" th:if="${hasNext}">Sau</a>
+            <div class="flex flex-wrap items-center gap-1">
+                <a class="rounded border px-3 py-1 hover:bg-slate-100"
+                   th:href="@{/receptionist/dashboard(tab='check-out',page=${page-1},size=${size},checkoutPaymentStatus=${checkoutPaymentStatus},checkoutSort=${checkoutSort})}"
+                   th:if="${hasPrev}">Trước</a>
+
+                <a class="rounded border px-3 py-1"
+                   th:classappend="${p == page} ? ' border-emerald-600 bg-emerald-600 text-white' : ' hover:bg-slate-100'"
+                   th:each="p : ${#numbers.sequence(1, totalPages)}"
+                   th:href="@{/receptionist/dashboard(tab='check-out',page=${p},size=${size},checkoutPaymentStatus=${checkoutPaymentStatus},checkoutSort=${checkoutSort})}"
+                   th:text="${p}"></a>
+
+                <a class="rounded border px-3 py-1 hover:bg-slate-100"
+                   th:href="@{/receptionist/dashboard(tab='check-out',page=${page+1},size=${size},checkoutPaymentStatus=${checkoutPaymentStatus},checkoutSort=${checkoutSort})}"
+                   th:if="${hasNext}">Sau</a>
             </div>
         </div>
+
+        <dialog class="w-full max-w-3xl rounded-2xl border border-slate-200 p-0 shadow-2xl backdrop:bg-slate-900/40"
+                id="checkOutDialog">
+            <div class="rounded-2xl bg-white">
+                <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700">Form dialog</p>
+                        <h4 class="text-base font-semibold text-slate-800">Xác nhận check-out</h4>
+                    </div>
+                    <button class="rounded-lg px-2 py-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+                            id="checkOutDialogCloseX"
+                            type="button">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="space-y-4 px-4 py-4">
+                    <p class="text-sm text-slate-600" id="checkOutSelectedBooking">Chưa chọn booking.</p>
+
+                    <form class="grid gap-2 rounded-xl border border-emerald-200 bg-white p-3" id="checkoutConfirmForm" method="post">
+                        <p class="text-sm font-semibold text-emerald-700">Form check-out</p>
+                        <p class="text-xs text-slate-500">Chỉ khả dụng khi booking đã CHECKED_IN và đã thanh toán đủ.</p>
+                        <button class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                id="checkoutConfirmSubmitBtn"
+                                type="submit"
+                                disabled>Xác nhận check-out</button>
+                    </form>
+                </div>
+
+                <div class="border-t border-slate-200 px-4 py-3 text-right">
+                    <button class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                            id="checkOutDialogCloseBtn"
+                            type="button">Đóng</button>
+                </div>
+            </div>
+        </dialog>
+
+        <script>
+            (function () {
+                const triggerButtons = document.querySelectorAll(".js-open-checkout-confirm");
+                const selectedBookingText = document.getElementById("checkOutSelectedBooking");
+
+                const checkoutForm = document.getElementById("checkoutConfirmForm");
+                const checkoutSubmitBtn = document.getElementById("checkoutConfirmSubmitBtn");
+
+                const dialog = document.getElementById("checkOutDialog");
+                const closeBtn = document.getElementById("checkOutDialogCloseBtn");
+                const closeBtnX = document.getElementById("checkOutDialogCloseX");
+
+                if (!selectedBookingText || !checkoutForm || !checkoutSubmitBtn || !dialog) {
+                    return;
+                }
+
+                const closeDialog = () => dialog.close();
+                closeBtn?.addEventListener("click", closeDialog);
+                closeBtnX?.addEventListener("click", closeDialog);
+                dialog.addEventListener("click", (event) => {
+                    const rect = dialog.getBoundingClientRect();
+                    const insideDialog = rect.top <= event.clientY
+                        && event.clientY <= rect.bottom
+                        && rect.left <= event.clientX
+                        && event.clientX <= rect.right;
+                    if (!insideDialog) {
+                        dialog.close();
+                    }
+                });
+
+                triggerButtons.forEach((button) => {
+                    button.addEventListener("click", () => {
+                        const checkoutAction = button.getAttribute("data-checkout-action") || "";
+
+                        const bookingCode = button.getAttribute("data-booking-code") || "";
+                        const guest = button.getAttribute("data-guest") || "";
+                        const room = button.getAttribute("data-room") || "";
+
+                        const canCheckout = button.getAttribute("data-can-checkout") === "true";
+                        const remaining = button.getAttribute("data-so-tien-con-lai") || "0";
+
+                        checkoutForm.setAttribute("action", checkoutAction);
+                        checkoutSubmitBtn.disabled = !canCheckout || !checkoutAction;
+
+                        selectedBookingText.textContent = `Đang thao tác booking ${bookingCode} - ${guest}, phòng ${room}. Công nợ còn lại: ${remaining} VND.`;
+                        dialog.showModal();
+                    });
+                });
+            })();
+        </script>
     </section>
 </section>
 </body>

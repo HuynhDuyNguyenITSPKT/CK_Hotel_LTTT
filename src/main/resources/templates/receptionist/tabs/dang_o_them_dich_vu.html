@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section class="space-y-4" id="section-dang-o-them-dich-vu" th:fragment="panel" th:if="${activeTab == 'dang-o-them-dich-vu'}">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 class="text-2xl font-bold">Khách đang ở và thêm dịch vụ</h2>
+        <span class="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">Chỉ booking CHECKED_IN mới được cộng dịch vụ</span>
+    </div>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <form class="mb-4 grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 md:grid-cols-4" method="get" th:action="@{/receptionist/dashboard}">
+            <input name="tab" type="hidden" value="dang-o-them-dich-vu">
+            <input name="page" type="hidden" value="1">
+            <input name="size" th:value="${size}" type="hidden">
+            <div class="md:col-span-2">
+                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Sắp xếp</label>
+                <select class="w-full rounded-lg border px-3 py-2" name="inStaySort">
+                    <option th:selected="${inStaySort == null or inStaySort == 'moi-nhat'}" value="moi-nhat">Mới nhất</option>
+                    <option th:selected="${inStaySort == 'cu-nhat'}" value="cu-nhat">Cũ nhất</option>
+                    <option th:selected="${inStaySort == 'khach-a-z'}" value="khach-a-z">Tên khách A-Z</option>
+                    <option th:selected="${inStaySort == 'khach-z-a'}" value="khach-z-a">Tên khách Z-A</option>
+                </select>
+            </div>
+            <div class="md:col-span-2 flex items-end gap-2">
+                <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700" type="submit">Áp dụng</button>
+                <a class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-white"
+                   th:href="@{/receptionist/dashboard(tab='dang-o-them-dich-vu',page=1,size=${size})}">Đặt lại</a>
+            </div>
+        </form>
+
+        <div class="grid gap-5 xl:grid-cols-[1.05fr_1.45fr]">
+            <section class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <div class="mb-3">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Bước 1</p>
+                    <h4 class="text-base font-semibold text-slate-800">Chọn khách hàng đang lưu trú</h4>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                        <thead>
+                        <tr class="border-b border-slate-200 text-left">
+                            <th class="p-2">Mã đặt phòng</th>
+                            <th class="p-2">Khách hàng</th>
+                            <th class="p-2">Phòng</th>
+                            <th class="p-2">Thao tác</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr class="border-b border-slate-200"
+                            th:classappend="${iter.odd} ? ' bg-white'"
+                            th:each="row,iter : ${danhSachDangOThemDichVu}">
+                            <td class="p-2 font-semibold text-slate-700" th:text="${row.maDatPhong}"></td>
+                            <td class="p-2" th:text="${row.tenKhachHang}"></td>
+                            <td class="p-2" th:text="${row.soPhong}"></td>
+                            <td class="p-2">
+                                <button class="js-select-booking rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-indigo-700"
+                                        th:attr="data-booking-id=${row.datPhongId},data-action=@{/receptionist/dang-o/{id}/dich-vu(id=${row.datPhongId})},data-booking-code=${row.maDatPhong},data-guest=${row.tenKhachHang},data-room=${row.soPhong},data-ngay-nhan=${#temporals.format(row.ngayNhan, 'dd/MM/yyyy')},data-ngay-tra=${#temporals.format(row.ngayTra, 'dd/MM/yyyy')}"
+                                        type="button">Chọn</button>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(danhSachDangOThemDichVu)}">
+                            <td class="p-3 text-center text-slate-500" colspan="4">Không có booking CHECKED_IN để thêm dịch vụ.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="space-y-4 rounded-xl border border-indigo-200 bg-indigo-50/50 p-4">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-indigo-700">Bước 2</p>
+                    <h4 class="text-base font-semibold text-slate-800">Thêm dịch vụ ngay trên giao diện</h4>
+                    <p class="text-sm text-slate-600" id="addServiceSelectedBooking">Chưa chọn khách hàng.</p>
+                </div>
+
+                <form class="grid gap-3 rounded-xl border border-indigo-200 bg-white p-3 md:grid-cols-[1fr_110px_auto]"
+                      id="addServiceForm"
+                      method="post">
+                    <input id="selectedServiceId" name="dichVuId" type="hidden">
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
+                        <p class="text-xs font-semibold uppercase text-slate-500">Dịch vụ đã chọn</p>
+                        <p class="font-semibold text-slate-800" id="selectedServiceText">Chưa chọn dịch vụ</p>
+                    </div>
+                    <input class="w-full rounded-lg border px-3 py-2 text-sm" id="selectedServiceQty" min="1" name="soLuong" step="1" type="number" value="1">
+                    <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            id="addServiceSubmitBtn"
+                            type="submit"
+                            disabled>Thêm dịch vụ</button>
+                </form>
+
+                <div class="rounded-xl border border-indigo-100 bg-white p-3">
+                    <p class="mb-3 text-sm font-semibold text-indigo-800">Danh mục dịch vụ</p>
+                    <div class="grid gap-3 sm:grid-cols-2">
+                        <article class="service-item overflow-hidden rounded-lg border border-indigo-100 bg-white"
+                                 th:attr="data-service-id=${dv.dichVuId},data-service-name=${dv.tenDichVu},data-service-price=${#numbers.formatDecimal(dv.gia, 0, 'COMMA', 0, 'POINT')} + ' VND'"
+                                 th:each="dv : ${danhSachDichVu}">
+                            <div class="aspect-[16/9] w-full bg-slate-100">
+                                <img alt="Dịch vụ"
+                                     class="h-full w-full object-cover"
+                                     th:if="${dv.imageUrl != null and !dv.imageUrl.isBlank()}"
+                                     th:src="${dv.imageUrl}">
+                                <div class="flex h-full items-center justify-center text-slate-400" th:if="${dv.imageUrl == null or dv.imageUrl.isBlank()}">
+                                    <i class="fa-solid fa-bell-concierge text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="space-y-2 p-3">
+                                <p class="text-xs font-semibold text-slate-500" th:text="'DV-' + ${dv.dichVuId}"></p>
+                                <p class="text-sm font-semibold text-slate-800" th:text="${dv.tenDichVu}"></p>
+                                <p class="text-sm font-semibold text-indigo-700" th:text="${#numbers.formatDecimal(dv.gia, 0, 'COMMA', 0, 'POINT')} + ' VND'"></p>
+                                <button class="js-pick-service w-full rounded-lg border border-indigo-300 px-3 py-1.5 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-50"
+                                        type="button">Chọn dịch vụ này</button>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <section class="mt-5 rounded-xl border border-indigo-200 bg-indigo-50/50 p-4">
+            <div class="mb-3">
+                <p class="text-xs font-semibold uppercase tracking-wide text-indigo-700">Bước 3</p>
+                <h4 class="text-base font-semibold text-slate-800">Chi tiết dịch vụ của khách hàng đã chọn</h4>
+                <p class="text-sm text-slate-600" id="selectedUsageSummary">Vui lòng chọn khách để xem lịch sử sử dụng dịch vụ.</p>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead>
+                    <tr class="border-b border-slate-200 text-left">
+                        <th class="p-2">Dịch vụ</th>
+                        <th class="p-2">Phòng</th>
+                        <th class="p-2">Số lượng</th>
+                        <th class="p-2">Đơn giá</th>
+                        <th class="p-2">Thành tiền</th>
+                        <th class="p-2">Thời điểm</th>
+                        <th class="p-2">Xử lý</th>
+                    </tr>
+                    </thead>
+                    <tbody id="selectedUsageBody">
+                    <tr>
+                        <td class="p-3 text-center text-slate-500" colspan="7">Chưa có dữ liệu để hiển thị.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div class="hidden" id="serviceUsageData">
+            <div th:each="item : ${danhSachSuDungDichVu}"
+                 th:attr="data-usage-id=${item.suDungDichVuId},data-booking-id=${item.datPhongId},data-booking-code=${item.maDatPhong},data-service-name=${item.tenDichVu},data-room=${item.soPhong},data-quantity=${item.soLuong},data-unit-price=${#numbers.formatDecimal(item.donGia, 0, 'COMMA', 0, 'POINT')} + ' VND',data-total-price=${#numbers.formatDecimal(item.thanhTien, 0, 'COMMA', 0, 'POINT')} + ' VND',data-time=${item.thoiDiem != null ? #temporals.format(item.thoiDiem, 'dd/MM/yyyy HH:mm') : '--'},data-delete-action=@{/receptionist/dich-vu-su-dung/{id}/xoa(id=${item.suDungDichVuId})}"></div>
+        </div>
+        <div class="hidden" id="selectedBookingConfig" th:attr="data-selected-booking-id=${selectedBookingId}"></div>
+
+        <div class="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600" th:if="${totalPages > 1}">
+            <p th:text="'Trang ' + ${page} + ' / ' + ${totalPages} + ' - Tổng: ' + ${totalItems}"></p>
+            <div class="flex flex-wrap items-center gap-1">
+                <a class="rounded border px-3 py-1 hover:bg-slate-100"
+                   th:href="@{/receptionist/dashboard(tab='dang-o-them-dich-vu',page=${page-1},size=${size},inStaySort=${inStaySort})}"
+                   th:if="${hasPrev}">Trước</a>
+
+                <a class="rounded border px-3 py-1"
+                   th:classappend="${p == page} ? ' border-indigo-600 bg-indigo-600 text-white' : ' hover:bg-slate-100'"
+                   th:each="p : ${#numbers.sequence(1, totalPages)}"
+                   th:href="@{/receptionist/dashboard(tab='dang-o-them-dich-vu',page=${p},size=${size},inStaySort=${inStaySort})}"
+                   th:text="${p}"></a>
+
+                <a class="rounded border px-3 py-1 hover:bg-slate-100"
+                   th:href="@{/receptionist/dashboard(tab='dang-o-them-dich-vu',page=${page+1},size=${size},inStaySort=${inStaySort})}"
+                   th:if="${hasNext}">Sau</a>
+            </div>
+        </div>
+
+        <dialog class="w-full max-w-lg rounded-2xl border border-slate-200 p-0 shadow-2xl backdrop:bg-slate-900/40"
+                id="deleteServiceDialog">
+            <div class="rounded-2xl bg-white">
+                <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-rose-700">Xác nhận xóa</p>
+                        <h4 class="text-base font-semibold text-slate-800">Xóa dịch vụ đã thêm</h4>
+                    </div>
+                    <button class="rounded-lg px-2 py-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+                            id="deleteServiceCloseX"
+                            type="button">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="space-y-4 px-4 py-4">
+                    <p class="text-sm text-slate-600" id="deleteServiceSummary">Bạn có chắc muốn xóa dịch vụ này không?</p>
+
+                    <form id="deleteServiceForm" method="post">
+                        <input name="redirectTab" type="hidden" value="dang-o-them-dich-vu">
+                        <input id="deleteServiceSelectedBookingId" name="selectedBookingId" type="hidden">
+                        <button class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-700"
+                                type="submit">Xóa dịch vụ</button>
+                    </form>
+                </div>
+
+                <div class="border-t border-slate-200 px-4 py-3 text-right">
+                    <button class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                            id="deleteServiceCloseBtn"
+                            type="button">Đóng</button>
+                </div>
+            </div>
+        </dialog>
+
+        <script>
+            (function () {
+                const bookingButtons = document.querySelectorAll(".js-select-booking");
+                const serviceButtons = document.querySelectorAll(".js-pick-service");
+                const serviceItems = document.querySelectorAll(".service-item");
+
+                const form = document.getElementById("addServiceForm");
+                const selectedBookingText = document.getElementById("addServiceSelectedBooking");
+                const selectedServiceIdInput = document.getElementById("selectedServiceId");
+                const selectedServiceText = document.getElementById("selectedServiceText");
+                const submitBtn = document.getElementById("addServiceSubmitBtn");
+                const usageRows = Array.from(document.querySelectorAll("#serviceUsageData > div"));
+                const selectedBookingConfig = document.getElementById("selectedBookingConfig");
+                const usageSummary = document.getElementById("selectedUsageSummary");
+                const usageBody = document.getElementById("selectedUsageBody");
+                const deleteDialog = document.getElementById("deleteServiceDialog");
+                const deleteForm = document.getElementById("deleteServiceForm");
+                const deleteSummary = document.getElementById("deleteServiceSummary");
+                const deleteSelectedBookingId = document.getElementById("deleteServiceSelectedBookingId");
+                const deleteCloseBtn = document.getElementById("deleteServiceCloseBtn");
+                const deleteCloseX = document.getElementById("deleteServiceCloseX");
+
+                if (!form || !selectedBookingText || !selectedServiceIdInput || !selectedServiceText || !submitBtn || !usageSummary || !usageBody) {
+                    return;
+                }
+
+                function renderUsage(bookingId, bookingCode, guest) {
+                    const data = usageRows
+                        .filter((item) => item.getAttribute("data-booking-id") === bookingId)
+                        .map((item) => ({
+                            usageId: item.getAttribute("data-usage-id") || "",
+                            deleteAction: item.getAttribute("data-delete-action") || "",
+                            serviceName: item.getAttribute("data-service-name") || "--",
+                            room: item.getAttribute("data-room") || "--",
+                            quantity: item.getAttribute("data-quantity") || "0",
+                            unitPrice: item.getAttribute("data-unit-price") || "0 VND",
+                            totalPrice: item.getAttribute("data-total-price") || "0 VND",
+                            time: item.getAttribute("data-time") || "--"
+                        }));
+
+                    if (data.length === 0) {
+                        usageSummary.textContent = `Khách ${guest} (${bookingCode}) chưa sử dụng dịch vụ nào.`;
+                        usageBody.innerHTML = '<tr><td class="p-3 text-center text-slate-500" colspan="7">Chưa có dịch vụ cho khách này.</td></tr>';
+                        return;
+                    }
+
+                    usageSummary.textContent = `Đang hiển thị ${data.length} dòng dịch vụ của ${guest} (${bookingCode}).`;
+                    usageBody.innerHTML = data.map((item) => `
+                        <tr class="border-b border-slate-100">
+                            <td class="p-2 font-semibold text-slate-700">${item.serviceName}</td>
+                            <td class="p-2">${item.room}</td>
+                            <td class="p-2">${item.quantity}</td>
+                            <td class="p-2">${item.unitPrice}</td>
+                            <td class="p-2 font-semibold text-indigo-700">${item.totalPrice}</td>
+                            <td class="p-2 text-slate-500">${item.time}</td>
+                            <td class="p-2">
+                                <button class="js-delete-service rounded-lg bg-rose-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-rose-700"
+                                        data-usage-id="${item.usageId}"
+                                        data-delete-action="${item.deleteAction}"
+                                        data-service-name="${item.serviceName}"
+                                        data-booking-id="${bookingId}"
+                                        type="button">Xóa</button>
+                            </td>
+                        </tr>
+                    `).join("");
+                }
+
+                function capNhatTrangThaiNut() {
+                    const daChonKhach = form.getAttribute("action") && form.getAttribute("action").length > 0;
+                    const daChonDichVu = selectedServiceIdInput.value && selectedServiceIdInput.value.length > 0;
+                    submitBtn.disabled = !(daChonKhach && daChonDichVu);
+                }
+
+                bookingButtons.forEach((button) => {
+                    button.addEventListener("click", () => {
+                        const bookingId = button.getAttribute("data-booking-id") || "";
+                        const action = button.getAttribute("data-action") || "";
+                        const bookingCode = button.getAttribute("data-booking-code") || "";
+                        const guest = button.getAttribute("data-guest") || "";
+                        const room = button.getAttribute("data-room") || "";
+                        const ngayNhan = button.getAttribute("data-ngay-nhan") || "";
+                        const ngayTra = button.getAttribute("data-ngay-tra") || "";
+
+                        form.setAttribute("action", action);
+                        selectedBookingText.textContent = `Đang chọn ${guest} (${bookingCode}) - Phòng ${room}, ở từ ${ngayNhan} đến ${ngayTra}.`;
+                        capNhatTrangThaiNut();
+                        renderUsage(bookingId, bookingCode, guest);
+                    });
+                });
+
+                serviceButtons.forEach((button) => {
+                    button.addEventListener("click", () => {
+                        const card = button.closest(".service-item");
+                        if (!card) {
+                            return;
+                        }
+
+                        const serviceId = card.getAttribute("data-service-id") || "";
+                        const serviceName = card.getAttribute("data-service-name") || "";
+                        const servicePrice = card.getAttribute("data-service-price") || "";
+
+                        selectedServiceIdInput.value = serviceId;
+                        selectedServiceText.textContent = `${serviceName} (${servicePrice})`;
+                        capNhatTrangThaiNut();
+
+                        serviceItems.forEach((item) => {
+                            item.classList.remove("ring-2", "ring-indigo-400", "bg-indigo-50/40");
+                        });
+                        card.classList.add("ring-2", "ring-indigo-400", "bg-indigo-50/40");
+
+                        form.scrollIntoView({ behavior: "smooth", block: "center" });
+                    });
+                });
+
+                form.addEventListener("submit", (event) => {
+                    if (!form.getAttribute("action") || !selectedServiceIdInput.value) {
+                        event.preventDefault();
+                    }
+                });
+
+                if (deleteDialog && deleteForm && deleteSummary && deleteSelectedBookingId) {
+                    const closeDeleteDialog = () => deleteDialog.close();
+                    deleteCloseBtn?.addEventListener("click", closeDeleteDialog);
+                    deleteCloseX?.addEventListener("click", closeDeleteDialog);
+                    deleteDialog.addEventListener("click", (event) => {
+                        const rect = deleteDialog.getBoundingClientRect();
+                        const insideDialog = rect.top <= event.clientY
+                            && event.clientY <= rect.bottom
+                            && rect.left <= event.clientX
+                            && event.clientX <= rect.right;
+                        if (!insideDialog) {
+                            deleteDialog.close();
+                        }
+                    });
+
+                    usageBody.addEventListener("click", (event) => {
+                        const button = event.target.closest(".js-delete-service");
+                        if (!button) {
+                            return;
+                        }
+
+                        const deleteAction = button.getAttribute("data-delete-action") || "";
+                        const serviceName = button.getAttribute("data-service-name") || "";
+                        const bookingId = button.getAttribute("data-booking-id") || "";
+
+                        if (!deleteAction) {
+                            return;
+                        }
+
+                        deleteForm.setAttribute("action", deleteAction);
+                        deleteSelectedBookingId.value = bookingId;
+                        deleteSummary.textContent = `Bạn có chắc muốn xóa dịch vụ "${serviceName}" không?`;
+                        deleteDialog.showModal();
+                    });
+                }
+
+                const selectedBookingId = selectedBookingConfig?.getAttribute("data-selected-booking-id") || "";
+                if (selectedBookingId) {
+                    const matchedButton = Array.from(bookingButtons).find(
+                        (button) => button.getAttribute("data-booking-id") === selectedBookingId
+                    );
+                    matchedButton?.click();
+                }
+            })();
+        </script>
+    </section>
+</section>
+</body>
+</html>

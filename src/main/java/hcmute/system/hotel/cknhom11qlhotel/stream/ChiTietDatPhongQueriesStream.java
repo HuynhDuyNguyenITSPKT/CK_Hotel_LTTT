@@ -1,4 +1,4 @@
-package hcmute.system.hotel.cknhom11qlhotel.service.receptionist.stream;
+package hcmute.system.hotel.cknhom11qlhotel.stream;
 
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.ChiTietDatPhong;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.DatPhong;
@@ -53,7 +53,7 @@ public class ChiTietDatPhongQueriesStream {
                 });
 
         ketQua.values().forEach(danhSach -> danhSach.sort(Comparator
-                .comparing(ChiTietDatPhong::getNgayNhan, Comparator.nullsLast(Comparator.naturalOrder()))
+            .comparing(this::ngayNhanCuaChiTiet, Comparator.nullsLast(Comparator.naturalOrder()))
                 .thenComparing(ChiTietDatPhong::getId, Comparator.nullsLast(Comparator.naturalOrder()))));
 
         return ketQua;
@@ -68,7 +68,7 @@ public class ChiTietDatPhongQueriesStream {
                         && chiTiet.getDatPhong().getId() != null
                         && chiTiet.getDatPhong().getId().equals(datPhongId))
                 .sorted(Comparator
-                        .comparing(ChiTietDatPhong::getNgayNhan, Comparator.nullsLast(Comparator.naturalOrder()))
+                    .comparing(this::ngayNhanCuaChiTiet, Comparator.nullsLast(Comparator.naturalOrder()))
                         .thenComparing(ChiTietDatPhong::getId, Comparator.nullsLast(Comparator.naturalOrder())))
                 .toList();
     }
@@ -79,12 +79,12 @@ public class ChiTietDatPhongQueriesStream {
         }
 
         return danhSachChiTiet.stream()
-                .filter(chiTiet -> chiTiet.getNgayNhan() != null
-                        && chiTiet.getNgayTra() != null
-                        && !ngay.isBefore(chiTiet.getNgayNhan())
-                        && ngay.isBefore(chiTiet.getNgayTra()))
+            .filter(chiTiet -> ngayNhanCuaChiTiet(chiTiet) != null
+                && ngayTraCuaChiTiet(chiTiet) != null
+                && !ngay.isBefore(ngayNhanCuaChiTiet(chiTiet))
+                && ngay.isBefore(ngayTraCuaChiTiet(chiTiet)))
                 .sorted(Comparator
-                        .comparing(ChiTietDatPhong::getNgayNhan, Comparator.nullsLast(Comparator.naturalOrder()))
+                .comparing(this::ngayNhanCuaChiTiet, Comparator.nullsLast(Comparator.naturalOrder()))
                         .thenComparing(ChiTietDatPhong::getId, Comparator.nullsLast(Comparator.naturalOrder())))
                 .toList();
     }
@@ -98,7 +98,7 @@ public class ChiTietDatPhongQueriesStream {
 
     public List<ChiTietDatPhong> locTheoNgayNhan(List<Object> duLieu, LocalDate ngay) {
         return objectStreamSupport.streamTheoLoai(duLieu, ChiTietDatPhong.class)
-                .filter(chiTiet -> ngay != null && ngay.equals(chiTiet.getNgayNhan()))
+                .filter(chiTiet -> ngay != null && ngay.equals(ngayNhanCuaChiTiet(chiTiet)))
                 .toList();
     }
 
@@ -115,7 +115,7 @@ public class ChiTietDatPhongQueriesStream {
                     DatPhong datPhong = chiTiet.getDatPhong();
                     return datPhong != null && !tapTrangThaiBoQua.contains(datPhong.getTrangThai());
                 })
-                .anyMatch(chiTiet -> giaoNgay(chiTiet.getNgayNhan(), chiTiet.getNgayTra(), ngayNhanMoi, ngayTraMoi));
+                .anyMatch(chiTiet -> giaoNgay(ngayNhanCuaChiTiet(chiTiet), ngayTraCuaChiTiet(chiTiet), ngayNhanMoi, ngayTraMoi));
     }
 
     public Optional<ChiTietDatPhong> timTheoDatPhongId(List<Object> duLieu, Long datPhongId) {
@@ -139,6 +139,20 @@ public class ChiTietDatPhongQueriesStream {
             return 1;
         }
         return idA.compareTo(idB);
+    }
+
+    private LocalDate ngayNhanCuaChiTiet(ChiTietDatPhong chiTietDatPhong) {
+        if (chiTietDatPhong == null || chiTietDatPhong.getDatPhong() == null) {
+            return null;
+        }
+        return chiTietDatPhong.getDatPhong().getNgayNhan();
+    }
+
+    private LocalDate ngayTraCuaChiTiet(ChiTietDatPhong chiTietDatPhong) {
+        if (chiTietDatPhong == null || chiTietDatPhong.getDatPhong() == null) {
+            return null;
+        }
+        return chiTietDatPhong.getDatPhong().getNgayTra();
     }
 
     private boolean giaoNgay(LocalDate ngayNhanA,

@@ -15,6 +15,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,12 @@ public class DatPhong {
 
     @Column(name = "ngay_dat", nullable = false)
     private LocalDateTime ngayDat;
+
+    @Column(name = "ngay_nhan")
+    private LocalDate ngayNhan;
+
+    @Column(name = "ngay_tra")
+    private LocalDate ngayTra;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "trang_thai", nullable = false, length = 30)
@@ -81,6 +88,22 @@ public class DatPhong {
 
     public void setNgayDat(LocalDateTime ngayDat) {
         this.ngayDat = ngayDat;
+    }
+
+    public LocalDate getNgayNhan() {
+        return ngayNhan;
+    }
+
+    public void setNgayNhan(LocalDate ngayNhan) {
+        this.ngayNhan = ngayNhan;
+    }
+
+    public LocalDate getNgayTra() {
+        return ngayTra;
+    }
+
+    public void setNgayTra(LocalDate ngayTra) {
+        this.ngayTra = ngayTra;
     }
 
     public BookingStatus getTrangThai() {

@@ -127,7 +127,7 @@ FROM tmp_seq_20 s;
 -- =========================
 -- 6) DAT_PHONG (FIX TIME)
 -- =========================
-INSERT INTO dat_phong (khach_hang_id, nhan_vien_id, ngay_dat, trang_thai)
+INSERT INTO dat_phong (khach_hang_id, nhan_vien_id, ngay_dat, ngay_nhan, ngay_tra, trang_thai)
 SELECT
     kh.id,
     CASE MOD(s.n - 1, 4)
@@ -136,7 +136,9 @@ SELECT
         WHEN 2 THEN @NV3
         ELSE @NV4
     END,
-    TIMESTAMP(@BASE_DATE) + INTERVAL FLOOR(RAND()*180) DAY,
+    TIMESTAMP(@BASE_DATE) + INTERVAL (s.n * 5) DAY,
+    DATE(TIMESTAMP(@BASE_DATE) + INTERVAL (s.n * 5) DAY) + INTERVAL 1 DAY,
+    DATE(TIMESTAMP(@BASE_DATE) + INTERVAL (s.n * 5) DAY) + INTERVAL (2 + MOD(s.n, 3)) DAY,
     CASE MOD(s.n, 5)
         WHEN 1 THEN 'PENDING'
         WHEN 2 THEN 'CONFIRMED'
@@ -151,12 +153,10 @@ ON kh.email = CONCAT('seed20_', LPAD(s.n, 2, '0'), '@test.local');
 -- =========================
 -- 7) CHI_TIET_DAT_PHONG
 -- =========================
-INSERT INTO chi_tiet_dat_phong (dat_phong_id, phong_id, ngay_nhan, ngay_tra, gia)
+INSERT INTO chi_tiet_dat_phong (dat_phong_id, phong_id, gia)
 SELECT
     dp.id,
     p.id,
-    DATE(dp.ngay_dat) + INTERVAL 1 DAY,
-    DATE(dp.ngay_dat) + INTERVAL (2 + MOD(s.n, 3)) DAY,
     lp.gia_co_ban
 FROM tmp_seq_20 s
 JOIN khach_hang kh ON kh.email = CONCAT('seed20_', LPAD(s.n, 2, '0'), '@test.local')

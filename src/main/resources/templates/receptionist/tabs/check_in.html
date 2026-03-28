@@ -36,9 +36,9 @@
                               th:text="${row.trangThai}"></span>
                     </td>
                     <td class="p-2">
-                        <form method="post" th:action="@{/receptionist/check-in/{id}(id=${row.datPhongId})}">
-                            <button class="rounded-lg bg-cyan-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-cyan-700" type="submit">Check-in</button>
-                        </form>
+                        <button class="js-open-checkin-form rounded-lg bg-cyan-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-cyan-700"
+                                th:attr="data-action=@{/receptionist/check-in/{id}(id=${row.datPhongId})},data-booking-code=${row.maDatPhong},data-guest=${row.tenKhachHang},data-room=${row.soPhong},data-checkin-date=${#temporals.format(row.ngayNhan, 'dd/MM/yyyy')}"
+                                type="button">Check-in</button>
                     </td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(danhSachCheckIn)}">
@@ -48,13 +48,99 @@
             </table>
         </div>
 
-        <div class="mt-4 flex items-center justify-between text-sm text-slate-600" th:if="${totalPages > 1}">
+        <div class="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600" th:if="${totalPages > 1}">
             <p th:text="'Trang ' + ${page} + ' / ' + ${totalPages} + ' - Tổng: ' + ${totalItems}"></p>
-            <div class="flex gap-2">
+            <div class="flex flex-wrap items-center gap-1">
                 <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/receptionist/dashboard(tab='check-in',page=${page-1},size=${size})}" th:if="${hasPrev}">Trước</a>
+
+                <a class="rounded border px-3 py-1"
+                   th:classappend="${p == page} ? ' border-cyan-600 bg-cyan-600 text-white' : ' hover:bg-slate-100'"
+                   th:each="p : ${#numbers.sequence(1, totalPages)}"
+                   th:href="@{/receptionist/dashboard(tab='check-in',page=${p},size=${size})}"
+                   th:text="${p}"></a>
+
                 <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/receptionist/dashboard(tab='check-in',page=${page+1},size=${size})}" th:if="${hasNext}">Sau</a>
             </div>
         </div>
+
+        <dialog class="w-full max-w-xl rounded-2xl border border-slate-200 p-0 shadow-2xl backdrop:bg-slate-900/40"
+                id="checkInDialog">
+            <div class="rounded-2xl bg-white">
+                <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-cyan-700">Form dialog</p>
+                        <h4 class="text-base font-semibold text-slate-800">Xác nhận check-in</h4>
+                    </div>
+                    <button class="rounded-lg px-2 py-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+                            id="checkInDialogCloseX"
+                            type="button">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="space-y-4 px-4 py-4">
+                    <p class="text-sm text-slate-600" id="checkInSelectedBooking">Chưa chọn booking.</p>
+
+                    <form id="checkInForm" method="post">
+                        <button class="rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                id="checkInSubmitBtn"
+                                type="submit"
+                                disabled>Xác nhận check-in</button>
+                    </form>
+                </div>
+
+                <div class="border-t border-slate-200 px-4 py-3 text-right">
+                    <button class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                            id="checkInDialogCloseBtn"
+                            type="button">Đóng</button>
+                </div>
+            </div>
+        </dialog>
+
+        <script>
+            (function () {
+                const triggerButtons = document.querySelectorAll(".js-open-checkin-form");
+                const form = document.getElementById("checkInForm");
+                const selectedBookingText = document.getElementById("checkInSelectedBooking");
+                const submitBtn = document.getElementById("checkInSubmitBtn");
+                const dialog = document.getElementById("checkInDialog");
+                const closeBtn = document.getElementById("checkInDialogCloseBtn");
+                const closeBtnX = document.getElementById("checkInDialogCloseX");
+
+                if (!form || !selectedBookingText || !submitBtn || !dialog) {
+                    return;
+                }
+
+                const closeDialog = () => dialog.close();
+                closeBtn?.addEventListener("click", closeDialog);
+                closeBtnX?.addEventListener("click", closeDialog);
+                dialog.addEventListener("click", (event) => {
+                    const rect = dialog.getBoundingClientRect();
+                    const insideDialog = rect.top <= event.clientY
+                        && event.clientY <= rect.bottom
+                        && rect.left <= event.clientX
+                        && event.clientX <= rect.right;
+                    if (!insideDialog) {
+                        dialog.close();
+                    }
+                });
+
+                triggerButtons.forEach((button) => {
+                    button.addEventListener("click", () => {
+                        const action = button.getAttribute("data-action") || "";
+                        const bookingCode = button.getAttribute("data-booking-code") || "";
+                        const guest = button.getAttribute("data-guest") || "";
+                        const room = button.getAttribute("data-room") || "";
+                        const checkInDate = button.getAttribute("data-checkin-date") || "";
+
+                        form.setAttribute("action", action);
+                        submitBtn.disabled = !action;
+                        selectedBookingText.textContent = `Đang thao tác booking ${bookingCode} - ${guest}, phòng ${room}, ngày nhận ${checkInDate}.`;
+                        dialog.showModal();
+                    });
+                });
+            })();
+        </script>
     </section>
 </section>
 </body>

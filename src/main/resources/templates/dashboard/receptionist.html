@@ -2,40 +2,212 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Bảng điều khiển lễ tân</title>
+    <title>Trung tâm lễ tân</title>
     <meta content="width=device-width, initial-scale=1" name="viewport">
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --front-bg: #f7f4ee;
+            --front-surface: rgba(255, 255, 255, 0.88);
+            --front-text: #1f2833;
+            --front-muted: #5f6772;
+            --front-brand: #0f766e;
+            --front-accent: #d97706;
+            --front-sidebar: #1f2937;
+        }
+
+        body.reception-front {
+            font-family: "Nunito Sans", sans-serif;
+            color: var(--front-text);
+            background:
+                    radial-gradient(circle at 12% 10%, rgba(13, 148, 136, 0.2), transparent 36%),
+                    radial-gradient(circle at 86% 14%, rgba(217, 119, 6, 0.19), transparent 34%),
+                    linear-gradient(180deg, #fcfaf6 0%, var(--front-bg) 100%);
+        }
+
+        .front-title {
+            font-family: "Sora", sans-serif;
+            letter-spacing: -0.02em;
+        }
+
+        .front-panel {
+            background: var(--front-surface);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.24);
+            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.06);
+        }
+
+        .front-chip {
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.18), rgba(13, 148, 136, 0.18));
+        }
+
+        .front-rise {
+            animation: frontRise 0.55s ease both;
+        }
+
+        .front-rise-delay {
+            animation: frontRise 0.65s ease both;
+        }
+
+        @keyframes frontRise {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
-<body class="bg-slate-100 text-slate-800">
-<div class="min-h-screen lg:grid lg:grid-cols-[260px_1fr]">
-    <aside class="bg-emerald-800 text-emerald-50 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
-        <div class="px-6 py-5 border-b border-emerald-700">
-            <h1 class="font-bold text-lg"><i class="fa-solid fa-bell-concierge mr-2"></i>Reception Panel</h1>
-            <p class="text-sm text-emerald-200 mt-2" th:text="'Xin chào, ' + ${currentUser.employeeName}"></p>
+<body class="reception-front">
+<div class="min-h-screen lg:grid lg:grid-cols-[300px_1fr]">
+    <aside class="relative overflow-hidden bg-slate-800 text-slate-100 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
+        <div class="absolute -left-8 top-8 h-28 w-28 rounded-full bg-teal-500/30 blur-2xl"></div>
+        <div class="absolute -right-8 bottom-14 h-24 w-24 rounded-full bg-amber-400/25 blur-2xl"></div>
+
+        <div class="relative border-b border-slate-700 px-6 py-6">
+            <p class="text-xs uppercase tracking-[0.22em] text-amber-300">Front Office</p>
+            <h1 class="front-title mt-2 text-xl font-bold">
+                <i class="fa-solid fa-bell-concierge mr-2 text-teal-300"></i>
+                Trung tâm lễ tân
+            </h1>
+            <p class="mt-3 text-sm text-slate-300" th:text="'Xin chào, ' + ${currentUser.employeeName}"></p>
         </div>
-        <nav class="px-4 py-4 space-y-2 text-sm">
-            <div class="rounded-lg bg-emerald-700 px-3 py-2"><i class="fa-solid fa-gauge mr-2"></i>Tổng quan</div>
-            <div class="rounded-lg hover:bg-emerald-700 px-3 py-2"><i class="fa-solid fa-door-open mr-2"></i>Check-in nhanh</div>
-            <div class="rounded-lg hover:bg-emerald-700 px-3 py-2"><i class="fa-solid fa-door-closed mr-2"></i>Check-out</div>
-            <div class="rounded-lg hover:bg-emerald-700 px-3 py-2"><i class="fa-solid fa-file-invoice-dollar mr-2"></i>Hóa đơn</div>
+
+        <nav class="relative px-5 py-5 text-sm">
+            <ul class="space-y-2">
+                <li class="front-chip rounded-xl px-4 py-3 font-semibold text-slate-50"><i class="fa-solid fa-gauge-high mr-2 text-amber-300"></i>Tổng quan ca trực</li>
+                <li class="rounded-xl px-4 py-3 text-slate-200 transition hover:bg-slate-700/70"><i class="fa-solid fa-door-open mr-2 text-teal-300"></i>Check-in nhanh</li>
+                <li class="rounded-xl px-4 py-3 text-slate-200 transition hover:bg-slate-700/70"><i class="fa-solid fa-door-closed mr-2 text-teal-300"></i>Check-out</li>
+                <li class="rounded-xl px-4 py-3 text-slate-200 transition hover:bg-slate-700/70"><i class="fa-solid fa-calendar-check mr-2 text-teal-300"></i>Đặt phòng</li>
+                <li class="rounded-xl px-4 py-3 text-slate-200 transition hover:bg-slate-700/70"><i class="fa-solid fa-file-invoice-dollar mr-2 text-teal-300"></i>Thanh toán</li>
+            </ul>
         </nav>
-        <div class="px-6 pb-6">
+
+        <div class="relative mt-auto px-6 pb-7">
+            <div class="mb-4 rounded-xl border border-slate-700 bg-slate-900/45 px-4 py-3 text-xs text-slate-300">
+                <p class="font-semibold text-amber-300">Lưu ý ca trực</p>
+                <p class="mt-1">Ưu tiên xử lý phòng đến trong 30 phút để giảm thời gian chờ khách tại quầy.</p>
+            </div>
             <form method="post" th:action="@{/logout}">
-                <button class="w-full rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700" type="submit">Đăng xuất</button>
+                <button class="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-700" type="submit">Đăng xuất</button>
             </form>
-        </div>
+        </nav>
     </aside>
 
-    <main class="p-6 space-y-4">
-        <h2 class="text-2xl font-bold">Bảng điều khiển lễ tân</h2>
-        <section class="rounded-xl bg-white p-4 shadow-sm">
-            <h3 class="font-semibold">Check-in nhanh</h3>
-            <form class="mt-3 grid gap-3 md:grid-cols-3">
-                <input class="rounded-lg border px-3 py-2" placeholder="Tên khách" type="text">
-                <input class="rounded-lg border px-3 py-2" placeholder="Số phòng" type="text">
-                <button class="rounded-lg bg-emerald-700 px-4 py-2 text-white" type="button">Xác nhận check-in</button>
-            </form>
+    <main class="px-4 py-6 sm:px-6 lg:px-9">
+        <header class="front-panel front-rise mb-5 rounded-2xl px-5 py-5 sm:px-6">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-teal-700">Reception Live View</p>
+                    <h2 class="front-title mt-2 text-2xl font-extrabold sm:text-3xl">Bảng điều khiển lễ tân</h2>
+                    <p class="mt-2 text-sm text-slate-600">Giao diện dành riêng cho lễ tân để thao tác nhanh check-in, check-out và theo dõi yêu cầu của khách.</p>
+                </div>
+                <div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                    <p class="font-semibold">Ca trực hiện tại</p>
+                    <p class="text-xs" th:text="${currentUser.employeeName}"></p>
+                </div>
+            </div>
+        </header>
+
+        <section class="front-rise grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <article class="front-panel rounded-2xl px-5 py-4">
+                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Yêu cầu đang mở</p>
+                <p class="front-title mt-2 text-3xl font-bold text-slate-800" th:text="${receptionistTotalItems}">0</p>
+                <p class="mt-1 text-sm text-slate-500">Tổng yêu cầu cần theo dõi</p>
+            </article>
+            <article class="front-panel rounded-2xl px-5 py-4">
+                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Trang hiện tại</p>
+                <p class="front-title mt-2 text-3xl font-bold text-teal-700" th:text="${receptionistPage}">1</p>
+                <p class="mt-1 text-sm text-slate-500">Theo danh sách yêu cầu</p>
+            </article>
+            <article class="front-panel rounded-2xl px-5 py-4 sm:col-span-2 xl:col-span-1">
+                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Tổng số trang</p>
+                <p class="front-title mt-2 text-3xl font-bold text-amber-700" th:text="${receptionistTotalPages}">1</p>
+                <p class="mt-1 text-sm text-slate-500">Điều hướng theo ca</p>
+            </article>
+        </section>
+
+        <section class="front-rise-delay mt-5 grid gap-5 xl:grid-cols-[1.05fr_1.35fr]">
+            <div class="front-panel rounded-2xl p-5">
+                <div class="mb-3 flex items-center justify-between">
+                    <h3 class="front-title text-lg font-bold">Check-in nhanh tại quầy</h3>
+                    <span class="rounded-full bg-teal-100 px-3 py-1 text-xs font-semibold text-teal-700">Nhanh</span>
+                </div>
+                <form class="grid gap-3">
+                    <label class="text-sm font-semibold text-slate-700" for="guestName">Tên khách</label>
+                    <input class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-100" id="guestName" placeholder="Ví dụ: Nguyễn Văn A" type="text">
+
+                    <label class="text-sm font-semibold text-slate-700" for="roomNumber">Số phòng</label>
+                    <input class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-100" id="roomNumber" placeholder="Ví dụ: 302" type="text">
+
+                    <button class="mt-2 rounded-xl bg-teal-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-800" type="button">
+                        <i class="fa-solid fa-circle-check mr-2"></i>Xác nhận check-in
+                    </button>
+                </form>
+            </div>
+
+            <div class="front-panel rounded-2xl p-5">
+                <div class="mb-3 flex items-center justify-between">
+                    <h3 class="front-title text-lg font-bold">Yêu cầu đang xử lý</h3>
+                    <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">Theo dõi realtime</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                        <thead>
+                        <tr class="border-b border-slate-200 text-left text-slate-500">
+                            <th class="px-2 py-2">Khách hàng</th>
+                            <th class="px-2 py-2">Loại yêu cầu</th>
+                            <th class="px-2 py-2">Trạng thái</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr class="border-b border-slate-100 transition hover:bg-slate-50/80"
+                            th:classappend="${iter.odd} ? ' bg-slate-50/50'"
+                            th:each="request,iter : ${receptionistRequests}">
+                            <td class="px-2 py-2.5 font-semibold text-slate-700" th:text="${request.customerName}"></td>
+                            <td class="px-2 py-2.5 text-slate-600" th:text="${request.requestType}"></td>
+                            <td class="px-2 py-2.5">
+                                <span class="rounded-full px-3 py-1 text-xs font-semibold"
+                                      th:classappend="${request.tone == 'amber'} ? ' bg-amber-100 text-amber-700' : ' bg-cyan-100 text-cyan-700'"
+                                      th:text="${request.status}"></span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4 flex flex-wrap items-center justify-between gap-2 text-sm text-slate-600" th:if="${receptionistTotalPages > 1}">
+                    <p th:text="'Trang ' + ${receptionistPage} + ' / ' + ${receptionistTotalPages} + ' - Tổng: ' + ${receptionistTotalItems}"></p>
+                    <div class="flex gap-2">
+                        <a class="rounded-lg border border-slate-200 px-3 py-1.5 font-semibold text-slate-700 transition hover:bg-slate-100"
+                           th:href="@{/receptionist/dashboard(page=${receptionistPage-1},size=${receptionistSize})}"
+                           th:if="${receptionistHasPrev}">Trước</a>
+                        <a class="rounded-lg border border-slate-200 px-3 py-1.5 font-semibold text-slate-700 transition hover:bg-slate-100"
+                           th:href="@{/receptionist/dashboard(page=${receptionistPage+1},size=${receptionistSize})}"
+                           th:if="${receptionistHasNext}">Sau</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="front-rise-delay mt-5 grid gap-4 md:grid-cols-2">
+            <article class="front-panel rounded-2xl p-4">
+                <p class="text-sm font-semibold text-slate-700"><i class="fa-solid fa-user-clock mr-2 text-teal-600"></i>Nhắc việc ca trực</p>
+                <p class="mt-2 text-sm text-slate-600">Kiểm tra phòng chuẩn bị check-out trước 11:30 để chủ động vệ sinh và bàn giao cho lượt khách mới.</p>
+            </article>
+            <article class="front-panel rounded-2xl p-4">
+                <p class="text-sm font-semibold text-slate-700"><i class="fa-solid fa-phone-volume mr-2 text-amber-600"></i>Kênh liên lạc nhanh</p>
+                <p class="mt-2 text-sm text-slate-600">Ưu tiên phản hồi yêu cầu khẩn trong vòng 5 phút để giữ trải nghiệm tiền sảnh nhất quán.</p>
+            </article>
+        </section>
         </section>
         <section class="rounded-xl bg-white p-4 shadow-sm">
             <h3 class="font-semibold">Yêu cầu đang xử lý</h3>

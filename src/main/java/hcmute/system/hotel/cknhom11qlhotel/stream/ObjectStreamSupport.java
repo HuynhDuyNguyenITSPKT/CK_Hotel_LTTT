@@ -1,4 +1,4 @@
-package hcmute.system.hotel.cknhom11qlhotel.service.receptionist.stream;
+package hcmute.system.hotel.cknhom11qlhotel.stream;
 
 import org.springframework.stereotype.Component;
 

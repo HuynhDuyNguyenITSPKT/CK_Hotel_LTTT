@@ -24,6 +24,9 @@
         <a class="block w-full rounded-xl px-3 py-2.5 transition hover:bg-slate-800/80" th:classappend="${activeTab == 'dat-phong'} ? ' bg-slate-800 ring-1 ring-slate-700'" th:href="@{/receptionist/dashboard(tab='dat-phong')}">
             <i class="fa-solid fa-calendar-check mr-2"></i>Đặt phòng
         </a>
+        <a class="block w-full rounded-xl px-3 py-2.5 transition hover:bg-slate-800/80" th:classappend="${activeTab == 'dang-o-them-dich-vu'} ? ' bg-slate-800 ring-1 ring-slate-700'" th:href="@{/receptionist/dashboard(tab='dang-o-them-dich-vu')}">
+            <i class="fa-solid fa-concierge-bell mr-2"></i>Khách đang ở & dịch vụ
+        </a>
         <a class="block w-full rounded-xl px-3 py-2.5 transition hover:bg-slate-800/80" th:classappend="${activeTab == 'hoa-don-thanh-toan'} ? ' bg-slate-800 ring-1 ring-slate-700'" th:href="@{/receptionist/dashboard(tab='hoa-don-thanh-toan')}">
             <i class="fa-solid fa-file-invoice-dollar mr-2"></i>Hóa đơn & thanh toán
         </a>

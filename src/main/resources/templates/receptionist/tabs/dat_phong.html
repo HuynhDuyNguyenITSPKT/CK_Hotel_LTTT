@@ -8,43 +8,116 @@
     </div>
 
     <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h3 class="mb-4 text-lg font-semibold">Tạo booking mới</h3>
-        <form class="grid gap-3 md:grid-cols-2 xl:grid-cols-3" method="post" th:action="@{/receptionist/bookings}" th:object="${bookingForm}">
+        <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
-                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Tên khách hàng</label>
-                <input class="w-full rounded-lg border px-3 py-2" placeholder="VD: Nguyễn Văn A" th:field="*{tenKhachHang}" type="text">
+                <p class="text-xs font-semibold uppercase tracking-wide text-amber-700">Thao tác nhanh</p>
+                <h3 class="text-lg font-semibold">Thêm khách hàng và tạo booking nhiều phòng</h3>
             </div>
-            <div>
-                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">SĐT</label>
-                <input class="w-full rounded-lg border px-3 py-2" placeholder="VD: 0909xxxxxx" th:field="*{sdt}" type="text">
+            <button class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700"
+                    id="openBookingDialogBtn"
+                    type="button">Thêm khách hàng / đặt phòng</button>
+        </div>
+        <p class="mt-2 text-sm text-slate-600">Booking tạo mới có thể chọn nhiều phòng cùng một lần. Sau khi tạo chỉ xem chi tiết hoặc hủy, không thêm/sửa chi tiết nữa.</p>
+
+        <dialog class="mt-4 w-full max-w-4xl rounded-2xl border border-slate-200 p-0 shadow-2xl backdrop:bg-slate-900/40"
+                id="bookingCreateDialog">
+            <div class="rounded-2xl bg-white">
+                <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-amber-700">Form dialog</p>
+                        <h4 class="text-base font-semibold text-slate-800">Tạo booking mới</h4>
+                    </div>
+                    <button class="rounded-lg px-2 py-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+                            id="closeBookingDialogX"
+                            type="button">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="px-4 py-4">
+                    <form class="space-y-4" method="post" th:action="@{/receptionist/bookings}" th:object="${bookingForm}">
+                        <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Tên khách hàng</label>
+                                <input class="w-full rounded-lg border px-3 py-2" placeholder="VD: Nguyễn Văn A" th:field="*{tenKhachHang}" type="text">
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">SĐT</label>
+                                <input class="w-full rounded-lg border px-3 py-2" placeholder="VD: 0909xxxxxx" th:field="*{sdt}" type="text">
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Email</label>
+                                <input class="w-full rounded-lg border px-3 py-2" placeholder="VD: abc@email.com" th:field="*{email}" type="email">
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Ngày nhận</label>
+                                <input class="w-full rounded-lg border px-3 py-2" th:field="*{ngayNhan}" type="date">
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Ngày trả</label>
+                                <input class="w-full rounded-lg border px-3 py-2" th:field="*{ngayTra}" type="date">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="mb-2 block text-xs font-semibold uppercase text-slate-500">Chọn nhiều phòng</label>
+                            <div class="max-h-56 space-y-2 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 p-3">
+                                <label class="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2"
+                                       th:each="p : ${phongChoDat}">
+                                    <input class="h-4 w-4 rounded border-slate-300 text-amber-600"
+                                           name="phongIds"
+                                           th:value="${p.phongId}"
+                                           type="checkbox">
+                                    <span class="text-sm text-slate-700" th:text="${p.soPhong} + ' - ' + ${p.tenLoaiPhong}"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2 xl:col-span-3 flex items-center justify-end gap-2">
+                            <button class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                                    id="closeBookingDialogBtn"
+                                    type="button">Đóng</button>
+                            <button class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700" type="submit">Lưu booking mới</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div>
-                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Email</label>
-                <input class="w-full rounded-lg border px-3 py-2" placeholder="VD: abc@email.com" th:field="*{email}" type="email">
-            </div>
-            <div>
-                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Phòng</label>
-                <select class="w-full rounded-lg border px-3 py-2" th:field="*{phongId}">
-                    <option value="">-- Chọn phòng --</option>
-                    <option th:each="p : ${phongChoDat}" th:text="${p.soPhong} + ' - ' + ${p.tenLoaiPhong} + ' (' + ${p.trangThai} + ')'" th:value="${p.phongId}"></option>
-                </select>
-            </div>
-            <div>
-                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Ngày nhận</label>
-                <input class="w-full rounded-lg border px-3 py-2" th:field="*{ngayNhan}" type="date">
-            </div>
-            <div>
-                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Ngày trả</label>
-                <input class="w-full rounded-lg border px-3 py-2" th:field="*{ngayTra}" type="date">
-            </div>
-            <div class="md:col-span-2 xl:col-span-3">
-                <button class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700" type="submit">Tạo đặt phòng</button>
-            </div>
-        </form>
+        </dialog>
     </section>
 
     <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <h3 class="mb-3 text-lg font-semibold">Danh sách đặt phòng</h3>
+
+        <form class="mb-4 grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 md:grid-cols-5" method="get" th:action="@{/receptionist/dashboard}">
+            <input name="tab" type="hidden" value="dat-phong">
+            <input name="page" type="hidden" value="1">
+            <input name="size" th:value="${size}" type="hidden">
+            <div class="md:col-span-2">
+                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Lọc trạng thái đặt phòng</label>
+                <select class="w-full rounded-lg border px-3 py-2" name="bookingStatus">
+                    <option th:selected="${bookingStatus == null or bookingStatus.isBlank()}" value="">Tất cả</option>
+                    <option th:each="status : ${bookingStatuses}"
+                            th:selected="${bookingStatus != null and bookingStatus == status.name()}"
+                            th:text="${status}"
+                            th:value="${status.name()}"></option>
+                </select>
+            </div>
+            <div class="md:col-span-2">
+                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Sắp xếp</label>
+                <select class="w-full rounded-lg border px-3 py-2" name="bookingSort">
+                    <option th:selected="${bookingSort == null or bookingSort == 'moi-nhat'}" value="moi-nhat">Mới nhất</option>
+                    <option th:selected="${bookingSort == 'cu-nhat'}" value="cu-nhat">Cũ nhất</option>
+                    <option th:selected="${bookingSort == 'ngay-nhan-tang'}" value="ngay-nhan-tang">Ngày nhận tăng dần</option>
+                    <option th:selected="${bookingSort == 'ngay-nhan-giam'}" value="ngay-nhan-giam">Ngày nhận giảm dần</option>
+                </select>
+            </div>
+            <div class="flex items-end gap-2">
+                <button class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700" type="submit">Áp dụng</button>
+                <a class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-white"
+                   th:href="@{/receptionist/dashboard(tab='dat-phong',page=1,size=${size})}">Đặt lại</a>
+            </div>
+        </form>
+
         <div class="overflow-x-auto">
             <table class="min-w-full text-sm">
                 <thead>
@@ -57,6 +130,7 @@
                     <th class="p-2">Ngày nhận</th>
                     <th class="p-2">Ngày trả</th>
                     <th class="p-2">Trạng thái</th>
+                    <th class="p-2">Xử lý</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -68,22 +142,196 @@
                     <td class="p-2" th:text="${#temporals.format(row.ngayDat, 'dd/MM/yyyy HH:mm')}"></td>
                     <td class="p-2" th:text="${#temporals.format(row.ngayNhan, 'dd/MM/yyyy')}"></td>
                     <td class="p-2" th:text="${#temporals.format(row.ngayTra, 'dd/MM/yyyy')}"></td>
-                    <td class="p-2" th:text="${row.trangThai}"></td>
+                    <td class="p-2">
+                        <span class="rounded-full px-2 py-1 text-xs font-semibold"
+                              th:classappend="${row.trangThai.name() == 'CHECKED_IN'} ? ' bg-emerald-100 text-emerald-700' : (${row.trangThai.name() == 'CHECKED_OUT'} ? ' bg-slate-200 text-slate-700' : (${row.trangThai.name() == 'CANCELLED'} ? ' bg-rose-100 text-rose-700' : ' bg-amber-100 text-amber-700'))"
+                              th:text="${row.trangThai}"></span>
+                    </td>
+                    <td class="p-2">
+                        <button class="js-open-booking-detail rounded-lg bg-slate-800 px-3 py-1 text-xs font-semibold text-white transition hover:bg-slate-700"
+                                th:attr="data-booking-id=${row.datPhongId},data-booking-code=${row.maDatPhong},data-guest=${row.tenKhachHang},data-status=${row.trangThai},data-cancel-action=@{/receptionist/dat-phong/{id}/huy(id=${row.datPhongId})},data-can-cancel=${row.trangThai.name() == 'PENDING' or row.trangThai.name() == 'CONFIRMED'}"
+                                type="button">Xem chi tiết</button>
+                    </td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(danhSachDatPhong)}">
-                    <td class="p-3 text-center text-slate-500" colspan="8">Không có dữ liệu booking.</td>
+                    <td class="p-3 text-center text-slate-500" colspan="9">Không có dữ liệu booking.</td>
                 </tr>
                 </tbody>
             </table>
         </div>
 
-        <div class="mt-4 flex items-center justify-between text-sm text-slate-600" th:if="${totalPages > 1}">
+        <div class="hidden" id="bookingDetailData">
+            <div th:each="item : ${danhSachChiTietDatPhong}"
+                 th:attr="data-booking-id=${item.datPhongId},data-room=${item.soPhong},data-price=${#numbers.formatDecimal(item.gia, 0, 'COMMA', 0, 'POINT')} + ' VND',data-ngay-nhan=${item.ngayNhan != null ? #temporals.format(item.ngayNhan, 'dd/MM/yyyy') : '--'},data-ngay-tra=${item.ngayTra != null ? #temporals.format(item.ngayTra, 'dd/MM/yyyy') : '--'}"></div>
+        </div>
+
+        <div class="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600" th:if="${totalPages > 1}">
             <p th:text="'Trang ' + ${page} + ' / ' + ${totalPages} + ' - Tổng: ' + ${totalItems}"></p>
-            <div class="flex gap-2">
-                <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/receptionist/dashboard(tab='dat-phong',page=${page-1},size=${size})}" th:if="${hasPrev}">Trước</a>
-                <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/receptionist/dashboard(tab='dat-phong',page=${page+1},size=${size})}" th:if="${hasNext}">Sau</a>
+            <div class="flex flex-wrap items-center gap-1">
+                <a class="rounded border px-3 py-1 hover:bg-slate-100"
+                   th:href="@{/receptionist/dashboard(tab='dat-phong',page=${page-1},size=${size},bookingStatus=${bookingStatus},bookingSort=${bookingSort})}"
+                   th:if="${hasPrev}">Trước</a>
+
+                <a class="rounded border px-3 py-1"
+                   th:classappend="${p == page} ? ' border-amber-600 bg-amber-600 text-white' : ' hover:bg-slate-100'"
+                   th:each="p : ${#numbers.sequence(1, totalPages)}"
+                   th:href="@{/receptionist/dashboard(tab='dat-phong',page=${p},size=${size},bookingStatus=${bookingStatus},bookingSort=${bookingSort})}"
+                   th:text="${p}"></a>
+
+                <a class="rounded border px-3 py-1 hover:bg-slate-100"
+                   th:href="@{/receptionist/dashboard(tab='dat-phong',page=${page+1},size=${size},bookingStatus=${bookingStatus},bookingSort=${bookingSort})}"
+                   th:if="${hasNext}">Sau</a>
             </div>
         </div>
+
+        <dialog class="w-full max-w-3xl rounded-2xl border border-slate-200 p-0 shadow-2xl backdrop:bg-slate-900/40"
+                id="bookingDetailDialog">
+            <div class="rounded-2xl bg-white">
+                <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Chi tiết đặt phòng</p>
+                        <h4 class="text-base font-semibold text-slate-800" id="bookingDetailTitle">Booking</h4>
+                    </div>
+                    <button class="rounded-lg px-2 py-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+                            id="bookingDetailCloseX"
+                            type="button">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="space-y-4 px-4 py-4">
+                    <p class="text-sm text-slate-600" id="bookingDetailSummary"></p>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm">
+                            <thead>
+                            <tr class="border-b border-slate-200 text-left">
+                                <th class="p-2">Phòng</th>
+                                <th class="p-2">Giá cơ bản</th>
+                                <th class="p-2">Ngày nhận</th>
+                                <th class="p-2">Ngày trả</th>
+                            </tr>
+                            </thead>
+                            <tbody id="bookingDetailBody">
+                            <tr>
+                                <td class="p-3 text-center text-slate-500" colspan="4">Chưa có dữ liệu.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <form id="cancelBookingForm" method="post">
+                        <button class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                id="cancelBookingSubmitBtn"
+                                type="submit"
+                                disabled>Hủy booking này</button>
+                    </form>
+                    <p class="text-xs text-slate-500">Booking chỉ được hủy ở trạng thái PENDING/CONFIRMED. Nếu cần chỉnh phòng hoặc thời gian, hãy hủy booking cũ và tạo booking mới.</p>
+                </div>
+
+                <div class="border-t border-slate-200 px-4 py-3 text-right">
+                    <button class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                            id="bookingDetailCloseBtn"
+                            type="button">Đóng</button>
+                </div>
+            </div>
+        </dialog>
+
+        <script>
+            (function () {
+                const bookingDialog = document.getElementById("bookingCreateDialog");
+                const openBookingDialogBtn = document.getElementById("openBookingDialogBtn");
+                const closeBookingDialogBtn = document.getElementById("closeBookingDialogBtn");
+                const closeBookingDialogX = document.getElementById("closeBookingDialogX");
+
+                const detailDialog = document.getElementById("bookingDetailDialog");
+                const detailCloseBtn = document.getElementById("bookingDetailCloseBtn");
+                const detailCloseX = document.getElementById("bookingDetailCloseX");
+                const detailButtons = document.querySelectorAll(".js-open-booking-detail");
+                const detailDataRows = Array.from(document.querySelectorAll("#bookingDetailData > div"));
+
+                const detailTitle = document.getElementById("bookingDetailTitle");
+                const detailSummary = document.getElementById("bookingDetailSummary");
+                const detailBody = document.getElementById("bookingDetailBody");
+                const cancelForm = document.getElementById("cancelBookingForm");
+                const cancelSubmitBtn = document.getElementById("cancelBookingSubmitBtn");
+
+                if (!detailDialog || !detailTitle || !detailSummary || !detailBody || !cancelForm || !cancelSubmitBtn) {
+                    return;
+                }
+
+                openBookingDialogBtn?.addEventListener("click", () => bookingDialog?.showModal());
+                closeBookingDialogBtn?.addEventListener("click", () => bookingDialog?.close());
+                closeBookingDialogX?.addEventListener("click", () => bookingDialog?.close());
+                bookingDialog?.addEventListener("click", (event) => {
+                    const rect = bookingDialog.getBoundingClientRect();
+                    const insideDialog = rect.top <= event.clientY
+                        && event.clientY <= rect.bottom
+                        && rect.left <= event.clientX
+                        && event.clientX <= rect.right;
+                    if (!insideDialog) {
+                        bookingDialog.close();
+                    }
+                });
+
+                function closeDetailDialog() {
+                    detailDialog.close();
+                }
+
+                detailCloseBtn?.addEventListener("click", closeDetailDialog);
+                detailCloseX?.addEventListener("click", closeDetailDialog);
+                detailDialog.addEventListener("click", (event) => {
+                    const rect = detailDialog.getBoundingClientRect();
+                    const insideDialog = rect.top <= event.clientY
+                        && event.clientY <= rect.bottom
+                        && rect.left <= event.clientX
+                        && event.clientX <= rect.right;
+                    if (!insideDialog) {
+                        detailDialog.close();
+                    }
+                });
+
+                detailButtons.forEach((button) => {
+                    button.addEventListener("click", () => {
+                        const bookingId = button.getAttribute("data-booking-id") || "";
+                        const bookingCode = button.getAttribute("data-booking-code") || "";
+                        const guest = button.getAttribute("data-guest") || "";
+                        const status = button.getAttribute("data-status") || "";
+                        const cancelAction = button.getAttribute("data-cancel-action") || "";
+                        const canCancel = button.getAttribute("data-can-cancel") === "true";
+
+                        const rows = detailDataRows
+                            .filter((item) => item.getAttribute("data-booking-id") === bookingId)
+                            .map((item) => ({
+                                room: item.getAttribute("data-room") || "--",
+                                price: item.getAttribute("data-price") || "0 VND",
+                                ngayNhan: item.getAttribute("data-ngay-nhan") || "--",
+                                ngayTra: item.getAttribute("data-ngay-tra") || "--"
+                            }));
+
+                        detailTitle.textContent = `Booking ${bookingCode}`;
+                        detailSummary.textContent = `Khách: ${guest}. Trạng thái: ${status}.`;
+
+                        if (rows.length === 0) {
+                            detailBody.innerHTML = '<tr><td class="p-3 text-center text-slate-500" colspan="4">Không có chi tiết phòng.</td></tr>';
+                        } else {
+                            detailBody.innerHTML = rows.map((item) => `
+                                <tr class="border-b border-slate-100">
+                                    <td class="p-2 font-semibold text-slate-700">${item.room}</td>
+                                    <td class="p-2">${item.price}</td>
+                                    <td class="p-2">${item.ngayNhan}</td>
+                                    <td class="p-2">${item.ngayTra}</td>
+                                </tr>
+                            `).join("");
+                        }
+
+                        cancelForm.setAttribute("action", cancelAction);
+                        cancelSubmitBtn.disabled = !canCancel || !cancelAction;
+
+                        detailDialog.showModal();
+                    });
+                });
+            })();
+        </script>
     </section>
 </section>
 </body>

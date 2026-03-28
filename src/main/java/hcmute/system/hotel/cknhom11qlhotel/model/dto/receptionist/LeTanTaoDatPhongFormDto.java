@@ -3,12 +3,14 @@ package hcmute.system.hotel.cknhom11qlhotel.model.dto.receptionist;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LeTanTaoDatPhongFormDto {
     private String tenKhachHang;
     private String sdt;
     private String email;
-    private Long phongId;
+    private List<Long> phongIds = new ArrayList<>();
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate ngayNhan;
@@ -40,12 +42,12 @@ public class LeTanTaoDatPhongFormDto {
         this.email = email;
     }
 
-    public Long getPhongId() {
-        return phongId;
+    public List<Long> getPhongIds() {
+        return phongIds;
     }
 
-    public void setPhongId(Long phongId) {
-        this.phongId = phongId;
+    public void setPhongIds(List<Long> phongIds) {
+        this.phongIds = phongIds == null ? new ArrayList<>() : phongIds;
     }
 
     public LocalDate getNgayNhan() {

@@ -14,5 +14,5 @@ public interface ChiTietDatPhongRepository extends JpaRepository<ChiTietDatPhong
             "phong",
             "phong.loaiPhong"
     })
-    List<ChiTietDatPhong> findAllByOrderByNgayNhanDesc();
+    List<ChiTietDatPhong> findAllByOrderByIdDesc();
 }
