@@ -3,6 +3,12 @@
 <body>
 <section class="mt-6 rounded-xl bg-white p-4 shadow-sm" id="section-accounts" th:fragment="panel" th:if="${activeTab == 'accounts'}">
     <h3 class="mb-3 text-lg font-semibold">Quản lý tài khoản</h3>
+    <form class="mb-3 flex flex-wrap items-center gap-2" method="get" th:action="@{/admin/dashboard}">
+        <input name="tab" type="hidden" value="accounts">
+        <input name="page" type="hidden" value="1">
+        <input class="min-w-[260px] flex-1 rounded-lg border px-3 py-2" name="q" placeholder="Tìm username / email / nhân viên / vai trò" th:value="${q}">
+        <button class="rounded-lg bg-slate-900 px-4 py-2 text-white" type="submit">Lọc</button>
+    </form>
     <div class="overflow-x-auto">
         <table class="min-w-full text-sm">
             <thead>
@@ -43,8 +49,8 @@
     <div class="mt-4 flex items-center justify-between text-sm text-slate-600" th:if="${totalPages > 1}">
         <p th:text="'Trang ' + ${page} + ' / ' + ${totalPages} + ' - Tổng: ' + ${totalItems}"></p>
         <div class="flex gap-2">
-            <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/admin/dashboard(tab='accounts',page=${page-1},size=${size})}" th:if="${hasPrev}">Trước</a>
-            <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/admin/dashboard(tab='accounts',page=${page+1},size=${size})}" th:if="${hasNext}">Sau</a>
+            <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/admin/dashboard(tab='accounts',page=${page-1},size=${size},q=${q})}" th:if="${hasPrev}">Trước</a>
+            <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/admin/dashboard(tab='accounts',page=${page+1},size=${size},q=${q})}" th:if="${hasNext}">Sau</a>
         </div>
     </div>
 </section>

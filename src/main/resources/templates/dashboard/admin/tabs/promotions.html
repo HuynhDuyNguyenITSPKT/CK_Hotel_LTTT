@@ -1,68 +1,199 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <body>
-<section class="mt-6 rounded-xl bg-white p-4 shadow-sm space-y-4" id="section-promotions" th:fragment="panel" th:if="${activeTab == 'promotions'}">
-    <h3 class="text-lg font-semibold">Quản lý khuyến mãi</h3>
+<section class="mt-6 space-y-4" id="section-promotions" th:fragment="panel" th:if="${activeTab == 'promotions'}">
+    <div class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-slate-50/70 px-5 py-4">
+            <div>
+                <h3 class="text-lg font-semibold text-slate-800">Quản lý khuyến mãi</h3>
+                <p class="text-xs text-slate-500">Đồng bộ UX hành động Thêm, Sửa, Xóa như các tab quản trị khác.</p>
+            </div>
+            <span class="inline-flex items-center gap-1.5 rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+                <i class="fa-solid fa-percent text-[10px]"></i>
+                Discount center
+            </span>
+        </div>
 
-    <form class="grid gap-3 md:grid-cols-3" method="post" th:action="@{/admin/promotions}">
-        <input class="rounded-lg border px-3 py-2" name="ten" placeholder="Tên khuyến mãi" required>
-        <select class="rounded-lg border px-3 py-2" name="loaiGiam" required>
-            <option th:each="type : ${discountTypes}" th:text="${type}" th:value="${type}"></option>
-        </select>
-        <input class="rounded-lg border px-3 py-2" name="giaTri" placeholder="Giá trị" required step="0.01" type="number">
-        <button class="rounded-lg bg-indigo-600 px-4 py-2 text-white md:col-span-3" type="submit">Thêm khuyến mãi</button>
-    </form>
-
-    <div class="overflow-x-auto">
-        <table class="min-w-full text-sm">
-            <thead>
-            <tr class="border-b text-left">
-                <th class="p-2">Tên</th>
-                <th class="p-2">Loại giảm</th>
-                <th class="p-2">Giá trị</th>
-                <th class="p-2">Chi tiết</th>
-                <th class="p-2">Cập nhật</th>
-                <th class="p-2">Xóa</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr class="border-b" th:classappend="${iter.odd} ? ' bg-slate-50'" th:each="promotion,iter : ${promotions}">
-                <td class="p-2" th:text="${promotion.ten}"></td>
-                <td class="p-2">
-                    <span class="rounded-full px-2 py-1 text-xs font-semibold"
-                          th:classappend="${promotion.loaiGiam.name() == 'PERCENT'} ? ' bg-sky-100 text-sky-700' : ' bg-violet-100 text-violet-700'"
-                          th:text="${promotion.loaiGiam}"></span>
-                </td>
-                <td class="p-2 font-medium text-indigo-700" th:text="${promotion.giaTri}"></td>
-                <td class="p-2">
-                    <button class="rounded bg-teal-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-teal-700" data-detail-section="Khuyến mãi" data-row-detail-btn type="button">Chi tiết</button>
-                </td>
-                <td class="p-2">
-                    <form class="grid gap-2 md:grid-cols-4" method="post" th:action="@{/admin/promotions/{id}/update(id=${promotion.id})}">
-                        <input class="rounded border px-2 py-1" name="ten" required th:value="${promotion.ten}">
-                        <select class="rounded border px-2 py-1" name="loaiGiam" required>
-                            <option th:each="type : ${discountTypes}" th:selected="${type == promotion.loaiGiam}" th:text="${type}" th:value="${type}"></option>
-                        </select>
-                        <input class="rounded border px-2 py-1" name="giaTri" required step="0.01" th:value="${promotion.giaTri}" type="number">
-                        <button class="rounded bg-amber-500 px-3 py-1 text-white" type="submit">Lưu</button>
-                    </form>
-                </td>
-                <td class="p-2">
-                    <form method="post" th:action="@{/admin/promotions/{id}/delete(id=${promotion.id})}">
-                        <button class="rounded bg-rose-600 px-3 py-1 text-white" type="submit">Xóa</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="px-5 py-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <form class="flex min-w-[260px] flex-1 flex-wrap items-center gap-2" method="get" th:action="@{/admin/dashboard}">
+                    <input name="tab" type="hidden" value="promotions">
+                    <input name="page" type="hidden" value="1">
+                    <input class="min-w-[240px] flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm" name="q" placeholder="Tìm tên / loại giảm / giá trị" th:value="${q}">
+                    <button class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800" type="submit">Lọc</button>
+                </form>
+                <button class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700" id="openCreatePromotionBtn" type="button">
+                    <i class="fa-solid fa-plus"></i>
+                    Thêm khuyến mãi
+                </button>
+            </div>
+        </div>
     </div>
+
+    <div class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
+            <h4 class="text-base font-semibold text-slate-800">Danh sách khuyến mãi</h4>
+            <span class="text-xs text-slate-500" th:text="'Tổng: ' + ${totalItems}"></span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse text-sm">
+                <thead>
+                <tr class="border-b border-slate-200 bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500">
+                    <th class="px-5 py-3.5 font-semibold">Tên</th>
+                    <th class="px-5 py-3.5 font-semibold">Loại giảm</th>
+                    <th class="px-5 py-3.5 font-semibold">Giá trị</th>
+                    <th class="px-5 py-3.5 text-center font-semibold">Chi tiết</th>
+                    <th class="px-5 py-3.5 text-right font-semibold">Thao tác</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                <tr class="transition-colors hover:bg-slate-50/70" th:each="promotion : ${promotions}">
+                    <td class="px-5 py-4 font-semibold text-slate-800" th:text="${promotion.ten}"></td>
+                    <td class="px-5 py-4">
+                        <span class="rounded-full px-2 py-1 text-xs font-semibold"
+                              th:classappend="${promotion.loaiGiam.name() == 'PERCENT'} ? ' bg-sky-100 text-sky-700' : ' bg-violet-100 text-violet-700'"
+                              th:text="${promotion.loaiGiam}"></span>
+                    </td>
+                    <td class="px-5 py-4 font-semibold text-indigo-700" th:text="${promotion.giaTri}"></td>
+                    <td class="px-5 py-4 text-center">
+                        <button class="rounded-md border border-teal-200 bg-teal-50 px-3 py-1.5 text-xs font-semibold text-teal-700 transition hover:bg-teal-100" data-detail-section="Khuyến mãi" data-row-detail-btn type="button">
+                            Xem chi tiết
+                        </button>
+                    </td>
+                    <td class="px-5 py-4 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <button class="open-edit-promotion-btn rounded-md p-2 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600"
+                                    th:attr="data-promotion-id=${promotion.id},data-promotion-name=${promotion.ten},data-promotion-type=${promotion.loaiGiam},data-promotion-value=${promotion.giaTri}"
+                                    title="Chỉnh sửa"
+                                    type="button">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <form method="post" th:action="@{/admin/promotions/{id}/delete(id=${promotion.id})}">
+                                <button class="rounded-md p-2 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600" title="Xóa" type="submit">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <div class="mt-4 flex items-center justify-between text-sm text-slate-600" th:if="${totalPages > 1}">
         <p th:text="'Trang ' + ${page} + ' / ' + ${totalPages} + ' - Tổng: ' + ${totalItems}"></p>
         <div class="flex gap-2">
-            <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/admin/dashboard(tab='promotions',page=${page-1},size=${size})}" th:if="${hasPrev}">Trước</a>
-            <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/admin/dashboard(tab='promotions',page=${page+1},size=${size})}" th:if="${hasNext}">Sau</a>
+            <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/admin/dashboard(tab='promotions',page=${page-1},size=${size},q=${q})}" th:if="${hasPrev}">Trước</a>
+            <a class="rounded border px-3 py-1 hover:bg-slate-100" th:href="@{/admin/dashboard(tab='promotions',page=${page+1},size=${size},q=${q})}" th:if="${hasNext}">Sau</a>
         </div>
     </div>
+
+    <div class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/55 p-4" id="promotionFormModal">
+        <div class="w-full max-w-2xl rounded-2xl bg-white shadow-2xl ring-1 ring-slate-200">
+            <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+                <h3 class="text-lg font-bold text-slate-800" id="promotionFormTitle">Thêm khuyến mãi mới</h3>
+                <button class="rounded-lg px-2 py-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" id="closePromotionFormModalBtn" type="button">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form class="grid gap-3 px-5 py-4 md:grid-cols-2" id="promotionForm" method="post"
+                  th:attr="data-create-url=@{/admin/promotions},data-update-url-pattern=@{/admin/promotions/{id}/update(id='__id__')}">
+                <div class="md:col-span-2">
+                    <label class="mb-1 block text-sm font-medium text-slate-700" for="promotionNameInput">Tên khuyến mãi</label>
+                    <input class="w-full rounded-lg border border-slate-300 px-3 py-2" id="promotionNameInput" name="ten" required>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-slate-700" for="promotionTypeInput">Loại giảm</label>
+                    <select class="w-full rounded-lg border border-slate-300 px-3 py-2" id="promotionTypeInput" name="loaiGiam" required>
+                        <option th:each="type : ${discountTypes}" th:text="${type}" th:value="${type}"></option>
+                    </select>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-slate-700" for="promotionValueInput">Giá trị</label>
+                    <input class="w-full rounded-lg border border-slate-300 px-3 py-2" id="promotionValueInput" name="giaTri" required step="0.01" type="number">
+                </div>
+
+                <div class="md:col-span-2 flex justify-end gap-2 border-t border-slate-200 pt-3">
+                    <button class="rounded-lg border border-slate-300 px-4 py-2 font-semibold text-slate-700 transition hover:bg-slate-100" id="cancelPromotionFormBtn" type="button">Hủy</button>
+                    <button class="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white transition hover:bg-blue-700" id="submitPromotionFormBtn" type="submit">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const modal = document.getElementById("promotionFormModal");
+            const form = document.getElementById("promotionForm");
+            const title = document.getElementById("promotionFormTitle");
+            const submitBtn = document.getElementById("submitPromotionFormBtn");
+            const openCreateBtn = document.getElementById("openCreatePromotionBtn");
+            const closeBtn = document.getElementById("closePromotionFormModalBtn");
+            const cancelBtn = document.getElementById("cancelPromotionFormBtn");
+
+            const nameInput = document.getElementById("promotionNameInput");
+            const typeInput = document.getElementById("promotionTypeInput");
+            const valueInput = document.getElementById("promotionValueInput");
+
+            if (!modal || !form) {
+                return;
+            }
+
+            const createUrl = form.dataset.createUrl;
+            const updateUrlPattern = form.dataset.updateUrlPattern;
+
+            function showModal() {
+                modal.classList.remove("hidden");
+                modal.classList.add("flex");
+            }
+
+            function hideModal() {
+                modal.classList.add("hidden");
+                modal.classList.remove("flex");
+            }
+
+            function openCreateForm() {
+                title.textContent = "Thêm khuyến mãi mới";
+                submitBtn.textContent = "Thêm mới";
+                form.action = createUrl;
+                form.reset();
+                showModal();
+            }
+
+            function openEditForm(button) {
+                const promotionId = button.dataset.promotionId;
+                if (!promotionId) {
+                    return;
+                }
+
+                title.textContent = "Cập nhật khuyến mãi";
+                submitBtn.textContent = "Lưu thay đổi";
+                form.action = updateUrlPattern.replace("__id__", promotionId);
+                nameInput.value = button.dataset.promotionName || "";
+                typeInput.value = button.dataset.promotionType || "";
+                valueInput.value = button.dataset.promotionValue || "";
+                showModal();
+            }
+
+            openCreateBtn?.addEventListener("click", openCreateForm);
+            closeBtn?.addEventListener("click", hideModal);
+            cancelBtn?.addEventListener("click", hideModal);
+            modal.addEventListener("click", function (event) {
+                if (event.target === modal) {
+                    hideModal();
+                }
+            });
+
+            document.querySelectorAll(".open-edit-promotion-btn").forEach(function (button) {
+                button.addEventListener("click", function () {
+                    openEditForm(button);
+                });
+            });
+        })();
+    </script>
 </section>
 </body>
 </html>

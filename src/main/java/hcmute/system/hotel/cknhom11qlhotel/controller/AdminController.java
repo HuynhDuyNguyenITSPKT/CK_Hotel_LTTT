@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 @Controller
 public class AdminController {
@@ -39,6 +41,8 @@ public class AdminController {
                             @RequestParam(required = false) Integer month,
                             @RequestParam(required = false) Integer year,
                             @RequestParam(defaultValue = "dashboard") String tab,
+                            @RequestParam(required = false) String q,
+                            @RequestParam(required = false) RoomStatus roomStatus,
                             @RequestParam(defaultValue = "1") int page,
                             @RequestParam(defaultValue = "1") int invoicePage,
                             @RequestParam(defaultValue = "1") int paymentPage,
@@ -56,6 +60,8 @@ public class AdminController {
         model.addAttribute("currentUser", currentUser);
         model.addAttribute("activeTab", tab);
         model.addAttribute("size", safeSize);
+        model.addAttribute("q", q);
+        model.addAttribute("roomStatusFilter", roomStatus);
 
         model.addAttribute("stats", adminManagementService.getDashboardStats());
         model.addAttribute("revenueChart", adminManagementService.getRevenueChart());
@@ -70,7 +76,7 @@ public class AdminController {
         model.addAttribute("roomStatuses", RoomStatus.values());
         model.addAttribute("discountTypes", DiscountType.values());
 
-        loadTabData(model, tab, safePage, safeSize);
+        loadTabData(model, tab, safePage, safeSize, q, roomStatus);
         return "dashboard/admin";
     }
 
@@ -160,67 +166,132 @@ public class AdminController {
                 .body(content);
     }
 
-    private void loadTabData(Model model, String tab, int page, int size) {
+    private void loadTabData(Model model, String tab, int page, int size, String keyword, RoomStatus roomStatus) {
         switch (tab) {
-            case "accounts" -> addAccountsPage(model, page, size);
-            case "employees" -> addEmployeesPage(model, page, size);
-            case "rooms" -> addRoomsPage(model, page, size);
-            case "room-types" -> addRoomTypesPage(model, page, size);
-            case "services" -> addServicesPage(model, page, size);
-            case "promotions" -> addPromotionsPage(model, page, size);
-            case "customers" -> addCustomersPage(model, page, size);
+            case "accounts" -> addAccountsPage(model, page, size, keyword);
+            case "employees" -> addEmployeesPage(model, page, size, keyword);
+            case "rooms" -> addRoomsPage(model, page, size, keyword, roomStatus);
+            case "room-types" -> addRoomTypesPage(model, page, size, keyword);
+            case "services" -> addServicesPage(model, page, size, keyword);
+            case "promotions" -> addPromotionsPage(model, page, size, keyword);
+            case "customers" -> addCustomersPage(model, page, size, keyword);
             default -> model.addAttribute("size", DEFAULT_PAGE_SIZE);
         }
     }
 
-    private void addAccountsPage(Model model, int page, int size) {
-        List<AdminAccountView> all = adminManagementService.getAccounts();
+    private void addAccountsPage(Model model, int page, int size, String keyword) {
+        List<AdminAccountView> all = adminManagementService.getAccounts()
+                .stream()
+                .filter(account -> matchesKeyword(keyword,
+                        account.getUsername(),
+                        account.getEmail(),
+                        account.getEmployeeName(),
+                        account.getRole() == null ? null : account.getRole().name(),
+                        account.getStatus() == null ? null : account.getStatus().name()))
+                .toList();
         PaginationResult<AdminAccountView> result = paginate(all, page, size);
         model.addAttribute("accounts", result.items());
         addPaginationModel(model, result);
     }
 
-    private void addEmployeesPage(Model model, int page, int size) {
-        List<AdminEmployeeView> all = adminManagementService.getEmployees();
+    private void addEmployeesPage(Model model, int page, int size, String keyword) {
+        List<AdminEmployeeView> all = adminManagementService.getEmployees()
+                .stream()
+                .filter(employee -> matchesKeyword(keyword,
+                        employee.getEmployeeName(),
+                        employee.getUsername(),
+                        employee.getEmail(),
+                        employee.getRole() == null ? null : employee.getRole().name(),
+                        employee.getStatus() == null ? null : employee.getStatus().name()))
+                .toList();
         PaginationResult<AdminEmployeeView> result = paginate(all, page, size);
         model.addAttribute("employees", result.items());
         addPaginationModel(model, result);
     }
 
-    private void addRoomsPage(Model model, int page, int size) {
-        var all = adminManagementService.getRooms();
+    private void addRoomsPage(Model model, int page, int size, String keyword, RoomStatus roomStatus) {
+        var all = adminManagementService.getRooms()
+                .stream()
+                .filter(room -> roomStatus == null || room.getTrangThai() == roomStatus)
+                .filter(room -> matchesKeyword(keyword,
+                        room.getSoPhong(),
+                        room.getTenLoaiPhong(),
+                        room.getMoTaLoaiPhong(),
+                        room.getTrangThai() == null ? null : room.getTrangThai().name()))
+                .toList();
         PaginationResult<?> result = paginate(all, page, size);
         model.addAttribute("rooms", result.items());
         model.addAttribute("roomTypes", adminManagementService.getRoomTypes());
         addPaginationModel(model, result);
     }
 
-    private void addRoomTypesPage(Model model, int page, int size) {
-        var all = adminManagementService.getRoomTypes();
+    private void addRoomTypesPage(Model model, int page, int size, String keyword) {
+        var all = adminManagementService.getRoomTypes()
+                .stream()
+                .filter(roomType -> matchesKeyword(keyword,
+                        roomType.getTenLoai(),
+                        roomType.getMoTa()))
+                .toList();
         PaginationResult<?> result = paginate(all, page, size);
         model.addAttribute("roomTypes", result.items());
         addPaginationModel(model, result);
     }
 
-    private void addServicesPage(Model model, int page, int size) {
-        var all = adminManagementService.getServices();
+    private void addServicesPage(Model model, int page, int size, String keyword) {
+        var all = adminManagementService.getServices()
+                .stream()
+                .filter(service -> matchesKeyword(keyword,
+                        service.getTen(),
+                        service.getGia() == null ? null : service.getGia().toPlainString()))
+                .toList();
         PaginationResult<?> result = paginate(all, page, size);
         model.addAttribute("services", result.items());
         addPaginationModel(model, result);
     }
 
-    private void addPromotionsPage(Model model, int page, int size) {
-        var all = adminManagementService.getPromotions();
+    private void addPromotionsPage(Model model, int page, int size, String keyword) {
+        var all = adminManagementService.getPromotions()
+                .stream()
+                .filter(promotion -> matchesKeyword(keyword,
+                        promotion.getTen(),
+                        promotion.getLoaiGiam() == null ? null : promotion.getLoaiGiam().name(),
+                        promotion.getGiaTri() == null ? null : promotion.getGiaTri().toPlainString()))
+                .toList();
         PaginationResult<?> result = paginate(all, page, size);
         model.addAttribute("promotions", result.items());
         addPaginationModel(model, result);
     }
 
-    private void addCustomersPage(Model model, int page, int size) {
-        var all = adminManagementService.getCustomers();
+    private void addCustomersPage(Model model, int page, int size, String keyword) {
+        var all = adminManagementService.getCustomers()
+                .stream()
+                .filter(customer -> matchesKeyword(keyword,
+                        customer.getTen(),
+                        customer.getSdt(),
+                        customer.getEmail()))
+                .toList();
         PaginationResult<?> result = paginate(all, page, size);
         model.addAttribute("customers", result.items());
         addPaginationModel(model, result);
+    }
+
+    private boolean matchesKeyword(String keyword, String... values) {
+        String normalizedKeyword = normalize(keyword);
+        if (normalizedKeyword == null) {
+            return true;
+        }
+        return values != null && java.util.Arrays.stream(values)
+                .filter(Objects::nonNull)
+                .map(this::normalize)
+                .anyMatch(value -> value != null && value.contains(normalizedKeyword));
+    }
+
+    private String normalize(String value) {
+        if (value == null) {
+            return null;
+        }
+        String normalized = value.trim().toLowerCase(Locale.ROOT);
+        return normalized.isEmpty() ? null : normalized;
     }
 
     private <T> PaginationResult<T> paginate(List<T> source, int page, int size) {
