@@ -2,6 +2,8 @@ package hcmute.system.hotel.cknhom11qlhotel.stream;
 
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.DatPhong;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.BookingStatus;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
@@ -10,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Component
+@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class DatPhongQueriesStream {
 
     private final ObjectStreamSupport objectStreamSupport;

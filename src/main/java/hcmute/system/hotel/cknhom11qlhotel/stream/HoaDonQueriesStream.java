@@ -1,6 +1,8 @@
 package hcmute.system.hotel.cknhom11qlhotel.stream;
 
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.HoaDon;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -9,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class HoaDonQueriesStream {
 
     private final ObjectStreamSupport objectStreamSupport;

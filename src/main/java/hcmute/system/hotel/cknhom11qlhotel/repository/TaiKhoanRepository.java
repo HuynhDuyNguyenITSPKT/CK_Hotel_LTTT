@@ -1,7 +1,6 @@
 package hcmute.system.hotel.cknhom11qlhotel.repository;
 
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.TaiKhoan;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -15,6 +14,5 @@ public interface TaiKhoanRepository extends JpaRepository<TaiKhoan, Long> {
 
     boolean existsByEmail(String email);
 
-    @EntityGraph(attributePaths = "nhanVien")
     List<TaiKhoan> findAllByOrderByIdDesc();
 }

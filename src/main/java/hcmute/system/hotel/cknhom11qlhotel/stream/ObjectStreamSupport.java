@@ -1,11 +1,14 @@
 package hcmute.system.hotel.cknhom11qlhotel.stream;
 
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Stream;
 
 @Component
+@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class ObjectStreamSupport {
 
     public <T> Stream<T> streamTheoLoai(List<Object> duLieu, Class<T> lopDuLieu) {

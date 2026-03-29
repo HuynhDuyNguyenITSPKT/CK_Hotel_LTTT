@@ -3,6 +3,8 @@ package hcmute.system.hotel.cknhom11qlhotel.stream;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.ChiTietDatPhong;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.DatPhong;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.BookingStatus;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -16,6 +18,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Component
+@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class ChiTietDatPhongQueriesStream {
 
     private final ObjectStreamSupport objectStreamSupport;

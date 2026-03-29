@@ -35,19 +35,25 @@
                 </div>
 
                 <div class="px-4 py-4">
-                    <form class="space-y-4" method="post" th:action="@{/receptionist/bookings}" th:object="${bookingForm}">
+                    <form class="space-y-4" id="bookingCreateForm" method="post" th:action="@{/receptionist/bookings}" th:object="${bookingForm}">
                         <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                             <div>
                                 <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Tên khách hàng</label>
-                                <input class="w-full rounded-lg border px-3 py-2" placeholder="VD: Nguyễn Văn A" th:field="*{tenKhachHang}" type="text">
+                                <input class="w-full rounded-lg border px-3 py-2" id="bookingCustomerName" placeholder="VD: Nguyễn Văn A" th:field="*{tenKhachHang}" type="text">
                             </div>
                             <div>
                                 <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">SĐT</label>
-                                <input class="w-full rounded-lg border px-3 py-2" placeholder="VD: 0909xxxxxx" th:field="*{sdt}" type="text">
+                                <div class="flex gap-2">
+                                    <input class="w-full rounded-lg border px-3 py-2" id="bookingCustomerPhone" placeholder="VD: 0909xxxxxx" th:field="*{sdt}" type="text">
+                                    <button class="whitespace-nowrap rounded-lg border border-amber-300 px-3 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-50"
+                                            id="checkCustomerPhoneBtn"
+                                            type="button">Kiểm tra</button>
+                                </div>
+                                <p class="mt-1 text-xs text-slate-500" id="checkCustomerPhoneStatus">Nhập SĐT rồi bấm Kiểm tra để tìm khách hàng cũ.</p>
                             </div>
                             <div>
                                 <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Email</label>
-                                <input class="w-full rounded-lg border px-3 py-2" placeholder="VD: abc@email.com" th:field="*{email}" type="email">
+                                <input class="w-full rounded-lg border px-3 py-2" id="bookingCustomerEmail" placeholder="VD: abc@email.com" th:field="*{email}" type="email">
                             </div>
                             <div>
                                 <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Ngày nhận</label>
@@ -242,6 +248,12 @@
                 const openBookingDialogBtn = document.getElementById("openBookingDialogBtn");
                 const closeBookingDialogBtn = document.getElementById("closeBookingDialogBtn");
                 const closeBookingDialogX = document.getElementById("closeBookingDialogX");
+                const bookingForm = document.getElementById("bookingCreateForm");
+                const customerNameInput = document.getElementById("bookingCustomerName");
+                const customerPhoneInput = document.getElementById("bookingCustomerPhone");
+                const customerEmailInput = document.getElementById("bookingCustomerEmail");
+                const checkCustomerPhoneBtn = document.getElementById("checkCustomerPhoneBtn");
+                const checkCustomerPhoneStatus = document.getElementById("checkCustomerPhoneStatus");
 
                 const detailDialog = document.getElementById("bookingDetailDialog");
                 const detailCloseBtn = document.getElementById("bookingDetailCloseBtn");
@@ -254,6 +266,109 @@
                 const detailBody = document.getElementById("bookingDetailBody");
                 const cancelForm = document.getElementById("cancelBookingForm");
                 const cancelSubmitBtn = document.getElementById("cancelBookingSubmitBtn");
+                let verifiedPhone = "";
+                let isCheckingPhone = false;
+
+                const chuanHoaSdt = (value) => (value || "").trim();
+
+                function setPhoneStatus(message, tone) {
+                    if (!checkCustomerPhoneStatus) {
+                        return;
+                    }
+
+                    const baseClass = "mt-1 text-xs";
+                    switch (tone) {
+                        case "success":
+                            checkCustomerPhoneStatus.className = `${baseClass} text-emerald-700`;
+                            break;
+                        case "warning":
+                            checkCustomerPhoneStatus.className = `${baseClass} text-amber-700`;
+                            break;
+                        case "error":
+                            checkCustomerPhoneStatus.className = `${baseClass} text-rose-700`;
+                            break;
+                        default:
+                            checkCustomerPhoneStatus.className = `${baseClass} text-slate-500`;
+                    }
+                    checkCustomerPhoneStatus.textContent = message;
+                }
+
+                async function kiemTraSdtKhachHang() {
+                    if (!customerPhoneInput || !checkCustomerPhoneBtn) {
+                        return;
+                    }
+
+                    const sdt = chuanHoaSdt(customerPhoneInput.value);
+                    if (!sdt) {
+                        setPhoneStatus("Vui lòng nhập SĐT trước khi kiểm tra.", "error");
+                        customerPhoneInput.focus();
+                        return;
+                    }
+
+                    if (isCheckingPhone) {
+                        return;
+                    }
+
+                    isCheckingPhone = true;
+                    checkCustomerPhoneBtn.disabled = true;
+                    setPhoneStatus("Đang kiểm tra thông tin khách hàng...", "default");
+
+                    try {
+                        const response = await fetch(`/receptionist/customers/by-phone?sdt=${encodeURIComponent(sdt)}`, {
+                            headers: { "Accept": "application/json" }
+                        });
+                        const data = await response.json();
+
+                        if (!response.ok || data.success === false) {
+                            throw new Error(data.message || "Không thể kiểm tra SĐT lúc này");
+                        }
+
+                        if (data.exists && data.customer) {
+                            if (customerNameInput) {
+                                customerNameInput.value = data.customer.tenKhachHang || "";
+                            }
+                            if (customerEmailInput) {
+                                customerEmailInput.value = data.customer.email || "";
+                            }
+                            setPhoneStatus("Đã tìm thấy khách hàng cũ theo SĐT, thông tin đã được điền tự động.", "success");
+                        } else {
+                            setPhoneStatus("SĐT chưa có trong hệ thống, bạn có thể nhập thông tin để tạo khách mới.", "warning");
+                        }
+
+                        verifiedPhone = sdt;
+                    } catch (error) {
+                        setPhoneStatus(error instanceof Error ? error.message : "Không thể kiểm tra SĐT", "error");
+                        verifiedPhone = "";
+                    } finally {
+                        isCheckingPhone = false;
+                        checkCustomerPhoneBtn.disabled = false;
+                    }
+                }
+
+                customerPhoneInput?.addEventListener("input", () => {
+                    const sdt = chuanHoaSdt(customerPhoneInput.value);
+                    if (sdt !== verifiedPhone) {
+                        verifiedPhone = "";
+                        setPhoneStatus("Nhập SĐT rồi bấm Kiểm tra để tìm khách hàng cũ.", "default");
+                    }
+                });
+
+                checkCustomerPhoneBtn?.addEventListener("click", kiemTraSdtKhachHang);
+                bookingForm?.addEventListener("submit", (event) => {
+                    const sdt = chuanHoaSdt(customerPhoneInput?.value);
+                    if (!sdt) {
+                        event.preventDefault();
+                        setPhoneStatus("Vui lòng nhập SĐT.", "error");
+                        customerPhoneInput?.focus();
+                        return;
+                    }
+
+                    if (verifiedPhone !== sdt) {
+                        event.preventDefault();
+                        setPhoneStatus("Bạn cần bấm Kiểm tra SĐT trước khi lưu booking.", "error");
+                        checkCustomerPhoneBtn?.focus();
+                    }
+                });
 
                 if (!detailDialog || !detailTitle || !detailSummary || !detailBody || !cancelForm || !cancelSubmitBtn) {
                     return;
