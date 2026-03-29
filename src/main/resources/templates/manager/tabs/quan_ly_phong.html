@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section class="space-y-4" id="section-quan-ly-phong" th:fragment="panel" th:if="${activeTab == 'quan-ly-phong'}">
+    <section class="rounded-2xl bg-white p-5 shadow-sm">
+        <form class="flex flex-wrap items-end gap-3" method="get" th:action="@{/manager/dashboard}">
+            <input name="tab" type="hidden" value="quan-ly-phong">
+            <input name="days" th:value="${selectedTrendDays}" type="hidden">
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500" for="room-keyword">Từ khóa</label>
+                <input class="rounded-lg border px-3 py-2 text-sm" id="room-keyword" name="q" placeholder="Số phòng / loại phòng" th:value="${q}" type="text">
+            </div>
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500" for="room-status">Trạng thái</label>
+                <select class="rounded-lg border px-3 py-2 text-sm" id="room-status" name="roomStatus">
+                    <option th:selected="${roomStatusFilter == null}" value="">Tất cả</option>
+                    <option th:each="status : ${roomStatuses}" th:selected="${roomStatusFilter == status}" th:text="${status}" th:value="${status}"></option>
+                </select>
+            </div>
+            <button class="rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-teal-700" type="submit">Lọc</button>
+            <a class="rounded-lg border px-4 py-2 text-sm font-semibold" th:href="@{/manager/dashboard(tab='quan-ly-phong',days=${selectedTrendDays})}">Đặt lại</a>
+        </form>
+    </section>
+
+    <section class="rounded-2xl bg-white p-5 shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead>
+                <tr class="border-b text-left">
+                    <th class="p-2">Số phòng</th>
+                    <th class="p-2">Loại phòng</th>
+                    <th class="p-2">Trạng thái</th>
+                    <th class="p-2">Ảnh</th>
+                    <th class="p-2 text-right">Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr class="border-b" th:classappend="${iter.odd} ? ' bg-slate-50'" th:each="room,iter : ${rooms}">
+                    <td class="p-2 font-semibold text-slate-700" th:text="${room.soPhong}"></td>
+                    <td class="p-2" th:text="${room.tenLoaiPhong}"></td>
+                    <td class="p-2" th:text="${room.trangThai}"></td>
+                    <td class="p-2">
+                        <img alt="room" class="h-14 w-24 rounded-lg object-cover ring-1 ring-slate-200" th:if="${room.imageUrl != null and !room.imageUrl.isBlank()}" th:src="${room.imageUrl}">
+                        <span class="text-slate-400" th:if="${room.imageUrl == null or room.imageUrl.isBlank()}">Không có</span>
+                    </td>
+                    <td class="p-2 text-right">
+                        <button class="open-edit-room-btn rounded-lg border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-700 transition hover:bg-cyan-100"
+                                th:attr="data-room-id=${room.id},data-room-number=${room.soPhong},data-room-status=${room.trangThai},data-room-type-id=${room.loaiPhongId},data-room-image-url=${room.imageUrl},data-update-url=@{/manager/rooms/{id}/update(id=${room.id})}"
+                                type="button">Chỉnh sửa</button>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(rooms)}">
+                    <td class="p-3 text-center text-slate-500" colspan="5">Không có phòng phù hợp.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/55 p-4" id="managerRoomFormModal">
+        <div class="w-full max-w-2xl rounded-2xl bg-white shadow-2xl ring-1 ring-slate-200">
+            <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+                <h3 class="text-lg font-bold text-slate-800" id="managerRoomFormTitle">Cập nhật phòng</h3>
+                <button class="rounded-lg px-2 py-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" id="closeManagerRoomFormModalBtn" type="button">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form class="grid gap-3 px-5 py-4 md:grid-cols-2" id="managerRoomForm" method="post">
+                <div class="md:col-span-2">
+                    <label class="mb-1 block text-sm font-medium text-slate-700" for="managerRoomSoPhongInput">Số phòng</label>
+                    <input class="w-full rounded-lg border border-slate-300 px-3 py-2" id="managerRoomSoPhongInput" name="soPhong" required>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-slate-700" for="managerRoomStatusInput">Trạng thái</label>
+                    <select class="w-full rounded-lg border border-slate-300 px-3 py-2" id="managerRoomStatusInput" name="trangThai" required>
+                        <option th:each="status : ${roomStatuses}" th:text="${status}" th:value="${status}"></option>
+                    </select>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-slate-700" for="managerRoomTypeInput">Loại phòng</label>
+                    <select class="w-full rounded-lg border border-slate-300 px-3 py-2" id="managerRoomTypeInput" name="loaiPhongId" required>
+                        <option th:each="roomType : ${roomTypes}" th:text="${roomType.tenLoai}" th:value="${roomType.id}"></option>
+                    </select>
+                </div>
+                <input id="managerRoomImageUrlInput" name="imageUrl" type="hidden">
+
+                <div class="md:col-span-2 flex justify-end gap-2 border-t border-slate-200 pt-3">
+                    <button class="rounded-lg border border-slate-300 px-4 py-2 font-semibold text-slate-700 transition hover:bg-slate-100" id="cancelManagerRoomFormBtn" type="button">Hủy</button>
+                    <button class="rounded-lg bg-teal-600 px-4 py-2 font-semibold text-white transition hover:bg-teal-700" type="submit">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const modal = document.getElementById("managerRoomFormModal");
+            const form = document.getElementById("managerRoomForm");
+            const closeBtn = document.getElementById("closeManagerRoomFormModalBtn");
+            const cancelBtn = document.getElementById("cancelManagerRoomFormBtn");
+
+            const soPhongInput = document.getElementById("managerRoomSoPhongInput");
+            const statusInput = document.getElementById("managerRoomStatusInput");
+            const roomTypeInput = document.getElementById("managerRoomTypeInput");
+            const imageUrlInput = document.getElementById("managerRoomImageUrlInput");
+
+            if (!modal || !form) {
+                return;
+            }
+
+            function showModal() {
+                modal.classList.remove("hidden");
+                modal.classList.add("flex");
+            }
+
+            function hideModal() {
+                modal.classList.add("hidden");
+                modal.classList.remove("flex");
+            }
+
+            function normalizeImageUrl(value) {
+                if (!value) {
+                    return "";
+                }
+                const normalized = value.trim();
+                if (normalized === "null" || normalized === "undefined") {
+                    return "";
+                }
+                return normalized;
+            }
+
+            function openEditForm(button) {
+                form.action = button.dataset.updateUrl || "";
+                soPhongInput.value = button.dataset.roomNumber || "";
+                statusInput.value = button.dataset.roomStatus || "";
+                roomTypeInput.value = button.dataset.roomTypeId || "";
+                imageUrlInput.value = normalizeImageUrl(button.dataset.roomImageUrl);
+                showModal();
+            }
+
+            document.querySelectorAll(".open-edit-room-btn").forEach(function (button) {
+                button.addEventListener("click", function () {
+                    openEditForm(button);
+                });
+            });
+
+            closeBtn?.addEventListener("click", hideModal);
+            cancelBtn?.addEventListener("click", hideModal);
+            modal.addEventListener("click", function (event) {
+                if (event.target === modal) {
+                    hideModal();
+                }
+            });
+        })();
+    </script>
+</section>
+</body>
+</html>

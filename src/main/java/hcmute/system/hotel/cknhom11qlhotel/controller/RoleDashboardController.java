@@ -1,11 +1,9 @@
 package hcmute.system.hotel.cknhom11qlhotel.controller;
 
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.LoginSession;
-import hcmute.system.hotel.cknhom11qlhotel.model.enums.EmployeeRole;
 import hcmute.system.hotel.cknhom11qlhotel.util.SessionKeys;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
@@ -23,17 +21,6 @@ public class RoleDashboardController {
             case MANAGER -> "redirect:/manager/dashboard";
             case RECEPTIONIST -> "redirect:/receptionist/dashboard";
         };
-    }
-
-    @GetMapping("/manager/dashboard")
-    public String managerDashboard(HttpSession session, Model model) {
-        LoginSession currentUser = (LoginSession) session.getAttribute(SessionKeys.CURRENT_USER);
-        if (currentUser == null || currentUser.getRole() != EmployeeRole.MANAGER) {
-            return "redirect:/login";
-        }
-
-        model.addAttribute("currentUser", currentUser);
-        return "dashboard/manager";
     }
 }
 

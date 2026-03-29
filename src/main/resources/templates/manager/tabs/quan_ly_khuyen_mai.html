@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section class="space-y-4" id="section-quan-ly-khuyen-mai" th:fragment="panel" th:if="${activeTab == 'quan-ly-khuyen-mai'}">
+    <section class="rounded-2xl bg-white p-5 shadow-sm">
+        <form class="flex flex-wrap items-end gap-3" method="get" th:action="@{/manager/dashboard}">
+            <input name="tab" type="hidden" value="quan-ly-khuyen-mai">
+            <input name="days" th:value="${selectedTrendDays}" type="hidden">
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500" for="promotion-keyword">Từ khóa</label>
+                <input class="rounded-lg border px-3 py-2 text-sm" id="promotion-keyword" name="q" placeholder="Tên / loại giảm / giá trị" th:value="${q}" type="text">
+            </div>
+            <button class="rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-teal-700" type="submit">Lọc</button>
+            <a class="rounded-lg border px-4 py-2 text-sm font-semibold" th:href="@{/manager/dashboard(tab='quan-ly-khuyen-mai',days=${selectedTrendDays})}">Đặt lại</a>
+        </form>
+    </section>
+
+    <section class="rounded-2xl bg-white p-5 shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead>
+                <tr class="border-b text-left">
+                    <th class="p-2">ID</th>
+                    <th class="p-2">Tên khuyến mãi</th>
+                    <th class="p-2">Loại giảm</th>
+                    <th class="p-2">Giá trị</th>
+                    <th class="p-2 text-right">Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr class="border-b" th:classappend="${iter.odd} ? ' bg-slate-50'" th:each="promotion,iter : ${promotions}">
+                    <td class="p-2" th:text="${promotion.id}"></td>
+                    <td class="p-2 font-semibold text-slate-700" th:text="${promotion.ten}"></td>
+                    <td class="p-2" th:text="${promotion.loaiGiam}"></td>
+                    <td class="p-2" th:text="${promotion.giaTri}"></td>
+                    <td class="p-2 text-right">
+                        <button class="open-edit-promotion-btn rounded-lg border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-700 transition hover:bg-cyan-100"
+                                th:attr="data-promotion-id=${promotion.id},data-promotion-name=${promotion.ten},data-promotion-type=${promotion.loaiGiam},data-promotion-value=${promotion.giaTri},data-update-url=@{/manager/promotions/{id}/update(id=${promotion.id})}"
+                                type="button">Chỉnh sửa</button>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(promotions)}">
+                    <td class="p-3 text-center text-slate-500" colspan="5">Không có khuyến mãi phù hợp.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/55 p-4" id="managerPromotionFormModal">
+        <div class="w-full max-w-2xl rounded-2xl bg-white shadow-2xl ring-1 ring-slate-200">
+            <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+                <h3 class="text-lg font-bold text-slate-800">Cập nhật khuyến mãi</h3>
+                <button class="rounded-lg px-2 py-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" id="closeManagerPromotionFormModalBtn" type="button">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form class="grid gap-3 px-5 py-4 md:grid-cols-2" id="managerPromotionForm" method="post">
+                <div class="md:col-span-2">
+                    <label class="mb-1 block text-sm font-medium text-slate-700" for="managerPromotionNameInput">Tên khuyến mãi</label>
+                    <input class="w-full rounded-lg border border-slate-300 px-3 py-2" id="managerPromotionNameInput" name="ten" required>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-slate-700" for="managerPromotionTypeInput">Loại giảm</label>
+                    <select class="w-full rounded-lg border border-slate-300 px-3 py-2" id="managerPromotionTypeInput" name="loaiGiam" required>
+                        <option th:each="type : ${discountTypes}" th:text="${type}" th:value="${type}"></option>
+                    </select>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-slate-700" for="managerPromotionValueInput">Giá trị</label>
+                    <input class="w-full rounded-lg border border-slate-300 px-3 py-2" id="managerPromotionValueInput" name="giaTri" required step="0.01" type="number">
+                </div>
+
+                <div class="md:col-span-2 flex justify-end gap-2 border-t border-slate-200 pt-3">
+                    <button class="rounded-lg border border-slate-300 px-4 py-2 font-semibold text-slate-700 transition hover:bg-slate-100" id="cancelManagerPromotionFormBtn" type="button">Hủy</button>
+                    <button class="rounded-lg bg-teal-600 px-4 py-2 font-semibold text-white transition hover:bg-teal-700" type="submit">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const modal = document.getElementById("managerPromotionFormModal");
+            const form = document.getElementById("managerPromotionForm");
+            const closeBtn = document.getElementById("closeManagerPromotionFormModalBtn");
+            const cancelBtn = document.getElementById("cancelManagerPromotionFormBtn");
+            const nameInput = document.getElementById("managerPromotionNameInput");
+            const typeInput = document.getElementById("managerPromotionTypeInput");
+            const valueInput = document.getElementById("managerPromotionValueInput");
+
+            if (!modal || !form) {
+                return;
+            }
+
+            function showModal() {
+                modal.classList.remove("hidden");
+                modal.classList.add("flex");
+            }
+
+            function hideModal() {
+                modal.classList.add("hidden");
+                modal.classList.remove("flex");
+            }
+
+            function openEditForm(button) {
+                form.action = button.dataset.updateUrl || "";
+                nameInput.value = button.dataset.promotionName || "";
+                typeInput.value = button.dataset.promotionType || "";
+                valueInput.value = button.dataset.promotionValue || "";
+                showModal();
+            }
+
+            document.querySelectorAll(".open-edit-promotion-btn").forEach(function (button) {
+                button.addEventListener("click", function () {
+                    openEditForm(button);
+                });
+            });
+
+            closeBtn?.addEventListener("click", hideModal);
+            cancelBtn?.addEventListener("click", hideModal);
+            modal.addEventListener("click", function (event) {
+                if (event.target === modal) {
+                    hideModal();
+                }
+            });
+        })();
+    </script>
+</section>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section class="space-y-5" id="section-tong-quan" th:fragment="panel" th:if="${activeTab == 'tong-quan'}">
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <article class="rounded-2xl bg-gradient-to-r from-teal-600 to-cyan-600 p-4 text-white shadow-sm">
+            <p class="text-sm text-teal-100">Doanh thu tích lũy</p>
+            <p class="text-2xl font-bold" th:text="${#numbers.formatDecimal(managerStats.tongDoanhThu, 0, 'COMMA', 0, 'POINT')} + ' VND'"></p>
+        </article>
+        <article class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p class="text-sm text-slate-500">Khách hôm nay</p>
+            <p class="text-2xl font-bold text-slate-800" th:text="${managerStats.soKhachHomNay}"></p>
+        </article>
+        <article class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p class="text-sm text-slate-500">Phòng đặt hôm nay</p>
+            <p class="text-2xl font-bold text-slate-800" th:text="${managerStats.soPhongDatHomNay}"></p>
+        </article>
+        <article class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p class="text-sm text-slate-500">So với hôm qua</p>
+            <p class="text-2xl font-bold"
+               th:classappend="${managerStats.phanTramSoVoiHomQua.doubleValue() > 0} ? ' text-emerald-700' : (${managerStats.phanTramSoVoiHomQua.doubleValue() < 0} ? ' text-rose-700' : ' text-slate-700')"
+               th:text="${#numbers.formatDecimal(managerStats.phanTramSoVoiHomQua, 1, 1)} + '%'">0%</p>
+            <p class="mt-1 text-xs text-slate-500" th:text="${managerStats.nhanXuHuong}"></p>
+        </article>
+    </div>
+
+    <div class="grid gap-4 xl:grid-cols-[1.25fr_1fr]">
+        <article class="rounded-2xl bg-white p-5 shadow-sm">
+            <div class="mb-3 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Booking trend</p>
+                    <h3 class="text-lg font-semibold">Biểu đồ phòng đặt theo ngày</h3>
+                </div>
+                <span class="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600"
+                      th:text="${selectedTrendDays} + 'D'">7D</span>
+            </div>
+
+            <div class="mb-4 flex flex-wrap gap-2">
+                <a class="rounded-lg border px-3 py-1.5 text-xs font-semibold transition"
+                   th:classappend="${selectedTrendDays == 7} ? ' border-teal-600 bg-teal-600 text-white' : ' border-slate-300 bg-white text-slate-700 hover:bg-slate-100'"
+                   th:href="@{/manager/dashboard(tab='tong-quan',days=7)}">7 ngày</a>
+                <a class="rounded-lg border px-3 py-1.5 text-xs font-semibold transition"
+                   th:classappend="${selectedTrendDays == 14} ? ' border-teal-600 bg-teal-600 text-white' : ' border-slate-300 bg-white text-slate-700 hover:bg-slate-100'"
+                   th:href="@{/manager/dashboard(tab='tong-quan',days=14)}">14 ngày</a>
+                <a class="rounded-lg border px-3 py-1.5 text-xs font-semibold transition"
+                   th:classappend="${selectedTrendDays == 30} ? ' border-teal-600 bg-teal-600 text-white' : ' border-slate-300 bg-white text-slate-700 hover:bg-slate-100'"
+                   th:href="@{/manager/dashboard(tab='tong-quan',days=30)}">30 ngày</a>
+            </div>
+
+            <div class="h-56">
+                <canvas id="managerBookingTrendChart"></canvas>
+            </div>
+        </article>
+
+        <article class="rounded-2xl bg-white p-5 shadow-sm">
+            <h3 class="mb-3 text-lg font-semibold">Trạng thái phòng</h3>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+                <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2">
+                    <p class="text-emerald-700">Sẵn sàng</p>
+                    <p class="text-xl font-bold text-emerald-800" th:text="${managerStats.soPhongSanSang}"></p>
+                </div>
+                <div class="rounded-xl border border-cyan-200 bg-cyan-50 px-3 py-2">
+                    <p class="text-cyan-700">Đang ở</p>
+                    <p class="text-xl font-bold text-cyan-800" th:text="${managerStats.soPhongDangO}"></p>
+                </div>
+                <div class="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2">
+                    <p class="text-amber-700">Đang dọn</p>
+                    <p class="text-xl font-bold text-amber-800" th:text="${managerStats.soPhongDangDon}"></p>
+                </div>
+                <div class="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2">
+                    <p class="text-rose-700">Bảo trì</p>
+                    <p class="text-xl font-bold text-rose-800" th:text="${managerStats.soPhongBaoTri}"></p>
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <div class="grid gap-4 lg:grid-cols-2">
+        <article class="rounded-2xl bg-white p-5 shadow-sm">
+            <div class="mb-3">
+                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Booking window</p>
+                <h3 class="text-lg font-semibold">Biểu đồ cột khách đặt phòng (-5 đến +5 ngày)</h3>
+            </div>
+            <div class="h-64">
+                <canvas id="managerGuestWindowBarChart"></canvas>
+            </div>
+        </article>
+
+        <article class="rounded-2xl bg-white p-5 shadow-sm">
+            <div class="mb-3">
+                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tỷ trọng booking</p>
+                <h3 class="text-lg font-semibold">Biểu đồ tròn phân bố khách đặt</h3>
+            </div>
+            <div class="h-64">
+                <canvas id="managerGuestWindowPieChart"></canvas>
+            </div>
+        </article>
+    </div>
+
+    <script th:inline="javascript">
+        const managerTrendLabels = /*[[${managerTrend.labels}]]*/ [];
+        const managerTrendValues = /*[[${managerTrend.values}]]*/ [];
+        const managerGuestWindowLabels = /*[[${managerGuestWindow.labels}]]*/ [];
+        const managerGuestWindowValues = /*[[${managerGuestWindow.values}]]*/ [];
+        const trendCanvas = document.getElementById("managerBookingTrendChart");
+        const guestWindowBarCanvas = document.getElementById("managerGuestWindowBarChart");
+        const guestWindowPieCanvas = document.getElementById("managerGuestWindowPieChart");
+
+        function pointColorByTrend(values, index) {
+            if (index === 0) {
+                return "#64748b";
+            }
+            const previousValue = values[index - 1];
+            const currentValue = values[index];
+            if (currentValue > previousValue) {
+                return "#16a34a";
+            }
+            if (currentValue < previousValue) {
+                return "#dc2626";
+            }
+            return "#f59e0b";
+        }
+
+        if (trendCanvas && Array.isArray(managerTrendLabels) && Array.isArray(managerTrendValues)) {
+            const pointColors = managerTrendValues.map((_, index) => pointColorByTrend(managerTrendValues, index));
+            new Chart(trendCanvas, {
+                type: "line",
+                data: {
+                    labels: managerTrendLabels,
+                    datasets: [{
+                        label: "Phòng đặt",
+                        data: managerTrendValues,
+                        borderColor: "#0f766e",
+                        backgroundColor: "rgba(15, 118, 110, 0.18)",
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.34,
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
+                        pointBackgroundColor: pointColors,
+                        pointBorderColor: pointColors
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: "#475569" } },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: "rgba(148, 163, 184, 0.28)" },
+                            ticks: { precision: 0, color: "#475569" }
+                        }
+                    }
+                }
+            });
+        }
+
+        if (guestWindowBarCanvas && Array.isArray(managerGuestWindowLabels) && Array.isArray(managerGuestWindowValues)) {
+            new Chart(guestWindowBarCanvas, {
+                type: "bar",
+                data: {
+                    labels: managerGuestWindowLabels,
+                    datasets: [{
+                        label: "Số khách đặt",
+                        data: managerGuestWindowValues,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                        backgroundColor: managerGuestWindowValues.map(function (value) {
+                            if (value >= 15) {
+                                return "rgba(14, 165, 233, 0.85)";
+                            }
+                            if (value >= 8) {
+                                return "rgba(20, 184, 166, 0.85)";
+                            }
+                            return "rgba(148, 163, 184, 0.8)";
+                        })
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: "#475569" } },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: "rgba(148, 163, 184, 0.28)" },
+                            ticks: { precision: 0, color: "#475569" }
+                        }
+                    }
+                }
+            });
+        }
+
+        if (guestWindowPieCanvas && Array.isArray(managerGuestWindowLabels) && Array.isArray(managerGuestWindowValues)) {
+            new Chart(guestWindowPieCanvas, {
+                type: "doughnut",
+                data: {
+                    labels: managerGuestWindowLabels,
+                    datasets: [{
+                        data: managerGuestWindowValues,
+                        backgroundColor: [
+                            "#0f766e", "#0ea5e9", "#22c55e", "#84cc16", "#eab308", "#f97316",
+                            "#ef4444", "#ec4899", "#8b5cf6", "#6366f1", "#64748b"
+                        ],
+                        borderColor: "#ffffff",
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    cutout: "58%",
+                    plugins: {
+                        legend: {
+                            position: "bottom",
+                            labels: { boxWidth: 12, boxHeight: 12, color: "#334155", usePointStyle: true }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</section>
+</body>
+</html>

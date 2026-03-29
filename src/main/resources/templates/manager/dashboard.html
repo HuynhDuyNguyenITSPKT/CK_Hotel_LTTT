@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Manager Dashboard - Hệ thống khách sạn</title>
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --manager-bg: #f3f6f4;
+            --manager-text: #203335;
+            --manager-panel: rgba(255, 255, 255, 0.88);
+        }
+
+        body.manager-shell {
+            font-family: "Be Vietnam Pro", sans-serif;
+            color: var(--manager-text);
+            background:
+                    radial-gradient(circle at 10% 15%, rgba(15, 118, 110, 0.14), transparent 38%),
+                    radial-gradient(circle at 85% 10%, rgba(249, 115, 22, 0.15), transparent 32%),
+                    linear-gradient(180deg, #f7faf9 0%, var(--manager-bg) 100%);
+        }
+
+        .manager-title {
+            font-family: "Plus Jakarta Sans", sans-serif;
+            letter-spacing: -0.02em;
+        }
+
+        .manager-fade {
+            animation: managerFade 0.45s ease both;
+        }
+
+        .manager-glass {
+            background: var(--manager-panel);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.24);
+        }
+
+        @keyframes managerFade {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="manager-shell">
+<div class="min-h-screen lg:grid lg:grid-cols-[290px_1fr]">
+    <aside th:replace="~{manager/fragments/sidebar :: sidebar(${currentUser}, ${activeTab}, ${selectedTrendDays}, ${q}, ${roomStatusFilter}, ${filterDay}, ${filterMonth}, ${filterYear})}"></aside>
+
+    <main class="px-4 py-6 sm:px-6 lg:px-8">
+        <header class="manager-glass manager-fade mb-5 rounded-2xl px-5 py-5 sm:px-6">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-teal-700">Hotel Operations Center</p>
+                    <h1 class="manager-title mt-2 text-2xl font-extrabold sm:text-3xl">Bảng điều khiển quản lý</h1>
+                    <p class="mt-2 text-sm text-slate-600">Cấu trúc tách tab riêng cho manager: tổng quan, báo cáo, quản lý phòng, quản lý khuyến mãi.</p>
+                </div>
+                <div class="rounded-xl border border-teal-100 bg-teal-50 px-4 py-3 text-sm text-teal-700">
+                    <p class="font-semibold" th:text="${currentUser.employeeName}"></p>
+                    <p class="text-xs uppercase tracking-wide">Vai trò: Quản lý</p>
+                </div>
+            </div>
+        </header>
+
+           <div class="manager-fade mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+               th:if="${success}" th:text="${success}"></div>
+           <div class="manager-fade mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+               th:if="${error}" th:text="${error}"></div>
+
+        <section class="manager-fade" th:replace="~{manager/tabs/tong_quan :: panel}"></section>
+        <section class="manager-fade" th:replace="~{manager/tabs/bao_cao :: panel}"></section>
+        <section class="manager-fade" th:replace="~{manager/tabs/quan_ly_phong :: panel}"></section>
+        <section class="manager-fade" th:replace="~{manager/tabs/quan_ly_khuyen_mai :: panel}"></section>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section class="space-y-4" id="section-bao-cao" th:fragment="panel" th:if="${activeTab == 'bao-cao'}">
+    <section class="rounded-2xl bg-white p-5 shadow-sm">
+        <form class="flex flex-wrap items-end gap-3" method="get" th:action="@{/manager/dashboard}">
+            <input name="tab" type="hidden" value="bao-cao">
+            <input name="days" th:value="${selectedTrendDays}" type="hidden">
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500" for="report-day">Ngày</label>
+                <input class="rounded-lg border px-3 py-2 text-sm" id="report-day" max="31" min="1" name="day" placeholder="VD: 26" th:value="${filterDay}" type="number">
+            </div>
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500" for="report-month">Tháng</label>
+                <input class="rounded-lg border px-3 py-2 text-sm" id="report-month" max="12" min="1" name="month" placeholder="VD: 3" th:value="${filterMonth}" type="number">
+            </div>
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500" for="report-year">Năm</label>
+                <input class="rounded-lg border px-3 py-2 text-sm" id="report-year" min="2000" name="year" placeholder="VD: 2026" th:value="${filterYear}" type="number">
+            </div>
+            <button class="rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-teal-700" type="submit">Áp dụng lọc</button>
+            <a class="rounded-lg border px-4 py-2 text-sm font-semibold" th:href="@{/manager/dashboard(tab='bao-cao',days=${selectedTrendDays})}">Xóa lọc</a>
+        </form>
+    </section>
+
+    <div class="grid gap-4 xl:grid-cols-2">
+        <section class="rounded-2xl bg-white p-5 shadow-sm">
+            <div class="mb-3 flex items-center justify-between gap-2">
+                <h3 class="text-lg font-semibold">Báo cáo hóa đơn</h3>
+                <div class="space-x-2">
+                    <a class="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white" th:href="@{/manager/reports/invoices/excel(day=${filterDay},month=${filterMonth},year=${filterYear})}">Excel</a>
+                    <a class="rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white" th:href="@{/manager/reports/invoices/pdf(day=${filterDay},month=${filterMonth},year=${filterYear})}">PDF</a>
+                </div>
+            </div>
+            <div class="max-h-80 overflow-auto">
+                <table class="min-w-full text-sm">
+                    <thead>
+                    <tr class="border-b text-left">
+                        <th class="p-2">Mã HĐ</th>
+                        <th class="p-2">Đặt phòng</th>
+                        <th class="p-2">Nhân viên</th>
+                        <th class="p-2">Tổng tiền</th>
+                        <th class="p-2">Ngày tạo</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr class="border-b" th:each="item : ${invoiceReports}">
+                        <td class="p-2" th:text="${'#' + item.hoaDonId}"></td>
+                        <td class="p-2" th:text="${item.datPhongId}"></td>
+                        <td class="p-2" th:text="${item.nhanVien}"></td>
+                        <td class="p-2 font-medium text-teal-700" th:text="${#numbers.formatDecimal(item.tongTien, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
+                        <td class="p-2 text-slate-500" th:text="${#temporals.format(item.ngayTao, 'dd/MM/yyyy HH:mm')}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="rounded-2xl bg-white p-5 shadow-sm">
+            <div class="mb-3 flex items-center justify-between gap-2">
+                <h3 class="text-lg font-semibold">Báo cáo thanh toán</h3>
+                <div class="space-x-2">
+                    <a class="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white" th:href="@{/manager/reports/payments/excel(day=${filterDay},month=${filterMonth},year=${filterYear})}">Excel</a>
+                    <a class="rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white" th:href="@{/manager/reports/payments/pdf(day=${filterDay},month=${filterMonth},year=${filterYear})}">PDF</a>
+                </div>
+            </div>
+            <div class="max-h-80 overflow-auto">
+                <table class="min-w-full text-sm">
+                    <thead>
+                    <tr class="border-b text-left">
+                        <th class="p-2">Mã TT</th>
+                        <th class="p-2">Mã HĐ</th>
+                        <th class="p-2">Phương thức</th>
+                        <th class="p-2">Số tiền</th>
+                        <th class="p-2">Ngày thanh toán</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr class="border-b" th:each="item : ${paymentReports}">
+                        <td class="p-2" th:text="${'#' + item.thanhToanId}"></td>
+                        <td class="p-2" th:text="${item.hoaDonId != null ? '#' + item.hoaDonId : ''}"></td>
+                        <td class="p-2" th:text="${item.phuongThuc}"></td>
+                        <td class="p-2 font-medium text-orange-700" th:text="${#numbers.formatDecimal(item.soTien, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
+                        <td class="p-2 text-slate-500" th:text="${#temporals.format(item.ngayThanhToan, 'dd/MM/yyyy HH:mm')}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</section>
+</body>
+</html>
