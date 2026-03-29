@@ -16,18 +16,18 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class AdminIdentityService {
+public class QuanTriTaiKhoanNhanVienService {
 
     private final TaiKhoanRepository taiKhoanRepository;
     private final NhanVienRepository nhanVienRepository;
-    private final AdminRequestValidator adminRequestValidator;
+    private final KiemTraYeuCauService kiemTraYeuCauService;
 
-    public AdminIdentityService(TaiKhoanRepository taiKhoanRepository,
+    public QuanTriTaiKhoanNhanVienService(TaiKhoanRepository taiKhoanRepository,
                                 NhanVienRepository nhanVienRepository,
-                                AdminRequestValidator adminRequestValidator) {
+                                KiemTraYeuCauService kiemTraYeuCauService) {
         this.taiKhoanRepository = taiKhoanRepository;
         this.nhanVienRepository = nhanVienRepository;
-        this.adminRequestValidator = adminRequestValidator;
+        this.kiemTraYeuCauService = kiemTraYeuCauService;
     }
 
     @Transactional(readOnly = true)
@@ -61,7 +61,7 @@ public class AdminIdentityService {
 
     @Transactional
     public void createEmployeeWithAccount(CreateEmployeeForm form) {
-        adminRequestValidator.validateCreateForm(form);
+        kiemTraYeuCauService.validateCreateForm(form);
 
         String username = form.getUsername().trim();
         String email = form.getEmail().trim();

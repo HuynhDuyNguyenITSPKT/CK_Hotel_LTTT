@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-public interface IAdminManagementService {
+public interface IQuanTriTongHopService {
     List<AdminAccountView> getAccounts();
 
     List<AdminEmployeeView> getEmployees();

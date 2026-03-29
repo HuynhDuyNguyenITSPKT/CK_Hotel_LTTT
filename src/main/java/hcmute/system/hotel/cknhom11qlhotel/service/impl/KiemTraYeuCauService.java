@@ -9,7 +9,7 @@ import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.ServiceRequest;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AdminRequestValidator {
+public class KiemTraYeuCauService {
 
     public void validateCreateForm(CreateEmployeeForm form) {
         if (form == null

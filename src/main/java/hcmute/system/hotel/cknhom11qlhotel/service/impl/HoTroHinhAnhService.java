@@ -5,11 +5,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 @Component
-public class AdminMediaSupport {
+public class HoTroHinhAnhService {
 
     private final CloudinaryUploadService cloudinaryUploadService;
 
-    public AdminMediaSupport(CloudinaryUploadService cloudinaryUploadService) {
+    public HoTroHinhAnhService(CloudinaryUploadService cloudinaryUploadService) {
         this.cloudinaryUploadService = cloudinaryUploadService;
     }
 

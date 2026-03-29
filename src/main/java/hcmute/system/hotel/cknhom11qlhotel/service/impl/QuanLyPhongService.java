@@ -7,7 +7,6 @@ import hcmute.system.hotel.cknhom11qlhotel.model.enity.LoaiPhong;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.Phong;
 import hcmute.system.hotel.cknhom11qlhotel.repository.LoaiPhongRepository;
 import hcmute.system.hotel.cknhom11qlhotel.repository.PhongRepository;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,17 +15,17 @@ import java.util.Comparator;
 import java.util.List;
 
 @Service
-public class AdminRoomManagementService {
+public class QuanLyPhongService {
 
     private final PhongRepository phongRepository;
     private final LoaiPhongRepository loaiPhongRepository;
-    private final AdminMediaSupport adminMediaSupport;
-    private final AdminRequestValidator adminRequestValidator;
+    private final HoTroHinhAnhService adminMediaSupport;
+    private final KiemTraYeuCauService adminRequestValidator;
 
-    public AdminRoomManagementService(PhongRepository phongRepository,
-                                      LoaiPhongRepository loaiPhongRepository,
-                                      AdminMediaSupport adminMediaSupport,
-                                      AdminRequestValidator adminRequestValidator) {
+    public QuanLyPhongService(PhongRepository phongRepository,
+                              LoaiPhongRepository loaiPhongRepository,
+                              HoTroHinhAnhService adminMediaSupport,
+                              KiemTraYeuCauService adminRequestValidator) {
         this.phongRepository = phongRepository;
         this.loaiPhongRepository = loaiPhongRepository;
         this.adminMediaSupport = adminMediaSupport;
@@ -34,19 +33,19 @@ public class AdminRoomManagementService {
     }
 
     @Transactional(readOnly = true)
-    public List<RoomResponse> getRooms() {
+    public List<RoomResponse> layDanhSachPhong() {
         return phongRepository.findAllByOrderByIdDesc().stream().map(this::toRoomResponse).toList();
     }
 
     @Transactional(readOnly = true)
-    public List<LoaiPhong> getRoomTypes() {
+    public List<LoaiPhong> layDanhSachLoaiPhong() {
         return loaiPhongRepository.findAll().stream()
                 .sorted(Comparator.comparing(LoaiPhong::getId))
                 .toList();
     }
 
     @Transactional
-    public LoaiPhong createRoomType(RoomTypeRequest request, MultipartFile imageFile) {
+    public LoaiPhong taoLoaiPhong(RoomTypeRequest request, MultipartFile imageFile) {
         adminRequestValidator.validateRoomTypeRequest(request);
 
         String tenLoai = request.getTenLoai().trim();
@@ -63,7 +62,7 @@ public class AdminRoomManagementService {
     }
 
     @Transactional
-    public LoaiPhong updateRoomType(Long roomTypeId, RoomTypeRequest request, MultipartFile imageFile) {
+    public LoaiPhong capNhatLoaiPhong(Long roomTypeId, RoomTypeRequest request, MultipartFile imageFile) {
         adminRequestValidator.validateRoomTypeRequest(request);
 
         LoaiPhong loaiPhong = loaiPhongRepository.findById(roomTypeId)
@@ -84,7 +83,7 @@ public class AdminRoomManagementService {
     }
 
     @Transactional
-    public void deleteRoomType(Long roomTypeId) {
+    public void xoaLoaiPhong(Long roomTypeId) {
         if (!loaiPhongRepository.existsById(roomTypeId)) {
             throw new IllegalArgumentException("Không tìm thấy loại phòng");
         }
@@ -95,7 +94,7 @@ public class AdminRoomManagementService {
     }
 
     @Transactional
-    public RoomResponse createRoom(RoomRequest request, MultipartFile imageFile) {
+    public RoomResponse taoPhong(RoomRequest request, MultipartFile imageFile) {
         adminRequestValidator.validateRoomRequest(request);
 
         String soPhong = request.getSoPhong().trim();
@@ -115,7 +114,7 @@ public class AdminRoomManagementService {
     }
 
     @Transactional
-    public RoomResponse updateRoom(Long roomId, RoomRequest request, MultipartFile imageFile) {
+    public RoomResponse capNhatPhong(Long roomId, RoomRequest request, MultipartFile imageFile) {
         adminRequestValidator.validateRoomRequest(request);
 
         Phong phong = phongRepository.findById(roomId)
@@ -139,7 +138,7 @@ public class AdminRoomManagementService {
     }
 
     @Transactional
-    public void deleteRoom(Long roomId) {
+    public void xoaPhong(Long roomId) {
         if (!phongRepository.existsById(roomId)) {
             throw new IllegalArgumentException("Không tìm thấy phòng");
         }

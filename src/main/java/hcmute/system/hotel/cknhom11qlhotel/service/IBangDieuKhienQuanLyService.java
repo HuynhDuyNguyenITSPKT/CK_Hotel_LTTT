@@ -4,7 +4,7 @@ import hcmute.system.hotel.cknhom11qlhotel.model.dto.manager.ManagerBookingTrend
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.manager.ManagerDashboardStatsDto;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.manager.ManagerGuestBookingWindowDto;
 
-public interface IManagerDashboardService {
+public interface IBangDieuKhienQuanLyService {
 
     ManagerDashboardStatsDto layThongKeTongQuan();
 

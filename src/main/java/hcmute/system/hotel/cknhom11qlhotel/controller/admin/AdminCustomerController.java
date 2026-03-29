@@ -2,7 +2,7 @@ package hcmute.system.hotel.cknhom11qlhotel.controller.admin;
 
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.LoginSession;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.CustomerRequest;
-import hcmute.system.hotel.cknhom11qlhotel.service.IAdminManagementService;
+import hcmute.system.hotel.cknhom11qlhotel.service.IQuanTriTongHopService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,10 +12,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class AdminCustomerController {
 
-    private final IAdminManagementService adminManagementService;
+    private final IQuanTriTongHopService adminManagementService;
     private final AdminAuthorizationSupport authorizationSupport;
 
-    public AdminCustomerController(IAdminManagementService adminManagementService,
+    public AdminCustomerController(IQuanTriTongHopService adminManagementService,
                                    AdminAuthorizationSupport authorizationSupport) {
         this.adminManagementService = adminManagementService;
         this.authorizationSupport = authorizationSupport;

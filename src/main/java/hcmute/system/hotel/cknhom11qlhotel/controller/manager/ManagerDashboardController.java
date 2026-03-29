@@ -3,12 +3,13 @@ package hcmute.system.hotel.cknhom11qlhotel.controller.manager;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.LoginSession;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.PromotionRequest;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RoomRequest;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.ServiceRequest;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.DiscountType;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.EmployeeRole;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.RoomStatus;
-import hcmute.system.hotel.cknhom11qlhotel.service.IManagerCatalogService;
-import hcmute.system.hotel.cknhom11qlhotel.service.IManagerDashboardService;
-import hcmute.system.hotel.cknhom11qlhotel.service.IManagerReportService;
+import hcmute.system.hotel.cknhom11qlhotel.service.IDanhMucQuanLyService;
+import hcmute.system.hotel.cknhom11qlhotel.service.IBangDieuKhienQuanLyService;
+import hcmute.system.hotel.cknhom11qlhotel.service.IBaoCaoQuanLyService;
 import hcmute.system.hotel.cknhom11qlhotel.util.SessionKeys;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpHeaders;
@@ -27,13 +28,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/manager")
 public class ManagerDashboardController {
 
-    private final IManagerDashboardService managerDashboardService;
-    private final IManagerReportService managerReportService;
-    private final IManagerCatalogService managerCatalogService;
+    private final IBangDieuKhienQuanLyService managerDashboardService;
+    private final IBaoCaoQuanLyService managerReportService;
+    private final IDanhMucQuanLyService managerCatalogService;
 
-    public ManagerDashboardController(IManagerDashboardService managerDashboardService,
-                                      IManagerReportService managerReportService,
-                                      IManagerCatalogService managerCatalogService) {
+    public ManagerDashboardController(IBangDieuKhienQuanLyService managerDashboardService,
+                                      IBaoCaoQuanLyService managerReportService,
+                                      IDanhMucQuanLyService managerCatalogService) {
         this.managerDashboardService = managerDashboardService;
         this.managerReportService = managerReportService;
         this.managerCatalogService = managerCatalogService;
@@ -75,6 +76,7 @@ public class ManagerDashboardController {
             }
             case "quan-ly-phong" -> model.addAttribute("rooms", managerCatalogService.layDanhSachPhong(roomStatus, q));
             case "quan-ly-khuyen-mai" -> model.addAttribute("promotions", managerCatalogService.layDanhSachKhuyenMai(q));
+            case "quan-ly-dich-vu" -> model.addAttribute("services", managerCatalogService.layDanhSachDichVu(q));
             default -> {
                 model.addAttribute("managerStats", managerDashboardService.layThongKeTongQuan());
                 model.addAttribute("managerTrend", managerDashboardService.layTrendPhongDatTheoNgay(soNgay));
@@ -187,6 +189,25 @@ public class ManagerDashboardController {
         return "redirect:/manager/dashboard?tab=quan-ly-khuyen-mai";
     }
 
+    @PostMapping("/services/{serviceId}/update")
+    public String updateService(@PathVariable Long serviceId,
+                                ServiceRequest request,
+                                HttpSession session,
+                                RedirectAttributes redirectAttributes) {
+        if (!isManager(session)) {
+            return "redirect:/login";
+        }
+
+        try {
+            managerCatalogService.capNhatDichVu(serviceId, request);
+            redirectAttributes.addFlashAttribute("success", "Cập nhật dịch vụ thành công");
+        } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
+
+        return "redirect:/manager/dashboard?tab=quan-ly-dich-vu";
+    }
+
     private int normalizeDays(int days) {
         return switch (days) {
             case 14, 30 -> days;
@@ -196,7 +217,7 @@ public class ManagerDashboardController {
 
     private String normalizeTab(String tab) {
         return switch (tab) {
-            case "tong-quan", "bao-cao", "quan-ly-phong", "quan-ly-khuyen-mai" -> tab;
+            case "tong-quan", "bao-cao", "quan-ly-phong", "quan-ly-khuyen-mai", "quan-ly-dich-vu" -> tab;
             default -> "tong-quan";
         };
     }

@@ -19,7 +19,7 @@ import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.ServiceResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.LoaiPhong;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.AccountStatus;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.EmployeeRole;
-import hcmute.system.hotel.cknhom11qlhotel.service.IAdminManagementService;
+import hcmute.system.hotel.cknhom11qlhotel.service.IQuanTriTongHopService;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,17 +27,17 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Service
-public class AdminManagementService implements IAdminManagementService {
+public class DieuPhoiQuanTriService implements IQuanTriTongHopService {
 
-    private final AdminIdentityService adminIdentityService;
-    private final AdminAnalyticsService adminAnalyticsService;
-    private final AdminRoomManagementService adminRoomManagementService;
-    private final AdminCatalogManagementService adminCatalogManagementService;
+    private final QuanTriTaiKhoanNhanVienService adminIdentityService;
+    private final BaoCaoThongKeQuanTriService adminAnalyticsService;
+    private final QuanTriPhongDieuPhoiService adminRoomManagementService;
+    private final QuanTriDanhMucService adminCatalogManagementService;
 
-    public AdminManagementService(AdminIdentityService adminIdentityService,
-                                  AdminAnalyticsService adminAnalyticsService,
-                                  AdminRoomManagementService adminRoomManagementService,
-                                  AdminCatalogManagementService adminCatalogManagementService) {
+    public DieuPhoiQuanTriService(QuanTriTaiKhoanNhanVienService adminIdentityService,
+                                  BaoCaoThongKeQuanTriService adminAnalyticsService,
+                                  QuanTriPhongDieuPhoiService adminRoomManagementService,
+                                  QuanTriDanhMucService adminCatalogManagementService) {
         this.adminIdentityService = adminIdentityService;
         this.adminAnalyticsService = adminAnalyticsService;
         this.adminRoomManagementService = adminRoomManagementService;

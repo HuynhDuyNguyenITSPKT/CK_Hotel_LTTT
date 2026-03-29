@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 @Service
-public class AdminAnalyticsService {
+public class BaoCaoThongKeQuanTriService {
 
     private final HoaDonRepository hoaDonRepository;
     private final ThanhToanRepository thanhToanRepository;
@@ -41,7 +41,7 @@ public class AdminAnalyticsService {
     private final TaiKhoanRepository taiKhoanRepository;
     private final ReportExportUtil reportExportUtil;
 
-    public AdminAnalyticsService(HoaDonRepository hoaDonRepository,
+    public BaoCaoThongKeQuanTriService(HoaDonRepository hoaDonRepository,
                                  ThanhToanRepository thanhToanRepository,
                                  KhachHangRepository khachHangRepository,
                                  PhongRepository phongRepository,

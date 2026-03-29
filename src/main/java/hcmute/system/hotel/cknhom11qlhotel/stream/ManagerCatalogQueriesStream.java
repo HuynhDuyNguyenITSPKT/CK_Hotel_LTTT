@@ -2,6 +2,7 @@ package hcmute.system.hotel.cknhom11qlhotel.stream;
 
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.PromotionResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RoomResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.ServiceResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.RoomStatus;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -36,6 +37,15 @@ public class ManagerCatalogQueriesStream {
                         promotion.getGiaTri() == null ? null : promotion.getGiaTri().toPlainString()))
                 .toList();
     }
+
+        public List<ServiceResponse> locDichVu(List<ServiceResponse> services, String keyword) {
+        return services.stream()
+            .filter(Objects::nonNull)
+            .filter(service -> matchKeyword(keyword,
+                service.getTen(),
+                service.getGia() == null ? null : service.getGia().toPlainString()))
+            .toList();
+        }
 
     private boolean matchKeyword(String keyword, String... values) {
         if (keyword == null || keyword.isBlank()) {

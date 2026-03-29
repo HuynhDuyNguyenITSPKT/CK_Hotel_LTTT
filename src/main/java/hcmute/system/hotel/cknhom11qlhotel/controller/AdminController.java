@@ -8,7 +8,7 @@ import hcmute.system.hotel.cknhom11qlhotel.model.enums.AccountStatus;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.DiscountType;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.EmployeeRole;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.RoomStatus;
-import hcmute.system.hotel.cknhom11qlhotel.service.IAdminManagementService;
+import hcmute.system.hotel.cknhom11qlhotel.service.IQuanTriTongHopService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -27,10 +27,10 @@ public class AdminController {
 
     private static final int DEFAULT_PAGE_SIZE = 10;
 
-    private final IAdminManagementService adminManagementService;
+    private final IQuanTriTongHopService adminManagementService;
     private final AdminAuthorizationSupport authorizationSupport;
 
-    public AdminController(IAdminManagementService adminManagementService,
+    public AdminController(IQuanTriTongHopService adminManagementService,
                            AdminAuthorizationSupport authorizationSupport) {
         this.adminManagementService = adminManagementService;
         this.authorizationSupport = authorizationSupport;

@@ -9,7 +9,7 @@ import hcmute.system.hotel.cknhom11qlhotel.model.enums.RoomStatus;
 import hcmute.system.hotel.cknhom11qlhotel.repository.DatPhongRepository;
 import hcmute.system.hotel.cknhom11qlhotel.repository.HoaDonRepository;
 import hcmute.system.hotel.cknhom11qlhotel.repository.PhongRepository;
-import hcmute.system.hotel.cknhom11qlhotel.service.IManagerDashboardService;
+import hcmute.system.hotel.cknhom11qlhotel.service.IBangDieuKhienQuanLyService;
 import hcmute.system.hotel.cknhom11qlhotel.stream.ManagerDashboardQueriesStream;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +24,7 @@ import java.util.Map;
 
 @Service
 @Transactional(readOnly = true)
-public class ManagerDashboardServiceImpl implements IManagerDashboardService {
+public class DashboardQuanLyServiceImpl implements IBangDieuKhienQuanLyService {
 
     private static final DateTimeFormatter LABEL_FORMATTER = DateTimeFormatter.ofPattern("dd/MM");
 
@@ -33,7 +33,7 @@ public class ManagerDashboardServiceImpl implements IManagerDashboardService {
     private final PhongRepository phongRepository;
     private final ManagerDashboardQueriesStream managerDashboardQueriesStream;
 
-    public ManagerDashboardServiceImpl(DatPhongRepository datPhongRepository,
+    public DashboardQuanLyServiceImpl(DatPhongRepository datPhongRepository,
                                        HoaDonRepository hoaDonRepository,
                                        PhongRepository phongRepository,
                                        ManagerDashboardQueriesStream managerDashboardQueriesStream) {

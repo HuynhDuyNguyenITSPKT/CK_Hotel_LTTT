@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<section class="space-y-4" id="section-quan-ly-dich-vu" th:fragment="panel" th:if="${activeTab == 'quan-ly-dich-vu'}">
+    <section class="rounded-2xl bg-white p-5 shadow-sm">
+        <form class="flex flex-wrap items-end gap-3" method="get" th:action="@{/manager/dashboard}">
+            <input name="tab" type="hidden" value="quan-ly-dich-vu">
+            <input name="days" th:value="${selectedTrendDays}" type="hidden">
+            <div>
+                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500" for="service-keyword">Từ khóa</label>
+                <input class="rounded-lg border px-3 py-2 text-sm" id="service-keyword" name="q" placeholder="Tên dịch vụ / giá" th:value="${q}" type="text">
+            </div>
+            <button class="rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-teal-700" type="submit">Lọc</button>
+            <a class="rounded-lg border px-4 py-2 text-sm font-semibold" th:href="@{/manager/dashboard(tab='quan-ly-dich-vu',days=${selectedTrendDays})}">Đặt lại</a>
+        </form>
+    </section>
+
+    <section class="rounded-2xl bg-white p-5 shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead>
+                <tr class="border-b text-left">
+                    <th class="p-2">ID</th>
+                    <th class="p-2">Tên dịch vụ</th>
+                    <th class="p-2">Giá</th>
+                    <th class="p-2">Ảnh</th>
+                    <th class="p-2 text-right">Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr class="border-b" th:classappend="${iter.odd} ? ' bg-slate-50'" th:each="service,iter : ${services}">
+                    <td class="p-2" th:text="${service.id}"></td>
+                    <td class="p-2 font-semibold text-slate-700" th:text="${service.ten}"></td>
+                    <td class="p-2" th:text="${service.gia}"></td>
+                    <td class="p-2">
+                        <img alt="service" class="h-14 w-24 rounded-lg object-cover ring-1 ring-slate-200" th:if="${service.imageUrl != null and !service.imageUrl.isBlank()}" th:src="${service.imageUrl}">
+                        <span class="text-slate-400" th:if="${service.imageUrl == null or service.imageUrl.isBlank()}">Không có</span>
+                    </td>
+                    <td class="p-2 text-right">
+                        <button class="open-edit-service-btn rounded-lg border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-700 transition hover:bg-cyan-100"
+                                th:attr="data-service-id=${service.id},data-service-name=${service.ten},data-service-price=${service.gia},data-service-image-url=${service.imageUrl},data-update-url=@{/manager/services/{id}/update(id=${service.id})}"
+                                type="button">Chỉnh sửa</button>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(services)}">
+                    <td class="p-3 text-center text-slate-500" colspan="5">Không có dịch vụ phù hợp.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/55 p-4" id="managerServiceFormModal">
+        <div class="w-full max-w-2xl rounded-2xl bg-white shadow-2xl ring-1 ring-slate-200">
+            <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+                <h3 class="text-lg font-bold text-slate-800">Cập nhật dịch vụ</h3>
+                <button class="rounded-lg px-2 py-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700" id="closeManagerServiceFormModalBtn" type="button">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form class="grid gap-3 px-5 py-4 md:grid-cols-2" id="managerServiceForm" method="post">
+                <div class="md:col-span-2">
+                    <label class="mb-1 block text-sm font-medium text-slate-700" for="managerServiceNameInput">Tên dịch vụ</label>
+                    <input class="w-full rounded-lg border border-slate-300 px-3 py-2" id="managerServiceNameInput" name="ten" required>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-slate-700" for="managerServicePriceInput">Giá</label>
+                    <input class="w-full rounded-lg border border-slate-300 px-3 py-2" id="managerServicePriceInput" min="1" name="gia" required step="0.01" type="number">
+                </div>
+                <input id="managerServiceImageUrlInput" name="imageUrl" type="hidden">
+
+                <div class="md:col-span-2 flex justify-end gap-2 border-t border-slate-200 pt-3">
+                    <button class="rounded-lg border border-slate-300 px-4 py-2 font-semibold text-slate-700 transition hover:bg-slate-100" id="cancelManagerServiceFormBtn" type="button">Hủy</button>
+                    <button class="rounded-lg bg-teal-600 px-4 py-2 font-semibold text-white transition hover:bg-teal-700" type="submit">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const modal = document.getElementById("managerServiceFormModal");
+            const form = document.getElementById("managerServiceForm");
+            const closeBtn = document.getElementById("closeManagerServiceFormModalBtn");
+            const cancelBtn = document.getElementById("cancelManagerServiceFormBtn");
+            const nameInput = document.getElementById("managerServiceNameInput");
+            const priceInput = document.getElementById("managerServicePriceInput");
+            const imageUrlInput = document.getElementById("managerServiceImageUrlInput");
+
+            if (!modal || !form) {
+                return;
+            }
+
+            function showModal() {
+                modal.classList.remove("hidden");
+                modal.classList.add("flex");
+            }
+
+            function hideModal() {
+                modal.classList.add("hidden");
+                modal.classList.remove("flex");
+            }
+
+            function normalizeImageUrl(value) {
+                if (!value) {
+                    return "";
+                }
+                const normalized = value.trim();
+                if (normalized === "null" || normalized === "undefined") {
+                    return "";
+                }
+                return normalized;
+            }
+
+            function openEditForm(button) {
+                form.action = button.dataset.updateUrl || "";
+                nameInput.value = button.dataset.serviceName || "";
+                priceInput.value = button.dataset.servicePrice || "";
+                imageUrlInput.value = normalizeImageUrl(button.dataset.serviceImageUrl);
+                showModal();
+            }
+
+            document.querySelectorAll(".open-edit-service-btn").forEach(function (button) {
+                button.addEventListener("click", function () {
+                    openEditForm(button);
+                });
+            });
+
+            closeBtn?.addEventListener("click", hideModal);
+            cancelBtn?.addEventListener("click", hideModal);
+            modal.addEventListener("click", function (event) {
+                if (event.target === modal) {
+                    hideModal();
+                }
+            });
+        })();
+    </script>
+</section>
+</body>
+</html>

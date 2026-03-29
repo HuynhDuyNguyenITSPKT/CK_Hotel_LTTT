@@ -5,7 +5,7 @@ import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.PaymentReportResponse;
 
 import java.util.List;
 
-public interface IManagerReportService {
+public interface IBaoCaoQuanLyService {
 
     List<InvoiceReportResponse> layBaoCaoHoaDon(Integer day, Integer month, Integer year);
 

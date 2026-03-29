@@ -63,7 +63,7 @@
                 <div>
                     <p class="text-xs font-semibold uppercase tracking-[0.16em] text-teal-700">Hotel Operations Center</p>
                     <h1 class="manager-title mt-2 text-2xl font-extrabold sm:text-3xl">Bảng điều khiển quản lý</h1>
-                    <p class="mt-2 text-sm text-slate-600">Cấu trúc tách tab riêng cho manager: tổng quan, báo cáo, quản lý phòng, quản lý khuyến mãi.</p>
+                    <p class="mt-2 text-sm text-slate-600">Cấu trúc tách tab riêng cho manager: tổng quan, báo cáo, quản lý phòng, quản lý khuyến mãi, quản lý dịch vụ.</p>
                 </div>
                 <div class="rounded-xl border border-teal-100 bg-teal-50 px-4 py-3 text-sm text-teal-700">
                     <p class="font-semibold" th:text="${currentUser.employeeName}"></p>
@@ -81,6 +81,7 @@
         <section class="manager-fade" th:replace="~{manager/tabs/bao_cao :: panel}"></section>
         <section class="manager-fade" th:replace="~{manager/tabs/quan_ly_phong :: panel}"></section>
         <section class="manager-fade" th:replace="~{manager/tabs/quan_ly_khuyen_mai :: panel}"></section>
+        <section class="manager-fade" th:replace="~{manager/tabs/quan_ly_dich_vu :: panel}"></section>
     </main>
 </div>
 </body>

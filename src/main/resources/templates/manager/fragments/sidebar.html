@@ -32,6 +32,11 @@
            th:href="@{/manager/dashboard(tab='quan-ly-khuyen-mai',days=${selectedTrendDays},q=${q})}">
             <i class="fa-solid fa-tags mr-2"></i>Quản lý khuyến mãi
         </a>
+        <a class="block rounded-xl px-3 py-2.5 transition hover:bg-slate-800/80"
+           th:classappend="${activeTab == 'quan-ly-dich-vu'} ? ' bg-slate-800 ring-1 ring-slate-700'"
+           th:href="@{/manager/dashboard(tab='quan-ly-dich-vu',days=${selectedTrendDays},q=${q})}">
+            <i class="fa-solid fa-bell-concierge mr-2"></i>Quản lý dịch vụ
+        </a>
     </nav>
 
     <div class="relative mt-auto px-5 pb-6">
