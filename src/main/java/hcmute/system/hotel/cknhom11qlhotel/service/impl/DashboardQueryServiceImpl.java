@@ -170,15 +170,32 @@ public class DashboardQueryServiceImpl implements IDashboardQueryService {
     }
 
     @Override
-    public TrangDuLieuDto<LeTanCheckInDto> layTrangCheckIn(int trang, int kichThuoc) {
-        return phanTrang(duLieuCheckIn(), trang, kichThuoc);
+    public TrangDuLieuDto<LeTanCheckInDto> layTrangCheckIn(int trang,
+                                                            int kichThuoc,
+                                                            String tuKhoa,
+                                                            String boLocTrangThai) {
+        List<LeTanCheckInDto> duLieu = duLieuCheckIn();
+        if (boLocTrangThai != null && !boLocTrangThai.isBlank()) {
+            String trangThai = boLocTrangThai.trim().toUpperCase(Locale.ROOT);
+            duLieu = duLieu.stream()
+                    .filter(item -> item.getTrangThai() != null && item.getTrangThai().name().equals(trangThai))
+                    .toList();
+        }
+        if (tuKhoa != null && !tuKhoa.isBlank()) {
+            String keyword = tuKhoa.trim().toLowerCase(Locale.ROOT);
+            duLieu = duLieu.stream()
+                    .filter(item -> khopTuKhoaCheckIn(item, keyword))
+                    .toList();
+        }
+        return phanTrang(duLieu, trang, kichThuoc);
     }
 
     @Override
     public TrangDuLieuDto<LeTanCheckOutDto> layTrangCheckOut(int trang,
                                                               int kichThuoc,
                                                               String boLocTrangThaiThanhToan,
-                                                              String sapXep) {
+                                                              String sapXep,
+                                                              String tuKhoa) {
         List<LeTanCheckOutDto> duLieu = apDungSapXepCheckOut(duLieuCheckOut(), sapXep);
         if (boLocTrangThaiThanhToan != null && !boLocTrangThaiThanhToan.isBlank()) {
             String boLoc = boLocTrangThaiThanhToan.trim().toLowerCase(Locale.ROOT);
@@ -192,6 +209,12 @@ public class DashboardQueryServiceImpl implements IDashboardQueryService {
                         .filter(item -> khopBoLocTrangThaiThanhToan(item.getTrangThaiThanhToan(), boLoc))
                         .toList();
             }
+        }
+        if (tuKhoa != null && !tuKhoa.isBlank()) {
+            String keyword = tuKhoa.trim().toLowerCase(Locale.ROOT);
+            duLieu = duLieu.stream()
+                    .filter(item -> khopTuKhoaCheckOut(item, keyword))
+                    .toList();
         }
         return phanTrang(duLieu, trang, kichThuoc);
     }
@@ -211,8 +234,24 @@ public class DashboardQueryServiceImpl implements IDashboardQueryService {
     }
 
     @Override
-    public TrangDuLieuDto<LeTanDangOThemDichVuDto> layTrangDangOThemDichVu(int trang, int kichThuoc, String sapXep) {
+    public TrangDuLieuDto<LeTanDangOThemDichVuDto> layTrangDangOThemDichVu(int trang,
+                                                                            int kichThuoc,
+                                                                            String sapXep,
+                                                                            String tuKhoa,
+                                                                            boolean chiNgayNhanHomNay) {
         List<LeTanDangOThemDichVuDto> duLieu = apDungSapXepDangO(duLieuDangOThemDichVu(), sapXep);
+        if (tuKhoa != null && !tuKhoa.isBlank()) {
+            String keyword = tuKhoa.trim().toLowerCase(Locale.ROOT);
+            duLieu = duLieu.stream()
+                    .filter(item -> khopTuKhoaDangO(item, keyword))
+                    .toList();
+        }
+        if (chiNgayNhanHomNay) {
+            LocalDate homNay = LocalDate.now();
+            duLieu = duLieu.stream()
+                    .filter(item -> homNay.equals(item.getNgayNhan()))
+                    .toList();
+        }
         return phanTrang(duLieu, trang, kichThuoc);
     }
 
@@ -220,7 +259,8 @@ public class DashboardQueryServiceImpl implements IDashboardQueryService {
     public TrangDuLieuDto<LeTanHoaDonThanhToanDto> layTrangHoaDonThanhToan(int trang,
                                                                             int kichThuoc,
                                                                             String boLocTrangThaiThanhToan,
-                                                                            String sapXep) {
+                                                                            String sapXep,
+                                                                            String tuKhoa) {
         List<LeTanHoaDonThanhToanDto> duLieu = apDungSapXepHoaDon(duLieuHoaDonThanhToan(), sapXep);
         if (boLocTrangThaiThanhToan != null && !boLocTrangThaiThanhToan.isBlank()) {
             String boLoc = boLocTrangThaiThanhToan.trim().toLowerCase(Locale.ROOT);
@@ -234,6 +274,12 @@ public class DashboardQueryServiceImpl implements IDashboardQueryService {
                         .filter(item -> khopBoLocTrangThaiThanhToan(item.getTrangThaiThanhToan(), boLoc))
                         .toList();
             }
+        }
+        if (tuKhoa != null && !tuKhoa.isBlank()) {
+            String keyword = tuKhoa.trim().toLowerCase(Locale.ROOT);
+            duLieu = duLieu.stream()
+                    .filter(item -> khopTuKhoaHoaDon(item, keyword))
+                    .toList();
         }
         return phanTrang(duLieu, trang, kichThuoc);
     }
@@ -330,7 +376,9 @@ public class DashboardQueryServiceImpl implements IDashboardQueryService {
 
     private List<LeTanDangOThemDichVuDto> duLieuDangOThemDichVu() {
         List<DatPhong> datPhongs = datPhongRepository.findByTrangThaiOrderByIdDesc(BookingStatus.CHECKED_IN);
-        Map<Long, List<ChiTietDatPhong>> mapChiTiet = mapChiTietTheoDatPhongIds(layDanhSachDatPhongIds(datPhongs));
+        List<Long> datPhongIds = layDanhSachDatPhongIds(datPhongs);
+        Map<Long, List<ChiTietDatPhong>> mapChiTiet = mapChiTietTheoDatPhongIds(datPhongIds);
+        Map<Long, Integer> mapTongSoLuongDichVuTheoDatPhong = mapTongSoLuongDichVuTheoDatPhong(datPhongIds);
 
         return datPhongs.stream()
                 .map(datPhong -> {
@@ -339,7 +387,10 @@ public class DashboardQueryServiceImpl implements IDashboardQueryService {
                             datPhong.getId(),
                             toMaDatPhong(datPhong.getId()),
                             datPhong.getKhachHang() != null ? datPhong.getKhachHang().getTen() : "",
+                    datPhong.getKhachHang() != null ? datPhong.getKhachHang().getSdt() : "",
                             hopNhatDanhSachPhong(danhSachChiTiet),
+                    mapTongSoLuongDichVuTheoDatPhong.getOrDefault(datPhong.getId(), 0),
+                    dongGoiDanhSachPhong(danhSachChiTiet),
                             datPhong.getNgayNhan(),
                             datPhong.getNgayTra()
                     );
@@ -385,15 +436,18 @@ public class DashboardQueryServiceImpl implements IDashboardQueryService {
                             : mapTongThanhToanTheoHoaDon.getOrDefault(hoaDon.getId(), BigDecimal.ZERO);
                     BigDecimal soTienConLai = tongTienHoaDon.subtract(tongDaThanhToan).max(BigDecimal.ZERO);
                     ThongTinThanhToan thongTinThanhToan = xacDinhTrangThaiThanhToan(hoaDon, tongDaThanhToan);
+                        Set<KhuyenMai> danhSachKhuyenMai = hoaDon != null ? hoaDon.getKhuyenMais() : Set.of();
                     String maKhuyenMai = hoaDon == null
                             ? "--"
-                            : hoaDon.getKhuyenMais().stream()
+                            : danhSachKhuyenMai.stream()
                             .map(km -> toMaKhuyenMai(km.getId()))
                             .sorted(String::compareToIgnoreCase)
                             .collect(Collectors.joining(", "));
                     if (maKhuyenMai.isBlank()) {
                         maKhuyenMai = "--";
                     }
+                        String thongTinKhuyenMai = toThongTinKhuyenMai(danhSachKhuyenMai);
+                        BigDecimal tongMucGiamKhuyenMai = tongTienTruocKhuyenMai.subtract(tongTienHoaDon).max(BigDecimal.ZERO);
 
                     return new LeTanHoaDonThanhToanDto(
                             datPhong.getId(),
@@ -403,8 +457,10 @@ public class DashboardQueryServiceImpl implements IDashboardQueryService {
                             datPhong.getKhachHang() != null ? datPhong.getKhachHang().getTen() : "",
                             hopNhatDanhSachPhong(danhSachChiTiet),
                             maKhuyenMai,
+                            thongTinKhuyenMai,
                             hoaDon != null ? hoaDon.getNgayTao() : null,
                             tongTienTruocKhuyenMai,
+                            tongMucGiamKhuyenMai,
                             tongTienHoaDon,
                             tongDaThanhToan,
                             soTienConLai,
@@ -466,6 +522,7 @@ public class DashboardQueryServiceImpl implements IDashboardQueryService {
                 datPhong.getId(),
                 toMaDatPhong(datPhong.getId()),
                 datPhong.getKhachHang() != null ? datPhong.getKhachHang().getTen() : "",
+            datPhong.getKhachHang() != null ? datPhong.getKhachHang().getSdt() : "",
                 hopNhatDanhSachPhong(danhSachChiTiet),
                 datPhong.getNgayTra(),
                 tongHoaDon,
@@ -611,6 +668,49 @@ public class DashboardQueryServiceImpl implements IDashboardQueryService {
         };
     }
 
+    private boolean khopTuKhoaCheckIn(LeTanCheckInDto item, String keyword) {
+        return chuaTuKhoa(item.getMaDatPhong(), keyword)
+                || chuaTuKhoa(item.getTenKhachHang(), keyword)
+                || chuaTuKhoa(item.getSoDienThoai(), keyword)
+                || chuaTuKhoa(item.getSoPhong(), keyword)
+                || chuaTuKhoa(item.getTrangThai() != null ? item.getTrangThai().name() : "", keyword);
+    }
+
+    private boolean khopTuKhoaCheckOut(LeTanCheckOutDto item, String keyword) {
+        return chuaTuKhoa(item.getMaDatPhong(), keyword)
+                || chuaTuKhoa(item.getTenKhachHang(), keyword)
+                || chuaTuKhoa(item.getSoDienThoai(), keyword)
+                || chuaTuKhoa(item.getSoPhong(), keyword)
+                || chuaTuKhoa(item.getTrangThaiDatPhong() != null ? item.getTrangThaiDatPhong().name() : "", keyword);
+    }
+
+    private boolean khopTuKhoaDangO(LeTanDangOThemDichVuDto item, String keyword) {
+        return chuaTuKhoa(item.getMaDatPhong(), keyword)
+                || chuaTuKhoa(item.getTenKhachHang(), keyword)
+                || chuaTuKhoa(item.getSoDienThoai(), keyword)
+                || chuaTuKhoa(item.getSoPhong(), keyword);
+    }
+
+    private boolean khopTuKhoaHoaDon(LeTanHoaDonThanhToanDto item, String keyword) {
+        return chuaTuKhoa(item.getMaHoaDon(), keyword)
+                || chuaTuKhoa(item.getMaDatPhong(), keyword)
+                || chuaTuKhoa(item.getTenKhachHang(), keyword)
+                || chuaTuKhoa(item.getDanhSachPhong(), keyword)
+                || chuaTuKhoa(item.getMaKhuyenMai(), keyword)
+                || chuaTuKhoa(item.getThongTinKhuyenMai(), keyword)
+                || chuaTuKhoa(item.getTrangThaiDatPhong() != null ? item.getTrangThaiDatPhong().name() : "", keyword);
+    }
+
+    private boolean chuaTuKhoa(String source, String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return true;
+        }
+        if (source == null || source.isBlank()) {
+            return false;
+        }
+        return source.toLowerCase(Locale.ROOT).contains(keyword);
+    }
+
     private Set<Long> timDatPhongIdsTheoBoLocTrangThaiThanhToan(String boLoc) {
         Set<Long> hoaDonIds = switch (boLoc) {
             case "chua-thanh-toan" -> hoaDonRepository.findHoaDonIdsChuaThanhToan();
@@ -705,6 +805,20 @@ public class DashboardQueryServiceImpl implements IDashboardQueryService {
                 .collect(Collectors.toMap(
                         row -> toLong(row[0]),
                         row -> toBigDecimal(row[1]),
+                        (left, right) -> right
+                ));
+    }
+
+    private Map<Long, Integer> mapTongSoLuongDichVuTheoDatPhong(List<Long> datPhongIds) {
+        if (datPhongIds == null || datPhongIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return suDungDichVuRepository.tongSoLuongTheoDanhSachDatPhongIds(datPhongIds).stream()
+                .filter(row -> row != null && row.length >= 2)
+                .collect(Collectors.toMap(
+                        row -> toLong(row[0]),
+                        row -> toInt(row[1]),
                         (left, right) -> right
                 ));
     }
@@ -806,6 +920,61 @@ public class DashboardQueryServiceImpl implements IDashboardQueryService {
                 .collect(Collectors.joining(", "));
     }
 
+    private String dongGoiDanhSachPhong(List<ChiTietDatPhong> danhSachChiTiet) {
+        if (danhSachChiTiet == null || danhSachChiTiet.isEmpty()) {
+            return "";
+        }
+
+        return danhSachChiTiet.stream()
+                .filter(chiTiet -> chiTiet.getPhong() != null
+                        && chiTiet.getPhong().getId() != null
+                        && chiTiet.getPhong().getSoPhong() != null
+                        && !chiTiet.getPhong().getSoPhong().isBlank())
+                .map(chiTiet -> chiTiet.getPhong().getId() + ":" + chiTiet.getPhong().getSoPhong())
+                .distinct()
+                .collect(Collectors.joining("|"));
+    }
+
+    private String toThongTinKhuyenMai(Set<KhuyenMai> danhSachKhuyenMai) {
+        if (danhSachKhuyenMai == null || danhSachKhuyenMai.isEmpty()) {
+            return "--";
+        }
+
+        String moTa = danhSachKhuyenMai.stream()
+                .filter(Objects::nonNull)
+                .map(this::toMoTaKhuyenMai)
+                .filter(item -> item != null && !item.isBlank())
+                .sorted(String::compareToIgnoreCase)
+                .collect(Collectors.joining(" | "));
+        return moTa.isBlank() ? "--" : moTa;
+    }
+
+    private String toMoTaKhuyenMai(KhuyenMai khuyenMai) {
+        if (khuyenMai == null) {
+            return "";
+        }
+
+        String maKhuyenMai = toMaKhuyenMai(khuyenMai.getId());
+        String tenKhuyenMai = khuyenMai.getTen() == null ? "" : khuyenMai.getTen().trim();
+        String thongTinGiam = "";
+
+        if (khuyenMai.getLoaiGiam() == DiscountType.PERCENT) {
+            BigDecimal tyLe = khuyenMai.getGiaTri() == null ? BigDecimal.ZERO : khuyenMai.getGiaTri();
+            thongTinGiam = "Giảm " + tyLe.stripTrailingZeros().toPlainString() + "%";
+        } else if (khuyenMai.getLoaiGiam() == DiscountType.AMOUNT) {
+            BigDecimal soTien = khuyenMai.getGiaTri() == null ? BigDecimal.ZERO : khuyenMai.getGiaTri();
+            thongTinGiam = "Giảm " + dinhDangTien(soTien) + " VND";
+        }
+
+        if (tenKhuyenMai.isBlank()) {
+            return thongTinGiam.isBlank() ? maKhuyenMai : (maKhuyenMai + " - " + thongTinGiam);
+        }
+        if (thongTinGiam.isBlank()) {
+            return maKhuyenMai + " - " + tenKhuyenMai;
+        }
+        return maKhuyenMai + " - " + tenKhuyenMai + " (" + thongTinGiam + ")";
+    }
+
     private String toMaDatPhong(Long datPhongId) {
         long giaTri = datPhongId == null ? 0L : datPhongId;
         return String.format("DP-%05d", giaTri);
@@ -849,6 +1018,16 @@ public class DashboardQueryServiceImpl implements IDashboardQueryService {
             return new BigDecimal(number.toString());
         }
         return new BigDecimal(value.toString());
+    }
+
+    private Integer toInt(Object value) {
+        if (value == null) {
+            return 0;
+        }
+        if (value instanceof Number number) {
+            return number.intValue();
+        }
+        return Integer.parseInt(value.toString());
     }
 
     private static class ThongTinThanhToan {

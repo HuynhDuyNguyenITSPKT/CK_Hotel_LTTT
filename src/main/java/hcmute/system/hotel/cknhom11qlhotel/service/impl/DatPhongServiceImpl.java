@@ -187,21 +187,27 @@ public class DatPhongServiceImpl implements IDatPhongService {
     }
 
     private KhachHang timHoacTaoKhachHang(String tenKhachHang, String sdt, String email) {
+        String tenChuan = tenKhachHang.trim();
         String sdtChuan = sdt.trim();
         String emailChuan = laRong(email) ? null : email.trim();
 
         Optional<KhachHang> theoSdt = khachHangRepository.findBySdt(sdtChuan);
         if (theoSdt.isPresent()) {
             KhachHang khachHang = theoSdt.get();
+
+            boolean khopTen = soSanhChuoiKhongPhanBietHoaThuong(khachHang.getTen(), tenChuan);
+            boolean khopEmail = soSanhEmail(khachHang.getEmail(), emailChuan);
+            if (!khopTen || !khopEmail) {
+                throw new IllegalArgumentException("SĐT đã tồn tại với thông tin khách hàng khác. Chỉ được dùng đúng tên/email đã lưu cho SĐT này hoặc đổi sang SĐT khác");
+            }
+
             if (!laRong(emailChuan)) {
                 Optional<KhachHang> theoEmail = khachHangRepository.findByEmailIgnoreCase(emailChuan);
                 if (theoEmail.isPresent() && !Objects.equals(theoEmail.get().getId(), khachHang.getId())) {
                     throw new IllegalArgumentException("Email đã tồn tại ở khách hàng khác, vui lòng kiểm tra lại SĐT");
                 }
             }
-            khachHang.setTen(tenKhachHang.trim());
-            khachHang.setEmail(emailChuan);
-            return khachHangRepository.save(khachHang);
+            return khachHang;
         }
 
         if (!laRong(emailChuan)) {
@@ -212,10 +218,28 @@ public class DatPhongServiceImpl implements IDatPhongService {
         }
 
         KhachHang khachHang = new KhachHang();
-        khachHang.setTen(tenKhachHang.trim());
+        khachHang.setTen(tenChuan);
         khachHang.setSdt(sdtChuan);
         khachHang.setEmail(emailChuan);
         return khachHangRepository.save(khachHang);
+    }
+
+    private boolean soSanhChuoiKhongPhanBietHoaThuong(String left, String right) {
+        String leftValue = left == null ? "" : left.trim();
+        String rightValue = right == null ? "" : right.trim();
+        if (leftValue.isEmpty() && rightValue.isEmpty()) {
+            return true;
+        }
+        return leftValue.equalsIgnoreCase(rightValue);
+    }
+
+    private boolean soSanhEmail(String left, String right) {
+        String leftValue = left == null ? "" : left.trim();
+        String rightValue = right == null ? "" : right.trim();
+        if (leftValue.isEmpty() && rightValue.isEmpty()) {
+            return true;
+        }
+        return leftValue.equalsIgnoreCase(rightValue);
     }
 
     private void kiemTraFormDatPhong(LeTanTaoDatPhongFormDto form) {

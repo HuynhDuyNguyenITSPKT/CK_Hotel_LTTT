@@ -31,4 +31,12 @@ public interface SuDungDichVuRepository extends JpaRepository<SuDungDichVu, Long
         group by sd.datPhong.id
         """)
     List<Object[]> tongTienTheoDanhSachDatPhongIds(@Param("datPhongIds") Collection<Long> datPhongIds);
+
+    @Query("""
+        select sd.datPhong.id, coalesce(sum(sd.soLuong), 0)
+        from SuDungDichVu sd
+        where sd.datPhong.id in :datPhongIds
+        group by sd.datPhong.id
+        """)
+    List<Object[]> tongSoLuongTheoDanhSachDatPhongIds(@Param("datPhongIds") Collection<Long> datPhongIds);
 }

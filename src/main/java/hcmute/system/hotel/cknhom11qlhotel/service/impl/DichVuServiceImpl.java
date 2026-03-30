@@ -6,6 +6,7 @@ import hcmute.system.hotel.cknhom11qlhotel.model.enity.DichVu;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.HoaDon;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.KhuyenMai;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.NhanVien;
+import hcmute.system.hotel.cknhom11qlhotel.model.enity.Phong;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.SuDungDichVu;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.BookingStatus;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.DiscountType;
@@ -24,7 +25,9 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -54,7 +57,12 @@ public class DichVuServiceImpl implements IDichVuService {
     }
 
     @Override
-    public void themDichVuTrongThoiGianO(Long datPhongId, Long dichVuId, Integer soLuong, Long nhanVienId) {
+    public void themDichVuTrongThoiGianO(Long datPhongId,
+                                         Long dichVuId,
+                                         Integer soLuong,
+                                         Long phongId,
+                                         boolean apDungTatCaPhong,
+                                         Long nhanVienId) {
         if (datPhongId == null || dichVuId == null) {
             throw new IllegalArgumentException("Dữ liệu thêm dịch vụ không hợp lệ");
         }
@@ -85,21 +93,54 @@ public class DichVuServiceImpl implements IDichVuService {
             throw new IllegalArgumentException("Không tìm thấy chi tiết đặt phòng để gán dịch vụ");
         }
 
-        ChiTietDatPhong chiTietHieuLuc = danhSachChiTiet.stream()
+        Map<Long, ChiTietDatPhong> mapChiTietTheoPhong = danhSachChiTiet.stream()
                 .filter(chiTiet -> chiTiet.getPhong() != null && chiTiet.getPhong().getId() != null)
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Không có phòng hợp lệ để gán dịch vụ"));
+                .collect(java.util.stream.Collectors.toMap(
+                        chiTiet -> chiTiet.getPhong().getId(),
+                        chiTiet -> chiTiet,
+                        (left, right) -> left,
+                        LinkedHashMap::new
+                ));
+        if (mapChiTietTheoPhong.isEmpty()) {
+            throw new IllegalArgumentException("Không có phòng hợp lệ để gán dịch vụ");
+        }
 
-        SuDungDichVu suDungDichVu = new SuDungDichVu();
-        suDungDichVu.setDatPhong(datPhong);
-        suDungDichVu.setPhong(chiTietHieuLuc.getPhong());
-        suDungDichVu.setDichVu(dichVu);
-        suDungDichVu.setSoLuong(soLuong);
-        suDungDichVu.setThoiDiem(LocalDateTime.now());
-        suDungDichVuRepository.save(suDungDichVu);
+        LocalDateTime thoiDiemThem = LocalDateTime.now();
+        if (apDungTatCaPhong) {
+            for (ChiTietDatPhong chiTiet : mapChiTietTheoPhong.values()) {
+                taoBanGhiSuDungDichVu(datPhong, chiTiet.getPhong(), dichVu, soLuong, thoiDiemThem);
+            }
+        } else {
+            if (phongId == null) {
+                throw new IllegalArgumentException("Vui lòng chọn phòng áp dụng dịch vụ");
+            }
+            ChiTietDatPhong chiTietDaChon = mapChiTietTheoPhong.get(phongId);
+            if (chiTietDaChon == null || chiTietDaChon.getPhong() == null) {
+                throw new IllegalArgumentException("Phòng được chọn không thuộc booking này");
+            }
+            taoBanGhiSuDungDichVu(datPhong, chiTietDaChon.getPhong(), dichVu, soLuong, thoiDiemThem);
+        }
 
         NhanVien nhanVien = timNhanVienTheoId(nhanVienId).orElse(datPhong.getNhanVien());
         capNhatTongTienHoaDonTheoThucTe(datPhong, danhSachChiTiet, nhanVien);
+    }
+
+    private void taoBanGhiSuDungDichVu(DatPhong datPhong,
+                                       Phong phong,
+                                       DichVu dichVu,
+                                       Integer soLuong,
+                                       LocalDateTime thoiDiem) {
+        if (datPhong == null || phong == null || phong.getId() == null || dichVu == null) {
+            throw new IllegalArgumentException("Dữ liệu thêm dịch vụ không hợp lệ");
+        }
+
+        SuDungDichVu suDungDichVu = new SuDungDichVu();
+        suDungDichVu.setDatPhong(datPhong);
+        suDungDichVu.setPhong(phong);
+        suDungDichVu.setDichVu(dichVu);
+        suDungDichVu.setSoLuong(soLuong);
+        suDungDichVu.setThoiDiem(thoiDiem != null ? thoiDiem : LocalDateTime.now());
+        suDungDichVuRepository.save(suDungDichVu);
     }
 
     @Override

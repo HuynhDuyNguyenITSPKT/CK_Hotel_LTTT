@@ -31,13 +31,19 @@ public class ReceptionistDashboardController {
     public String dashboard(@RequestParam(defaultValue = "tong-quan") String tab,
                             @RequestParam(defaultValue = "1") int page,
                             @RequestParam(defaultValue = "8") int size,
+                            @RequestParam(required = false) String checkInKeyword,
+                            @RequestParam(required = false) String checkInStatus,
                             @RequestParam(required = false) Long selectedBookingId,
+                            @RequestParam(required = false) String checkoutKeyword,
                             @RequestParam(required = false) String checkoutPaymentStatus,
                             @RequestParam(defaultValue = "moi-nhat") String checkoutSort,
                             @RequestParam(required = false) String bookingStatus,
                             @RequestParam(defaultValue = "moi-nhat") String bookingSort,
+                            @RequestParam(required = false) String invoiceKeyword,
                             @RequestParam(required = false) String invoicePaymentStatus,
                             @RequestParam(defaultValue = "moi-nhat") String invoiceSort,
+                            @RequestParam(required = false) String inStayKeyword,
+                            @RequestParam(defaultValue = "false") boolean inStayOnlyToday,
                             @RequestParam(defaultValue = "moi-nhat") String inStaySort,
                             HttpSession session,
                             Model model) {
@@ -62,10 +68,16 @@ public class ReceptionistDashboardController {
 
         model.addAttribute("checkoutPaymentStatus", checkoutPaymentStatus);
         model.addAttribute("checkoutSort", checkoutSort);
+        model.addAttribute("checkoutKeyword", checkoutKeyword);
+        model.addAttribute("checkInKeyword", checkInKeyword);
+        model.addAttribute("checkInStatus", checkInStatus);
         model.addAttribute("bookingStatus", bookingStatus);
         model.addAttribute("bookingSort", bookingSort);
+        model.addAttribute("invoiceKeyword", invoiceKeyword);
         model.addAttribute("invoicePaymentStatus", invoicePaymentStatus);
         model.addAttribute("invoiceSort", invoiceSort);
+        model.addAttribute("inStayKeyword", inStayKeyword);
+        model.addAttribute("inStayOnlyToday", inStayOnlyToday);
         model.addAttribute("inStaySort", inStaySort);
         model.addAttribute("selectedBookingId", selectedBookingId);
 
@@ -75,12 +87,12 @@ public class ReceptionistDashboardController {
 
         switch (activeTab) {
             case "check-in" -> {
-                TrangDuLieuDto<?> duLieu = dashboardQueryService.layTrangCheckIn(page, safeSize);
+                TrangDuLieuDto<?> duLieu = dashboardQueryService.layTrangCheckIn(page, safeSize, checkInKeyword, checkInStatus);
                 model.addAttribute("danhSachCheckIn", duLieu.getDanhSach());
                 themThongTinPhanTrang(model, duLieu);
             }
             case "check-out" -> {
-                TrangDuLieuDto<?> duLieu = dashboardQueryService.layTrangCheckOut(page, safeSize, checkoutPaymentStatus, checkoutSort);
+                TrangDuLieuDto<?> duLieu = dashboardQueryService.layTrangCheckOut(page, safeSize, checkoutPaymentStatus, checkoutSort, checkoutKeyword);
                 model.addAttribute("danhSachCheckOut", duLieu.getDanhSach());
                 themThongTinPhanTrang(model, duLieu);
             }
@@ -96,13 +108,13 @@ public class ReceptionistDashboardController {
                 themThongTinPhanTrang(model, duLieu);
             }
             case "dang-o-them-dich-vu" -> {
-                TrangDuLieuDto<?> duLieu = dashboardQueryService.layTrangDangOThemDichVu(page, safeSize, inStaySort);
+                TrangDuLieuDto<?> duLieu = dashboardQueryService.layTrangDangOThemDichVu(page, safeSize, inStaySort, inStayKeyword, inStayOnlyToday);
                 model.addAttribute("danhSachDangOThemDichVu", duLieu.getDanhSach());
                 model.addAttribute("danhSachSuDungDichVu", dashboardQueryService.layDanhSachSuDungDichVu());
                 themThongTinPhanTrang(model, duLieu);
             }
             case "hoa-don-thanh-toan" -> {
-                TrangDuLieuDto<?> duLieu = dashboardQueryService.layTrangHoaDonThanhToan(page, safeSize, invoicePaymentStatus, invoiceSort);
+                TrangDuLieuDto<?> duLieu = dashboardQueryService.layTrangHoaDonThanhToan(page, safeSize, invoicePaymentStatus, invoiceSort, invoiceKeyword);
                 model.addAttribute("danhSachHoaDonThanhToan", duLieu.getDanhSach());
                 themThongTinPhanTrang(model, duLieu);
             }

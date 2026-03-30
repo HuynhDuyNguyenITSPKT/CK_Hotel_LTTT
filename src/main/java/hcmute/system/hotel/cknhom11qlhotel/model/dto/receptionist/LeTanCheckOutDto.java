@@ -9,6 +9,7 @@ public class LeTanCheckOutDto {
     private final Long datPhongId;
     private final String maDatPhong;
     private final String tenKhachHang;
+    private final String soDienThoai;
     private final String soPhong;
     private final LocalDate ngayTra;
     private final BigDecimal tongTienTamTinh;
@@ -22,6 +23,7 @@ public class LeTanCheckOutDto {
     public LeTanCheckOutDto(Long datPhongId,
                             String maDatPhong,
                             String tenKhachHang,
+                            String soDienThoai,
                             String soPhong,
                             LocalDate ngayTra,
                             BigDecimal tongTienTamTinh,
@@ -34,6 +36,7 @@ public class LeTanCheckOutDto {
         this.datPhongId = datPhongId;
         this.maDatPhong = maDatPhong;
         this.tenKhachHang = tenKhachHang;
+        this.soDienThoai = soDienThoai;
         this.soPhong = soPhong;
         this.ngayTra = ngayTra;
         this.tongTienTamTinh = tongTienTamTinh;
@@ -55,6 +58,10 @@ public class LeTanCheckOutDto {
 
     public String getTenKhachHang() {
         return tenKhachHang;
+    }
+
+    public String getSoDienThoai() {
+        return soDienThoai;
     }
 
     public String getSoPhong() {

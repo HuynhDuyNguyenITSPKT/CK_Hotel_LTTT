@@ -13,8 +13,10 @@ public class LeTanHoaDonThanhToanDto {
     private final String tenKhachHang;
     private final String danhSachPhong;
     private final String maKhuyenMai;
+    private final String thongTinKhuyenMai;
     private final LocalDateTime ngayTaoHoaDon;
     private final BigDecimal tongTienTruocKhuyenMai;
+    private final BigDecimal tongMucGiamKhuyenMai;
     private final BigDecimal tongTienHoaDon;
     private final BigDecimal tongDaThanhToan;
     private final BigDecimal soTienConLai;
@@ -29,8 +31,10 @@ public class LeTanHoaDonThanhToanDto {
                                    String tenKhachHang,
                                    String danhSachPhong,
                                    String maKhuyenMai,
+                                   String thongTinKhuyenMai,
                                    LocalDateTime ngayTaoHoaDon,
                                    BigDecimal tongTienTruocKhuyenMai,
+                                   BigDecimal tongMucGiamKhuyenMai,
                                    BigDecimal tongTienHoaDon,
                                    BigDecimal tongDaThanhToan,
                                    BigDecimal soTienConLai,
@@ -44,8 +48,10 @@ public class LeTanHoaDonThanhToanDto {
         this.tenKhachHang = tenKhachHang;
         this.danhSachPhong = danhSachPhong;
         this.maKhuyenMai = maKhuyenMai;
+        this.thongTinKhuyenMai = thongTinKhuyenMai;
         this.ngayTaoHoaDon = ngayTaoHoaDon;
         this.tongTienTruocKhuyenMai = tongTienTruocKhuyenMai;
+        this.tongMucGiamKhuyenMai = tongMucGiamKhuyenMai;
         this.tongTienHoaDon = tongTienHoaDon;
         this.tongDaThanhToan = tongDaThanhToan;
         this.soTienConLai = soTienConLai;
@@ -82,12 +88,20 @@ public class LeTanHoaDonThanhToanDto {
         return maKhuyenMai;
     }
 
+    public String getThongTinKhuyenMai() {
+        return thongTinKhuyenMai;
+    }
+
     public LocalDateTime getNgayTaoHoaDon() {
         return ngayTaoHoaDon;
     }
 
     public BigDecimal getTongTienTruocKhuyenMai() {
         return tongTienTruocKhuyenMai;
+    }
+
+    public BigDecimal getTongMucGiamKhuyenMai() {
+        return tongMucGiamKhuyenMai;
     }
 
     public BigDecimal getTongTienHoaDon() {

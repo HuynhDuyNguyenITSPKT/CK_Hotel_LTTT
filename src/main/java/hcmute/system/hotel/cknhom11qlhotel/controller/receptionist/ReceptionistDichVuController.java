@@ -27,6 +27,7 @@ public class ReceptionistDichVuController {
     public String themDichVu(@PathVariable Long datPhongId,
                              @RequestParam Long dichVuId,
                              @RequestParam Integer soLuong,
+                             @RequestParam String phongApDung,
                              HttpSession session,
                              RedirectAttributes redirectAttributes) {
         LoginSession currentUser = authorizationSupport.requireReceptionist(session);
@@ -35,7 +36,28 @@ public class ReceptionistDichVuController {
         }
 
         try {
-            dichVuService.themDichVuTrongThoiGianO(datPhongId, dichVuId, soLuong, currentUser.getEmployeeId());
+            String phongApDungChuan = phongApDung == null ? "" : phongApDung.trim();
+            boolean apDungTatCaPhong = "ALL".equalsIgnoreCase(phongApDungChuan);
+            Long phongId = null;
+            if (!apDungTatCaPhong) {
+                if (phongApDungChuan.isBlank()) {
+                    throw new IllegalArgumentException("Vui lòng chọn phòng áp dụng dịch vụ");
+                }
+                try {
+                    phongId = Long.parseLong(phongApDungChuan);
+                } catch (NumberFormatException ex) {
+                    throw new IllegalArgumentException("Phòng áp dụng dịch vụ không hợp lệ");
+                }
+            }
+
+            dichVuService.themDichVuTrongThoiGianO(
+                    datPhongId,
+                    dichVuId,
+                    soLuong,
+                    phongId,
+                    apDungTatCaPhong,
+                    currentUser.getEmployeeId()
+            );
             redirectAttributes.addFlashAttribute("success", "Đã thêm dịch vụ cho khách đang lưu trú");
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());

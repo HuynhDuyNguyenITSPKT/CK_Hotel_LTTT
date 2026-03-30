@@ -28,12 +28,16 @@ public interface IDashboardQueryService {
 
     List<LeTanChiTietDatPhongDto> layDanhSachChiTietDatPhong();
 
-    TrangDuLieuDto<LeTanCheckInDto> layTrangCheckIn(int trang, int kichThuoc);
+    TrangDuLieuDto<LeTanCheckInDto> layTrangCheckIn(int trang,
+                                                    int kichThuoc,
+                                                    String tuKhoa,
+                                                    String boLocTrangThai);
 
     TrangDuLieuDto<LeTanCheckOutDto> layTrangCheckOut(int trang,
                                                        int kichThuoc,
                                                        String boLocTrangThaiThanhToan,
-                                                       String sapXep);
+                                                       String sapXep,
+                                                       String tuKhoa);
 
     TrangDuLieuDto<LeTanPhongDto> layTrangQuanLyPhong(int trang, int kichThuoc);
 
@@ -42,12 +46,17 @@ public interface IDashboardQueryService {
                                                        String boLocTrangThaiDatPhong,
                                                        String sapXep);
 
-    TrangDuLieuDto<LeTanDangOThemDichVuDto> layTrangDangOThemDichVu(int trang, int kichThuoc, String sapXep);
+    TrangDuLieuDto<LeTanDangOThemDichVuDto> layTrangDangOThemDichVu(int trang,
+                                                                     int kichThuoc,
+                                                                     String sapXep,
+                                                                     String tuKhoa,
+                                                                     boolean chiNgayNhanHomNay);
 
     TrangDuLieuDto<LeTanHoaDonThanhToanDto> layTrangHoaDonThanhToan(int trang,
                                                                      int kichThuoc,
                                                                      String boLocTrangThaiThanhToan,
-                                                                     String sapXep);
+                                                                     String sapXep,
+                                                                     String tuKhoa);
 
     List<LeTanCheckInDto> layCheckInSapToi(int gioiHan);
 

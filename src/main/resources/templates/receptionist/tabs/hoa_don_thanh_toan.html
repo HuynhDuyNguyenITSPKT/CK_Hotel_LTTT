@@ -8,7 +8,7 @@
     </div>
 
     <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <form class="mb-4 grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 md:grid-cols-5" method="get" th:action="@{/receptionist/dashboard}">
+        <form class="mb-4 grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 md:grid-cols-7" method="get" th:action="@{/receptionist/dashboard}">
             <input name="tab" type="hidden" value="hoa-don-thanh-toan">
             <input name="page" type="hidden" value="1">
             <input name="size" th:value="${size}" type="hidden">
@@ -20,6 +20,14 @@
                     <option th:selected="${invoicePaymentStatus == 'thanh-toan-mot-phan'}" value="thanh-toan-mot-phan">Thanh toán một phần</option>
                     <option th:selected="${invoicePaymentStatus == 'da-thanh-toan'}" value="da-thanh-toan">Đã thanh toán</option>
                 </select>
+            </div>
+            <div class="md:col-span-2">
+                <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Tìm nhanh</label>
+                <input class="w-full rounded-lg border px-3 py-2"
+                       name="invoiceKeyword"
+                       placeholder="Mã hóa đơn, booking, khách, phòng, mã KM"
+                       th:value="${invoiceKeyword}"
+                       type="text">
             </div>
             <div class="md:col-span-2">
                 <label class="mb-1 block text-xs font-semibold uppercase text-slate-500">Sắp xếp</label>
@@ -61,7 +69,10 @@
                     <td class="p-2" th:text="${row.maDatPhong}"></td>
                     <td class="p-2" th:text="${row.tenKhachHang}"></td>
                     <td class="p-2" th:text="${row.danhSachPhong}"></td>
-                    <td class="p-2" th:text="${row.maKhuyenMai}"></td>
+                    <td class="p-2">
+                        <p class="font-semibold text-rose-700" th:text="${row.maKhuyenMai}"></p>
+                        <p class="text-xs text-slate-500" th:text="${row.thongTinKhuyenMai}"></p>
+                    </td>
                     <td class="p-2 text-slate-500" th:text="${row.ngayTaoHoaDon != null ? #temporals.format(row.ngayTaoHoaDon, 'dd/MM/yyyy HH:mm') : '--'}"></td>
                     <td class="p-2 font-semibold text-orange-700" th:text="${#numbers.formatDecimal(row.tongTienHoaDon, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
                     <td class="p-2 font-medium text-sky-700" th:text="${#numbers.formatDecimal(row.tongDaThanhToan, 0, 'COMMA', 0, 'POINT')} + ' VND'"></td>
@@ -76,8 +87,9 @@
                     <td class="p-2">
                         <div class="space-y-2">
                             <button class="js-open-settlement-form w-full rounded-lg bg-rose-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-rose-700"
-                                    th:attr="data-action=@{/receptionist/dat-phong/{id}/khuyen-mai-thanh-toan(id=${row.datPhongId})},data-booking-code=${row.maDatPhong},data-guest=${row.tenKhachHang},data-current-promo=${row.maKhuyenMai},data-so-tien-con-lai=${row.soTienConLai},data-can-settle=${row.trangThaiDatPhong.name() == 'CHECKED_IN' and row.soTienConLai.signum() > 0},data-tong-truoc-km=${row.tongTienTruocKhuyenMai},data-tong-da-thanh-toan=${row.tongDaThanhToan}"
-                                    type="button">Áp dụng KM + thu tiền</button>
+                                    th:attr="data-action=@{/receptionist/dat-phong/{id}/khuyen-mai-thanh-toan(id=${row.datPhongId})},data-booking-code=${row.maDatPhong},data-guest=${row.tenKhachHang},data-current-promo=${row.maKhuyenMai},data-promo-info=${row.thongTinKhuyenMai},data-so-tien-con-lai=${row.soTienConLai},data-can-settle=${row.trangThaiDatPhong.name() == 'CHECKED_IN' and row.soTienConLai.signum() > 0},data-read-only=${row.soTienConLai.signum() <= 0},data-tong-truoc-km=${row.tongTienTruocKhuyenMai},data-giam-km=${row.tongMucGiamKhuyenMai},data-tong-sau-km=${row.tongTienHoaDon},data-tong-da-thanh-toan=${row.tongDaThanhToan}"
+                                    th:text="${row.soTienConLai.signum() <= 0} ? 'Xem chi tiết' : 'Áp dụng KM + thu tiền'"
+                                    type="button"></button>
 
                             <a class="inline-flex w-full items-center justify-center rounded-lg border border-sky-300 px-3 py-1 text-xs font-semibold text-sky-700 transition hover:bg-sky-50"
                                th:href="@{/receptionist/dashboard(tab='check-out')}">Đi tới check-out</a>
@@ -95,17 +107,17 @@
             <p th:text="'Trang ' + ${page} + ' / ' + ${totalPages} + ' - Tổng: ' + ${totalItems}"></p>
             <div class="flex flex-wrap items-center gap-1">
                 <a class="rounded border px-3 py-1 hover:bg-slate-100"
-                   th:href="@{/receptionist/dashboard(tab='hoa-don-thanh-toan',page=${page-1},size=${size},invoicePaymentStatus=${invoicePaymentStatus},invoiceSort=${invoiceSort})}"
+                         th:href="@{/receptionist/dashboard(tab='hoa-don-thanh-toan',page=${page-1},size=${size},invoicePaymentStatus=${invoicePaymentStatus},invoiceSort=${invoiceSort},invoiceKeyword=${invoiceKeyword})}"
                    th:if="${hasPrev}">Trước</a>
 
                 <a class="rounded border px-3 py-1"
                    th:classappend="${p == page} ? ' border-rose-600 bg-rose-600 text-white' : ' hover:bg-slate-100'"
                    th:each="p : ${#numbers.sequence(1, totalPages)}"
-                   th:href="@{/receptionist/dashboard(tab='hoa-don-thanh-toan',page=${p},size=${size},invoicePaymentStatus=${invoicePaymentStatus},invoiceSort=${invoiceSort})}"
+                         th:href="@{/receptionist/dashboard(tab='hoa-don-thanh-toan',page=${p},size=${size},invoicePaymentStatus=${invoicePaymentStatus},invoiceSort=${invoiceSort},invoiceKeyword=${invoiceKeyword})}"
                    th:text="${p}"></a>
 
                 <a class="rounded border px-3 py-1 hover:bg-slate-100"
-                   th:href="@{/receptionist/dashboard(tab='hoa-don-thanh-toan',page=${page+1},size=${size},invoicePaymentStatus=${invoicePaymentStatus},invoiceSort=${invoiceSort})}"
+                         th:href="@{/receptionist/dashboard(tab='hoa-don-thanh-toan',page=${page+1},size=${size},invoicePaymentStatus=${invoicePaymentStatus},invoiceSort=${invoiceSort},invoiceKeyword=${invoiceKeyword})}"
                    th:if="${hasNext}">Sau</a>
             </div>
         </div>
@@ -152,7 +164,10 @@
                                 type="submit"
                                 disabled>Lưu KM và thu tiền</button>
                     </form>
+                    <p class="text-xs text-slate-500" id="invoiceSettlementPromoInfo">Khuyến mãi hiện tại: --</p>
+                    <p class="text-xs text-slate-500" id="invoiceSettlementFormula">Công thức: Tổng sau KM = Tổng trước KM - Giảm KM.</p>
                     <p class="text-xs text-slate-500" id="invoiceSettlementEstimate">Công nợ dự kiến sau áp KM: 0 VND.</p>
+                    <p class="text-xs text-amber-700" id="invoiceSettlementReadOnlyNotice"></p>
                     <p class="text-xs text-slate-500">Chỉ booking CHECKED_IN mới được thu tiền. Booking đã hủy sẽ không hiển thị tại tab này.</p>
                 </div>
 
@@ -172,15 +187,22 @@
                 const promoSelect = document.getElementById("invoiceSettlementPromoSelect");
                 const amountInput = document.getElementById("invoiceSettlementAmount");
                 const submitBtn = document.getElementById("invoiceSettlementSubmitBtn");
+                const promoInfoText = document.getElementById("invoiceSettlementPromoInfo");
+                const formulaText = document.getElementById("invoiceSettlementFormula");
                 const estimateText = document.getElementById("invoiceSettlementEstimate");
+                const readOnlyNotice = document.getElementById("invoiceSettlementReadOnlyNotice");
                 const dialog = document.getElementById("invoiceSettlementDialog");
                 const closeBtn = document.getElementById("invoiceSettlementDialogCloseBtn");
                 const closeBtnX = document.getElementById("invoiceSettlementDialogCloseX");
                 let currentBaseTotal = 0;
+                let currentDiscount = 0;
+                let currentAfterDiscount = 0;
                 let currentPaid = 0;
                 let currentCanSettle = false;
+                let currentReadOnly = false;
+                let currentPromoInfoText = "--";
 
-                if (!selectedBookingText || !form || !promoSelect || !amountInput || !submitBtn || !estimateText || !dialog) {
+                if (!selectedBookingText || !form || !promoSelect || !amountInput || !submitBtn || !promoInfoText || !formulaText || !estimateText || !readOnlyNotice || !dialog) {
                     return;
                 }
 
@@ -214,11 +236,33 @@
                     return Math.max(0, Math.round(tongSauGiam));
                 };
 
+                const capNhatThongTinKhuyenMaiDangChon = () => {
+                    const selectedOption = promoSelect.options[promoSelect.selectedIndex];
+                    if (!selectedOption || !selectedOption.value) {
+                        promoInfoText.textContent = `Khuyến mãi hiện tại: ${currentPromoInfoText || "--"}`;
+                        return;
+                    }
+
+                    const loaiGiam = (selectedOption.getAttribute("data-loai-giam") || "").toUpperCase();
+                    const giaTri = parseNumber(selectedOption.getAttribute("data-gia-tri"));
+                    const tenMa = selectedOption.value;
+                    let moTa = "";
+                    if (loaiGiam === "PERCENT") {
+                        moTa = `Giảm ${Math.max(0, giaTri)}%`;
+                    } else if (loaiGiam === "AMOUNT") {
+                        moTa = `Giảm ${formatMoney(giaTri)}`;
+                    }
+                    promoInfoText.textContent = `Khuyến mãi hiện tại: ${tenMa}${moTa ? ` (${moTa})` : ""}`;
+                };
+
                 const capNhatCongNoDuKien = () => {
+                    capNhatThongTinKhuyenMaiDangChon();
                     const tongSauKhuyenMai = tinhTongSauKhuyenMai();
+                    const giamKhuyenMai = Math.max(0, Math.round(currentBaseTotal - tongSauKhuyenMai));
                     const congNoConLai = Math.max(0, Math.round(tongSauKhuyenMai - currentPaid));
 
                     estimateText.textContent = `Công nợ dự kiến sau áp KM: ${formatMoney(congNoConLai)}.`;
+                    formulaText.textContent = `Công thức: Tổng sau KM = ${formatMoney(currentBaseTotal)} - ${formatMoney(giamKhuyenMai)} = ${formatMoney(tongSauKhuyenMai)}.`;
                     amountInput.max = String(congNoConLai);
 
                     if (!amountInput.value || parseNumber(amountInput.value) > congNoConLai) {
@@ -226,8 +270,16 @@
                     }
 
                     const disableByAmount = congNoConLai <= 0;
-                    amountInput.disabled = !currentCanSettle || disableByAmount;
-                    submitBtn.disabled = !form.getAttribute("action") || !currentCanSettle || disableByAmount;
+                    const disableByRule = !currentCanSettle || currentReadOnly;
+                    amountInput.disabled = disableByRule || disableByAmount;
+                    promoSelect.disabled = disableByRule;
+                    submitBtn.disabled = !form.getAttribute("action") || disableByRule || disableByAmount;
+
+                    if (disableByRule || disableByAmount) {
+                        submitBtn.textContent = "Chỉ xem chi tiết";
+                    } else {
+                        submitBtn.textContent = "Lưu KM và thu tiền";
+                    }
                 };
 
                 promoSelect.addEventListener("change", capNhatCongNoDuKien);
@@ -238,9 +290,13 @@
                         const bookingCode = button.getAttribute("data-booking-code") || "";
                         const guest = button.getAttribute("data-guest") || "";
                         const currentPromo = button.getAttribute("data-current-promo") || "";
+                        const promoInfo = button.getAttribute("data-promo-info") || "--";
                         const remaining = button.getAttribute("data-so-tien-con-lai") || "0";
                         const canSettle = button.getAttribute("data-can-settle") === "true";
+                        const readOnly = button.getAttribute("data-read-only") === "true";
                         const tongTruocKm = button.getAttribute("data-tong-truoc-km") || "0";
+                        const giamKm = button.getAttribute("data-giam-km") || "0";
+                        const tongSauKm = button.getAttribute("data-tong-sau-km") || "0";
                         const tongDaThanhToan = button.getAttribute("data-tong-da-thanh-toan") || "0";
 
                         const promoValue = currentPromo.startsWith("KM-") ? currentPromo : "";
@@ -249,10 +305,24 @@
                         promoSelect.value = promoValue;
                         amountInput.value = remaining;
                         currentBaseTotal = parseNumber(tongTruocKm);
+                        currentDiscount = parseNumber(giamKm);
+                        currentAfterDiscount = parseNumber(tongSauKm);
                         currentPaid = parseNumber(tongDaThanhToan);
                         currentCanSettle = canSettle;
+                        currentReadOnly = readOnly;
+                        currentPromoInfoText = promoInfo || "--";
+
+                        promoInfoText.textContent = `Khuyến mãi hiện tại: ${promoInfo}`;
+                        formulaText.textContent = `Công thức hiện tại: ${formatMoney(currentAfterDiscount)} = ${formatMoney(currentBaseTotal)} - ${formatMoney(currentDiscount)}.`;
 
                         selectedBookingText.textContent = `Đang thao tác booking ${bookingCode} - ${guest}. Công nợ hiện tại: ${formatMoney(parseNumber(remaining))}.`;
+                        if (currentReadOnly) {
+                            readOnlyNotice.textContent = "Hóa đơn đã thanh toán đủ, chỉ xem chi tiết, không thể áp thêm KM hoặc thu tiền.";
+                        } else if (!currentCanSettle) {
+                            readOnlyNotice.textContent = "Booking chưa ở trạng thái CHECKED_IN hoặc không còn công nợ, chỉ xem chi tiết.";
+                        } else {
+                            readOnlyNotice.textContent = "";
+                        }
                         capNhatCongNoDuKien();
                         dialog.showModal();
                     });
