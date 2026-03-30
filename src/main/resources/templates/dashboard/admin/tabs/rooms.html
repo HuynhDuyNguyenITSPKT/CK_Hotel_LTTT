@@ -111,8 +111,8 @@
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <form class="grid gap-3 px-5 py-4 md:grid-cols-2" enctype="multipart/form-data" id="roomForm" method="post"
-                  th:attr="data-create-url=@{/admin/rooms},data-update-url-pattern=@{/admin/rooms/{id}/update(id='__id__')}">
+            <form class="grid gap-3 px-5 py-4 md:grid-cols-2" data-update-url-pattern="/admin/rooms/__id__/update" enctype="multipart/form-data" id="roomForm" method="post"
+                th:attr="data-create-url=@{/admin/rooms}">
                 <div class="md:col-span-2">
                     <label class="mb-1 block text-sm font-medium text-slate-700" for="roomSoPhongInput">Số phòng</label>
                     <input class="w-full rounded-lg border border-slate-300 px-3 py-2" id="roomSoPhongInput" name="soPhong" required>

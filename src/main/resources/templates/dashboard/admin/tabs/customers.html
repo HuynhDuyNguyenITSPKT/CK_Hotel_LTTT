@@ -59,8 +59,8 @@
                     </td>
                     <td class="px-5 py-4 text-right">
                         <div class="flex items-center justify-end gap-2">
-                            <button class="open-edit-customer-btn rounded-md p-2 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600"
-                                    th:attr="data-customer-id=${customer.id},data-customer-name=${customer.ten},data-customer-phone=${customer.sdt},data-customer-email=${customer.email}"
+                                <button class="open-edit-customer-btn rounded-md p-2 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600"
+                                    th:attr="data-customer-id=${customer.id},data-customer-name=${customer.ten},data-customer-phone=${customer.sdt},data-customer-email=${customer.email},data-update-url=@{/admin/customers/{id}/update(id=${customer.id})}"
                                     title="Chỉnh sửa"
                                     type="button">
                                 <i class="fa-solid fa-pen"></i>
@@ -95,8 +95,8 @@
                 </button>
             </div>
 
-            <form class="grid gap-3 px-5 py-4 md:grid-cols-2" id="customerForm" method="post"
-                  th:attr="data-create-url=@{/admin/customers},data-update-url-pattern=@{/admin/customers/{id}/update(id='__id__')}">
+            <form class="grid gap-3 px-5 py-4 md:grid-cols-2" data-update-url-pattern="/admin/customers/__id__/update" id="customerForm" method="post"
+                th:attr="data-create-url=@{/admin/customers}">
                 <div class="md:col-span-2">
                     <label class="mb-1 block text-sm font-medium text-slate-700" for="customerNameInput">Tên khách hàng</label>
                     <input class="w-full rounded-lg border border-slate-300 px-3 py-2" id="customerNameInput" name="ten" required>
@@ -165,7 +165,7 @@
 
                 title.textContent = "Cập nhật khách hàng";
                 submitBtn.textContent = "Lưu thay đổi";
-                form.action = updateUrlPattern.replace("__id__", customerId);
+                form.action = button.dataset.updateUrl || updateUrlPattern.replace("__id__", customerId);
                 nameInput.value = button.dataset.customerName || "";
                 phoneInput.value = button.dataset.customerPhone || "";
                 emailInput.value = button.dataset.customerEmail || "";

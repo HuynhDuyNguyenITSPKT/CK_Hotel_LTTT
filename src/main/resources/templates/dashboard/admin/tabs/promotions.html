@@ -63,8 +63,8 @@
                     </td>
                     <td class="px-5 py-4 text-right">
                         <div class="flex items-center justify-end gap-2">
-                            <button class="open-edit-promotion-btn rounded-md p-2 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600"
-                                    th:attr="data-promotion-id=${promotion.id},data-promotion-name=${promotion.ten},data-promotion-type=${promotion.loaiGiam},data-promotion-value=${promotion.giaTri}"
+                                <button class="open-edit-promotion-btn rounded-md p-2 text-slate-400 transition hover:bg-blue-50 hover:text-blue-600"
+                                    th:attr="data-promotion-id=${promotion.id},data-promotion-name=${promotion.ten},data-promotion-type=${promotion.loaiGiam},data-promotion-value=${promotion.giaTri},data-update-url=@{/admin/promotions/{id}/update(id=${promotion.id})}"
                                     title="Chỉnh sửa"
                                     type="button">
                                 <i class="fa-solid fa-pen"></i>
@@ -99,8 +99,8 @@
                 </button>
             </div>
 
-            <form class="grid gap-3 px-5 py-4 md:grid-cols-2" id="promotionForm" method="post"
-                  th:attr="data-create-url=@{/admin/promotions},data-update-url-pattern=@{/admin/promotions/{id}/update(id='__id__')}">
+            <form class="grid gap-3 px-5 py-4 md:grid-cols-2" data-update-url-pattern="/admin/promotions/__id__/update" id="promotionForm" method="post"
+                th:attr="data-create-url=@{/admin/promotions}">
                 <div class="md:col-span-2">
                     <label class="mb-1 block text-sm font-medium text-slate-700" for="promotionNameInput">Tên khuyến mãi</label>
                     <input class="w-full rounded-lg border border-slate-300 px-3 py-2" id="promotionNameInput" name="ten" required>
@@ -171,7 +171,7 @@
 
                 title.textContent = "Cập nhật khuyến mãi";
                 submitBtn.textContent = "Lưu thay đổi";
-                form.action = updateUrlPattern.replace("__id__", promotionId);
+                form.action = button.dataset.updateUrl || updateUrlPattern.replace("__id__", promotionId);
                 nameInput.value = button.dataset.promotionName || "";
                 typeInput.value = button.dataset.promotionType || "";
                 valueInput.value = button.dataset.promotionValue || "";
