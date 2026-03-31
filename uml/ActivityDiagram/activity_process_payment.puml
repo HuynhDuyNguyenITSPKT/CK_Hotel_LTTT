@@ -1,0 +1,22 @@
+@startuml
+start
+:Open Invoice/Payment Panel;
+:Enter payment amount and payment method;
+:Click Process Payment;
+
+if (Session valid?) then (Yes)
+  :Validate booking is CHECKED_IN;
+  :Recalculate invoice total;
+  :Calculate remaining debt;
+  if (Amount > 0 and amount <= remaining debt?) then (Yes)
+    :Create payment transaction record;
+    :Show payment success message;
+  else (No)
+    :Show invalid amount or invoice fully paid error;
+  endif
+else (No)
+  :Redirect to login;
+endif
+
+stop
+@enduml

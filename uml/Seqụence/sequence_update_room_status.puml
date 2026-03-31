@@ -1,0 +1,42 @@
+@startuml
+actor Receptionist
+participant "RoomManagementPanel" as View
+participant "ReceptionistPhongController" as Controller
+participant "ReceptionistAuthorizationSupport" as Auth
+participant "PhongService" as Service
+participant "PhongRepository" as PhongRepo
+participant "ChiTietDatPhongRepository" as ChiTietRepo
+database "MySQL / JPA" as DB
+
+Receptionist -> View : Select room and target status
+Receptionist -> View : Click Update Room Status
+View -> Controller : capNhatTrangThaiPhong(phongId, trangThai)
+Controller -> Auth : requireReceptionist(session)
+
+alt Authorized
+  Controller -> Service : capNhatTrangThaiPhong(phongId, trangThai)
+  Service -> PhongRepo : findById(phongId)
+  PhongRepo -> DB : SELECT phong
+  DB --> PhongRepo : Phong
+
+  Service -> ChiTietRepo : existsLichPhongTrung(phongId, ..., CHECKED_IN)
+  ChiTietRepo -> DB : SELECT active checked-in overlap
+  DB --> ChiTietRepo : coKhachDangO
+
+  alt Business rules satisfied
+    Service -> PhongRepo : save(phong)
+    PhongRepo -> DB : UPDATE phong
+    DB --> PhongRepo : saved
+    Service --> Controller : success
+    Controller --> View : success message
+    View --> Receptionist : Show room status updated
+  else Rule violated
+    Service --> Controller : throw error
+    Controller --> View : error message
+    View --> Receptionist : Show status validation error
+  end
+else Unauthorized
+  Controller --> View : redirect:/login
+  View --> Receptionist : Session expired
+end
+@enduml

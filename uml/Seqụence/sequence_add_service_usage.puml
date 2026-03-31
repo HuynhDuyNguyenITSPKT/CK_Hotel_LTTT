@@ -1,0 +1,60 @@
+@startuml
+actor Receptionist
+participant "InStayServicePanel" as View
+participant "ReceptionistDichVuController" as Controller
+participant "ReceptionistAuthorizationSupport" as Auth
+participant "DichVuService" as Service
+participant "DatPhongRepository" as DatPhongRepo
+participant "DichVuRepository" as DichVuRepo
+participant "ChiTietDatPhongRepository" as ChiTietRepo
+participant "SuDungDichVuRepository" as SuDungRepo
+participant "HoaDonRepository" as HoaDonRepo
+database "MySQL / JPA" as DB
+
+Receptionist -> View : Select booking, service, quantity, room scope
+Receptionist -> View : Click Add Service
+View -> Controller : themDichVu(datPhongId, dichVuId, soLuong, phongApDung)
+Controller -> Auth : requireReceptionist(session)
+
+alt Authorized
+  Controller -> Service : themDichVuTrongThoiGianO(datPhongId, dichVuId, soLuong, phongId, apDungTatCaPhong, employeeId)
+  Service -> DatPhongRepo : findById(datPhongId)
+  DatPhongRepo -> DB : SELECT dat_phong
+  DB --> DatPhongRepo : DatPhong
+
+  Service -> DichVuRepo : findById(dichVuId)
+  DichVuRepo -> DB : SELECT dich_vu
+  DB --> DichVuRepo : DichVu
+
+  Service -> ChiTietRepo : findByDatPhongIdOrderByIdDesc(datPhongId)
+  ChiTietRepo -> DB : SELECT chi_tiet_dat_phong
+  DB --> ChiTietRepo : room details
+
+  alt apDungTatCaPhong = true
+    loop For each room in booking
+      Service -> SuDungRepo : save(SuDungDichVu)
+      SuDungRepo -> DB : INSERT su_dung_dich_vu
+      DB --> SuDungRepo : saved
+    end
+  else Apply to one room
+    Service -> SuDungRepo : save(SuDungDichVu)
+    SuDungRepo -> DB : INSERT su_dung_dich_vu
+    DB --> SuDungRepo : saved
+  end
+
+  Service -> SuDungRepo : tinhTongTienTheoDatPhongId(datPhongId)
+  SuDungRepo -> DB : SELECT SUM(service_total)
+  DB --> SuDungRepo : totalService
+
+  Service -> HoaDonRepo : saveOrUpdateHoaDon(...)
+  HoaDonRepo -> DB : INSERT/UPDATE hoa_don
+  DB --> HoaDonRepo : HoaDon
+
+  Service --> Controller : success
+  Controller --> View : success message
+  View --> Receptionist : Show service added
+else Validation failed
+  Controller --> View : error message
+  View --> Receptionist : Show validation error
+end
+@enduml

@@ -1,0 +1,66 @@
+@startuml
+actor Receptionist
+participant "DatPhongPanel" as View
+participant "ReceptionistDatPhongController" as Controller
+participant "ReceptionistAuthorizationSupport" as Auth
+participant "DatPhongService" as Service
+participant "NhanVienRepository" as NhanVienRepo
+participant "PhongRepository" as PhongRepo
+participant "ChiTietDatPhongRepository" as ChiTietRepo
+participant "KhachHangRepository" as KhachHangRepo
+participant "DatPhongRepository" as DatPhongRepo
+database "MySQL / JPA" as DB
+
+Receptionist -> View : Enter customer, date, room list
+Receptionist -> View : Click Create Booking
+View -> Controller : taoDatPhong(bookingForm)
+Controller -> Auth : requireReceptionist(session)
+
+alt Authorized
+  Controller -> Service : taoDatPhong(form, employeeId)
+  Service -> NhanVienRepo : findByIdWithTaiKhoan(employeeId)
+  NhanVienRepo -> DB : SELECT nhan_vien
+  DB --> NhanVienRepo : NhanVien / empty
+
+  Service -> PhongRepo : findAllById(phongIds)
+  PhongRepo -> DB : SELECT phong IN (ids)
+  DB --> PhongRepo : room list
+
+  loop For each selected room
+    Service -> ChiTietRepo : existsLichPhongTrung(phongId, ..., PENDING/CONFIRMED/CHECKED_IN/CHECKED_OUT)
+    ChiTietRepo -> DB : SELECT overlap schedule
+    DB --> ChiTietRepo : true/false
+  end
+
+  Service -> KhachHangRepo : findBySdt(sdt)
+  KhachHangRepo -> DB : SELECT by phone
+  DB --> KhachHangRepo : existing/new
+
+  alt Phone exists and profile matches
+    Service -> KhachHangRepo : findByEmailIgnoreCase(email) (optional)
+    KhachHangRepo -> DB : SELECT by email
+    DB --> KhachHangRepo : valid
+  else New phone
+    Service -> KhachHangRepo : save(new KhachHang)
+    KhachHangRepo -> DB : INSERT khach_hang
+    DB --> KhachHangRepo : KhachHang
+  end
+
+  Service -> DatPhongRepo : save(DatPhong: CONFIRMED)
+  DatPhongRepo -> DB : INSERT dat_phong
+  DB --> DatPhongRepo : DatPhong
+
+  loop For each selected room
+    Service -> ChiTietRepo : save(ChiTietDatPhong)
+    ChiTietRepo -> DB : INSERT chi_tiet_dat_phong
+    DB --> ChiTietRepo : saved
+  end
+
+  Service --> Controller : success
+  Controller --> View : success flash message
+  View --> Receptionist : Show booking created
+else Validation failed
+  Controller --> View : error flash message
+  View --> Receptionist : Show validation error
+end
+@enduml

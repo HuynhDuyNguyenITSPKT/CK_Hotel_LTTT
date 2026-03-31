@@ -1,0 +1,57 @@
+@startuml
+actor Receptionist
+participant "InvoicePaymentPanel" as View
+participant "ReceptionistThanhToanController" as Controller
+participant "ReceptionistAuthorizationSupport" as Auth
+participant "ThanhToanService" as Service
+participant "DatPhongRepository" as DatPhongRepo
+participant "ChiTietDatPhongRepository" as ChiTietRepo
+participant "HoaDonRepository" as HoaDonRepo
+participant "ThanhToanRepository" as ThanhToanRepo
+participant "SuDungDichVuRepository" as SuDungRepo
+database "MySQL / JPA" as DB
+
+Receptionist -> View : Enter amount and payment method
+Receptionist -> View : Click Process Payment
+View -> Controller : thanhToan(datPhongId, soTienThanhToan, phuongThuc)
+Controller -> Auth : requireReceptionist(session)
+
+alt Authorized
+  Controller -> Service : thucHienThanhToan(datPhongId, soTien, phuongThuc, employeeId)
+  Service -> DatPhongRepo : findById(datPhongId)
+  DatPhongRepo -> DB : SELECT dat_phong
+  DB --> DatPhongRepo : DatPhong
+
+  Service -> ChiTietRepo : findByDatPhongIdOrderByIdDesc(datPhongId)
+  ChiTietRepo -> DB : SELECT chi_tiet_dat_phong
+  DB --> ChiTietRepo : booking details
+
+  Service -> SuDungRepo : tinhTongTienTheoDatPhongId(datPhongId)
+  SuDungRepo -> DB : SELECT SUM(service_total)
+  DB --> SuDungRepo : totalService
+
+  Service -> HoaDonRepo : saveOrUpdateHoaDon(...)
+  HoaDonRepo -> DB : INSERT/UPDATE hoa_don
+  DB --> HoaDonRepo : HoaDon
+
+  Service -> ThanhToanRepo : tongThanhToanTheoHoaDonId(hoaDonId)
+  ThanhToanRepo -> DB : SELECT SUM(so_tien)
+  DB --> ThanhToanRepo : tongDaThanhToan
+
+  alt Remaining debt > 0 and amount valid
+    Service -> ThanhToanRepo : save(ThanhToan)
+    ThanhToanRepo -> DB : INSERT thanh_toan
+    DB --> ThanhToanRepo : saved
+    Service --> Controller : success
+    Controller --> View : success message
+    View --> Receptionist : Show payment recorded
+  else Invalid amount or invoice paid
+    Service --> Controller : throw error
+    Controller --> View : error message
+    View --> Receptionist : Show payment validation error
+  end
+else Unauthorized
+  Controller --> View : redirect:/login
+  View --> Receptionist : Session expired
+end
+@enduml

@@ -1,0 +1,48 @@
+@startuml
+actor Receptionist
+participant "InStayServicePanel" as View
+participant "ReceptionistDichVuController" as Controller
+participant "ReceptionistAuthorizationSupport" as Auth
+participant "DichVuService" as Service
+participant "SuDungDichVuRepository" as SuDungRepo
+participant "ChiTietDatPhongRepository" as ChiTietRepo
+participant "HoaDonRepository" as HoaDonRepo
+database "MySQL / JPA" as DB
+
+Receptionist -> View : Select added service row
+Receptionist -> View : Click Remove Service
+View -> Controller : xoaDichVuDaThem(suDungDichVuId)
+Controller -> Auth : requireReceptionist(session)
+
+alt Authorized
+  Controller -> Service : xoaDichVuDaThem(suDungDichVuId, employeeId)
+  Service -> SuDungRepo : findById(suDungDichVuId)
+  SuDungRepo -> DB : SELECT su_dung_dich_vu
+  DB --> SuDungRepo : SuDungDichVu
+
+  alt Booking not CHECKED_OUT/CANCELLED
+    Service -> SuDungRepo : delete(suDungDichVu)
+    SuDungRepo -> DB : DELETE su_dung_dich_vu
+    DB --> SuDungRepo : deleted
+
+    Service -> ChiTietRepo : findByDatPhongIdOrderByIdDesc(datPhongId)
+    ChiTietRepo -> DB : SELECT chi_tiet_dat_phong
+    DB --> ChiTietRepo : booking details
+
+    Service -> HoaDonRepo : saveOrUpdateHoaDon(...)
+    HoaDonRepo -> DB : UPDATE hoa_don
+    DB --> HoaDonRepo : HoaDon
+
+    Service --> Controller : success
+    Controller --> View : success message
+    View --> Receptionist : Show service removed
+  else Booking already completed
+    Service --> Controller : throw error
+    Controller --> View : error message
+    View --> Receptionist : Show cannot remove
+  end
+else Unauthorized
+  Controller --> View : redirect:/login
+  View --> Receptionist : Session expired
+end
+@enduml

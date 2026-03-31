@@ -1,0 +1,23 @@
+@startuml
+start
+:Open In-stay Service Panel;
+:Select booking, service, quantity, room scope;
+:Click Add Service;
+
+if (Session valid?) then (Yes)
+  :Validate booking is CHECKED_IN and in stay window;
+  :Validate quantity > 0 and service exists;
+  if (Apply to all rooms?) then (Yes)
+    :Create service usage for each room in booking;
+  else (No)
+    :Validate selected room belongs to booking;
+    :Create one service usage record;
+  endif
+  :Recalculate invoice total;
+  :Show add service success message;
+else (No)
+  :Redirect to login;
+endif
+
+stop
+@enduml

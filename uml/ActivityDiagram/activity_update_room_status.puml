@@ -1,0 +1,21 @@
+@startuml
+start
+:Open Room Management Panel;
+:Select room and target status;
+:Click Update Room Status;
+
+if (Session valid?) then (Yes)
+  :Load room by id;
+  :Check active CHECKED_IN overlap for today;
+  if (Business rules satisfied?) then (Yes)
+    :Update room status;
+    :Show status update success message;
+  else (No)
+    :Show room status rule violation error;
+  endif
+else (No)
+  :Redirect to login;
+endif
+
+stop
+@enduml

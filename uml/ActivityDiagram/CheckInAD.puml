@@ -1,0 +1,25 @@
+@startuml
+start
+:Open Check-in Panel;
+:Select booking to check-in;
+:Click Check-in;
+
+if (Session valid?) then (Yes)
+	:Validate booking status PENDING/CONFIRMED;
+	:Validate stay window ngayNhan <= today < ngayTra;
+	:Load booking room details;
+	if (All rooms AVAILABLE and no overlap CHECKED_IN?) then (Yes)
+		:Update booking status to CHECKED_IN;
+		:Update all rooms to OCCUPIED;
+		:Recalculate invoice total;
+		:Show check-in success message;
+	else (No)
+		:Show room/state validation error;
+	endif
+else (No)
+	:Redirect to login;
+endif
+
+stop
+@enduml
+

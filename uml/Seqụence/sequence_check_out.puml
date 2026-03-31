@@ -1,0 +1,69 @@
+@startuml
+actor Receptionist
+participant "CheckOutPanel" as View
+participant "ReceptionistCheckInOutController" as Controller
+participant "ReceptionistAuthorizationSupport" as Auth
+participant "CheckInOutService" as Service
+participant "DatPhongRepository" as DatPhongRepo
+participant "ChiTietDatPhongRepository" as ChiTietRepo
+participant "PhongRepository" as PhongRepo
+participant "HoaDonRepository" as HoaDonRepo
+participant "ThanhToanRepository" as ThanhToanRepo
+participant "SuDungDichVuRepository" as SuDungRepo
+database "MySQL / JPA" as DB
+
+Receptionist -> View : Select booking for check-out
+Receptionist -> View : Click Check-out
+View -> Controller : checkOut(datPhongId)
+Controller -> Auth : requireReceptionist(session)
+
+alt Authorized
+  Controller -> Service : thucHienCheckOut(datPhongId, employeeId)
+  Service -> DatPhongRepo : findById(datPhongId)
+  DatPhongRepo -> DB : SELECT dat_phong
+  DB --> DatPhongRepo : DatPhong
+
+  Service -> ChiTietRepo : findByDatPhongIdOrderByIdDesc(datPhongId)
+  ChiTietRepo -> DB : SELECT chi_tiet_dat_phong
+  DB --> ChiTietRepo : booking details
+
+  alt Booking CHECKED_IN and rooms OCCUPIED
+    Service -> SuDungRepo : tinhTongTienTheoDatPhongId(datPhongId)
+    SuDungRepo -> DB : SELECT SUM(service_total)
+    DB --> SuDungRepo : totalService
+
+    Service -> HoaDonRepo : saveOrUpdateHoaDon(...)
+    HoaDonRepo -> DB : INSERT/UPDATE hoa_don
+    DB --> HoaDonRepo : HoaDon
+
+    Service -> ThanhToanRepo : tongThanhToanTheoHoaDonId(hoaDonId)
+    ThanhToanRepo -> DB : SELECT SUM(so_tien)
+    DB --> ThanhToanRepo : tongDaThanhToan
+
+    alt Paid in full
+      Service -> PhongRepo : saveAll(rooms -> CLEANING)
+      PhongRepo -> DB : UPDATE phong
+      DB --> PhongRepo : saved
+
+      Service -> DatPhongRepo : save(datPhong -> CHECKED_OUT)
+      DatPhongRepo -> DB : UPDATE dat_phong
+      DB --> DatPhongRepo : saved
+
+      Service --> Controller : success
+      Controller --> View : success message
+      View --> Receptionist : Show check-out success
+    else Debt remains
+      Service --> Controller : throw error (remaining amount)
+      Controller --> View : error message
+      View --> Receptionist : Show unpaid invoice error
+    end
+  else Validation failed
+    Service --> Controller : throw error
+    Controller --> View : error message
+    View --> Receptionist : Show validation error
+  end
+else Unauthorized
+  Controller --> View : redirect:/login
+  View --> Receptionist : Session expired
+end
+@enduml

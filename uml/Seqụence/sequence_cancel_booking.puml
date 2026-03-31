@@ -1,0 +1,61 @@
+@startuml
+actor Receptionist
+participant "DatPhongPanel" as View
+participant "ReceptionistDatPhongController" as Controller
+participant "ReceptionistAuthorizationSupport" as Auth
+participant "DatPhongService" as Service
+participant "DatPhongRepository" as DatPhongRepo
+participant "NhanVienRepository" as NhanVienRepo
+participant "ThanhToanRepository" as ThanhToanRepo
+participant "HoaDonRepository" as HoaDonRepo
+database "MySQL / JPA" as DB
+
+Receptionist -> View : Select booking
+Receptionist -> View : Click Cancel Booking
+View -> Controller : huyDatPhong(datPhongId)
+Controller -> Auth : requireReceptionist(session)
+
+alt Authorized
+  Controller -> Service : huyDatPhong(datPhongId, employeeId)
+  Service -> DatPhongRepo : findById(datPhongId)
+  DatPhongRepo -> DB : SELECT dat_phong
+  DB --> DatPhongRepo : DatPhong
+
+  alt Booking status is PENDING/CONFIRMED
+    Service -> NhanVienRepo : findByIdWithTaiKhoan(employeeId)
+    NhanVienRepo -> DB : SELECT nhan_vien
+    DB --> NhanVienRepo : NhanVien
+
+    Service -> DatPhongRepo : save(datPhong -> CANCELLED)
+    DatPhongRepo -> DB : UPDATE dat_phong
+    DB --> DatPhongRepo : saved
+
+    alt Booking has invoice
+      Service -> ThanhToanRepo : tongThanhToanTheoHoaDonId(hoaDonId)
+      ThanhToanRepo -> DB : SELECT SUM(so_tien)
+      DB --> ThanhToanRepo : tongDaThanhToan
+
+      alt No payment yet
+        Service -> HoaDonRepo : delete(hoaDon)
+        HoaDonRepo -> DB : DELETE hoa_don
+        DB --> HoaDonRepo : deleted
+      else Has payment
+        Service -> HoaDonRepo : save(hoaDon tongTien=tongDaThanhToan)
+        HoaDonRepo -> DB : UPDATE hoa_don
+        DB --> HoaDonRepo : saved
+      end
+    end
+
+    Service --> Controller : success
+    Controller --> View : success message
+    View --> Receptionist : Show cancelled
+  else Invalid booking status
+    Service --> Controller : throw error
+    Controller --> View : error message
+    View --> Receptionist : Show cannot cancel
+  end
+else Unauthorized
+  Controller --> View : redirect:/login
+  View --> Receptionist : Session expired
+end
+@enduml

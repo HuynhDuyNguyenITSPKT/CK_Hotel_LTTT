@@ -1,0 +1,26 @@
+@startuml
+start
+:Open Invoice/Payment Panel;
+:Enter promotion code, amount, and payment method;
+:Click Apply Promo and Pay;
+
+if (Session valid?) then (Yes)
+  :Apply promotion flow;
+  if (Promotion step successful?) then (Yes)
+    :Load updated invoice and remaining debt;
+    if (Remaining debt > 0?) then (Yes)
+      :Cap amount to remaining debt if needed;
+      :Create payment transaction record;
+      :Show promo + payment success message;
+    else (No)
+      :Show invoice already fully paid;
+    endif
+  else (No)
+    :Show promotion validation error;
+  endif
+else (No)
+  :Redirect to login;
+endif
+
+stop
+@enduml

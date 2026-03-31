@@ -1,0 +1,28 @@
+@startuml
+start
+:Open Booking List;
+:Select booking;
+:Click Cancel Booking;
+
+if (Session valid?) then (Yes)
+  :Load booking by id;
+  if (Booking status is PENDING/CONFIRMED?) then (Yes)
+    :Update booking status to CANCELLED;
+    if (Booking has invoice?) then (Yes)
+      :Calculate total paid amount;
+      if (Total paid <= 0?) then (Yes)
+        :Delete invoice;
+      else (No)
+        :Update invoice total = total paid;
+      endif
+    endif
+    :Show cancel success message;
+  else (No)
+    :Show cannot cancel in current status;
+  endif
+else (No)
+  :Redirect to login;
+endif
+
+stop
+@enduml

@@ -1,0 +1,30 @@
+@startuml
+start
+:Open Invoice/Payment Panel;
+:Select checked-in booking;
+:Enter promotion code (optional);
+:Click Apply Promotion;
+
+if (Session valid?) then (Yes)
+  :Validate booking is CHECKED_IN;
+  :Load invoice and recalculate base total;
+  if (Promotion code empty?) then (Yes)
+    :Clear applied promotions;
+    :Recalculate invoice total;
+    :Show update success message;
+  else (No)
+    :Find promotion by code;
+    if (Promotion exists and not reused by same phone?) then (Yes)
+      :Apply promotion to invoice;
+      :Recalculate invoice total;
+      :Show apply promotion success message;
+    else (No)
+      :Show invalid/reused promotion error;
+    endif
+  endif
+else (No)
+  :Redirect to login;
+endif
+
+stop
+@enduml

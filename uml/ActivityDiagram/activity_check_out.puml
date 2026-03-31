@@ -1,0 +1,24 @@
+@startuml
+start
+:Open Check-out Panel;
+:Select checked-in booking;
+:Click Check-out;
+
+if (Session valid?) then (Yes)
+  :Validate booking status CHECKED_IN;
+  :Validate all booking rooms are OCCUPIED;
+  :Recalculate invoice total;
+  :Calculate total paid and remaining debt;
+  if (Remaining debt = 0?) then (Yes)
+    :Update booking status to CHECKED_OUT;
+    :Update all rooms to CLEANING;
+    :Show check-out success message;
+  else (No)
+    :Show unpaid invoice error;
+  endif
+else (No)
+  :Redirect to login;
+endif
+
+stop
+@enduml

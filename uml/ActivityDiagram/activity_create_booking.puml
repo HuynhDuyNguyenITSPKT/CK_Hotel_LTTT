@@ -1,0 +1,34 @@
+@startuml
+start
+:Open Booking Panel;
+:Enter customer info, check-in/check-out dates;
+:Select one or more available rooms;
+:Click Create Booking;
+
+if (Session valid?) then (Yes)
+  :Validate required fields and date rules;
+  if (Form valid?) then (Yes)
+    :Validate selected rooms are AVAILABLE;
+    :Check room schedule overlap;
+    if (Rooms valid and no overlap?) then (Yes)
+      :Find customer by phone;
+      if (Customer exists?) then (Yes)
+        :Validate customer name/email matches existing phone;
+      else (No)
+        :Create new customer;
+      endif
+      :Create booking with CONFIRMED status;
+      :Create booking detail rows for selected rooms;
+      :Show booking created success message;
+    else (No)
+      :Show room availability/schedule error;
+    endif
+  else (No)
+    :Show booking form validation error;
+  endif
+else (No)
+  :Redirect to login;
+endif
+
+stop
+@enduml

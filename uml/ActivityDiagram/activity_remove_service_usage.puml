@@ -1,0 +1,21 @@
+@startuml
+start
+:Open In-stay Service Panel;
+:Select service usage row;
+:Click Remove Service;
+
+if (Session valid?) then (Yes)
+  :Load selected service usage;
+  if (Booking status is not CHECKED_OUT/CANCELLED?) then (Yes)
+    :Delete selected service usage;
+    :Recalculate invoice total;
+    :Show remove service success message;
+  else (No)
+    :Show cannot remove after booking completed;
+  endif
+else (No)
+  :Redirect to login;
+endif
+
+stop
+@enduml

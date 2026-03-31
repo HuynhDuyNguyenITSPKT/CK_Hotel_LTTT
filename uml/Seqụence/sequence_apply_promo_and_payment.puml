@@ -1,0 +1,47 @@
+@startuml
+actor Receptionist
+participant "InvoicePaymentPanel" as View
+participant "ReceptionistThanhToanController" as Controller
+participant "ReceptionistAuthorizationSupport" as Auth
+participant "ThanhToanService" as Service
+participant "DatPhongRepository" as DatPhongRepo
+participant "HoaDonRepository" as HoaDonRepo
+participant "ThanhToanRepository" as ThanhToanRepo
+database "MySQL / JPA" as DB
+
+Receptionist -> View : Enter promotion code, amount, method
+Receptionist -> View : Click Apply Promo & Pay
+View -> Controller : apDungKhuyenMaiVaThanhToan(...)
+Controller -> Auth : requireReceptionist(session)
+
+alt Authorized
+  Controller -> Service : apDungKhuyenMaiVaThanhToan(datPhongId, maKhuyenMai, soTien, phuongThuc, employeeId)
+  Service -> Service : apDungMaKhuyenMai(datPhongId, maKhuyenMai, employeeId)
+
+  Service -> DatPhongRepo : findById(datPhongId)
+  DatPhongRepo -> DB : SELECT dat_phong
+  DB --> DatPhongRepo : DatPhong with HoaDon
+
+  Service -> ThanhToanRepo : tongThanhToanTheoHoaDonId(hoaDonId)
+  ThanhToanRepo -> DB : SELECT SUM(so_tien)
+  DB --> ThanhToanRepo : tongDaThanhToan
+
+  alt Remaining debt > 0
+    Service -> Service : thucHienThanhToan(datPhongId, soTienThucTe, phuongThuc, employeeId)
+    Service -> ThanhToanRepo : save(ThanhToan)
+    ThanhToanRepo -> DB : INSERT thanh_toan
+    DB --> ThanhToanRepo : saved
+
+    Service --> Controller : success
+    Controller --> View : success message
+    View --> Receptionist : Show promotion + payment success
+  else Invoice already paid
+    Service --> Controller : throw error
+    Controller --> View : error message
+    View --> Receptionist : Show no remaining debt
+  end
+else Unauthorized
+  Controller --> View : redirect:/login
+  View --> Receptionist : Session expired
+end
+@enduml

@@ -1,0 +1,21 @@
+@startuml
+start
+:Open Booking Panel;
+:Enter customer phone number;
+:Click Lookup Customer;
+
+if (Session valid?) then (Yes)
+  :Search customer by phone;
+  if (Customer found?) then (Yes)
+    :Display customer profile;
+    :Prefill booking form;
+  else (No)
+    :Keep form empty for new customer;
+    :Request manual customer input;
+  endif
+else (No)
+  :Show session expired message;
+endif
+
+stop
+@enduml

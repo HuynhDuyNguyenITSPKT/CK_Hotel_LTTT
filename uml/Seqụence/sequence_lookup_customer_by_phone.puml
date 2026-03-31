@@ -1,0 +1,34 @@
+@startuml
+actor Receptionist
+participant "DatPhongPanel" as View
+participant "ReceptionistDatPhongController" as Controller
+participant "ReceptionistAuthorizationSupport" as Auth
+participant "DatPhongService" as Service
+participant "KhachHangRepository" as KhachHangRepo
+database "MySQL / JPA" as DB
+
+Receptionist -> View : Enter phone number
+Receptionist -> View : Click Lookup Customer
+View -> Controller : timKhachHangTheoSdt(sdt)
+Controller -> Auth : requireReceptionist(session)
+
+alt Authorized
+  Controller -> Service : timKhachHangTheoSdt(sdt)
+  Service -> KhachHangRepo : findBySdt(sdt)
+  KhachHangRepo -> DB : SELECT * FROM khach_hang WHERE sdt = ?
+  DB --> KhachHangRepo : customer / empty
+
+  alt Customer found
+    Service --> Controller : Optional<CustomerDto>
+    Controller --> View : success=true, exists=true, customer
+    View --> Receptionist : Prefill customer information
+  else Customer not found
+    Service --> Controller : Optional.empty
+    Controller --> View : success=true, exists=false
+    View --> Receptionist : Ask to enter new customer info
+  end
+else Unauthorized
+  Controller --> View : 401 Unauthorized
+  View --> Receptionist : Session expired
+end
+@enduml
