@@ -1,7 +1,7 @@
 package hcmute.system.hotel.cknhom11qlhotel.service;
 
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.InvoiceReportResponse;
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.PaymentReportResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.InvoiceReportResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.PaymentReportResponse;
 
 import java.util.List;
 

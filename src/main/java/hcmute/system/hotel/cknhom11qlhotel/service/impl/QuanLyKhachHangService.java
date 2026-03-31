@@ -1,7 +1,7 @@
 package hcmute.system.hotel.cknhom11qlhotel.service.impl;
 
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.CustomerRequest;
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.CustomerResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.CustomerRequest;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.CustomerResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.KhachHang;
 import hcmute.system.hotel.cknhom11qlhotel.repository.KhachHangRepository;
 import org.springframework.stereotype.Service;

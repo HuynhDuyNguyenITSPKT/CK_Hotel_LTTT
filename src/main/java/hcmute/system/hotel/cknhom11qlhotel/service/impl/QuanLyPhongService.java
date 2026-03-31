@@ -1,8 +1,8 @@
 package hcmute.system.hotel.cknhom11qlhotel.service.impl;
 
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RoomRequest;
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RoomResponse;
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RoomTypeRequest;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.RoomRequest;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.RoomResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.RoomTypeRequest;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.LoaiPhong;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.Phong;
 import hcmute.system.hotel.cknhom11qlhotel.repository.LoaiPhongRepository;

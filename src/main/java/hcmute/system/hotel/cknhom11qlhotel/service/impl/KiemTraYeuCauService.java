@@ -1,11 +1,11 @@
 package hcmute.system.hotel.cknhom11qlhotel.service.impl;
 
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.CreateEmployeeForm;
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.CustomerRequest;
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.PromotionRequest;
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RoomRequest;
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RoomTypeRequest;
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.ServiceRequest;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.CustomerRequest;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.PromotionRequest;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.RoomRequest;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.RoomTypeRequest;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.ServiceRequest;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -1,7 +1,7 @@
 package hcmute.system.hotel.cknhom11qlhotel.controller.admin;
 
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.LoginSession;
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.ServiceRequest;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.ServiceRequest;
 import hcmute.system.hotel.cknhom11qlhotel.service.IQuanTriTongHopService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;

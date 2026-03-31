@@ -1,7 +1,7 @@
 package hcmute.system.hotel.cknhom11qlhotel.service.impl;
 
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.PromotionRequest;
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.PromotionResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.PromotionRequest;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.PromotionResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.KhuyenMai;
 import hcmute.system.hotel.cknhom11qlhotel.repository.KhuyenMaiRepository;
 import org.springframework.stereotype.Service;
