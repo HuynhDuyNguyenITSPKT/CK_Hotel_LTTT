@@ -1,0 +1,135 @@
+@startuml
+' --- Configuration ---
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam ranksep 100
+skinparam nodesep 20
+skinparam shadowing false
+
+' --- Actors ---
+actor "Administrator" as Admin
+actor "Manager" as Manager
+actor "Receptionist" as Receptionist
+
+rectangle "Hotel Management System" {
+
+  package "System Access" {
+    usecase "Login" as UC_Login
+    usecase "Logout" as UC_Logout
+    usecase "View Dashboard" as UC_ViewDashboard
+    usecase "Search & Filter Data" as UC_SearchFilter
+  }
+
+  package "System Administration" {
+    usecase "Manage Accounts" as UC_ManageAccounts
+    usecase "Manage Employees" as UC_ManageEmployees
+    usecase "Create Employee & Account" as UC_CreateEmployeeAccount
+    usecase "Manage Rooms" as UC_ManageRooms
+    usecase "Manage Room Types" as UC_ManageRoomTypes
+    usecase "Manage Service Catalog" as UC_ManageServiceCatalog
+    usecase "Manage Promotion Catalog" as UC_ManagePromotionCatalog
+    usecase "Manage Customers" as UC_ManageCustomers
+    usecase "View Reports" as UC_ViewReports
+    usecase "Export Reports" as UC_ExportReports
+  }
+
+  package "Management Operations" {
+    usecase "Update Room Info" as UC_ManagerUpdateRooms
+    usecase "Update Promotions" as UC_ManagerUpdatePromotions
+    usecase "Update Services" as UC_ManagerUpdateServices
+  }
+
+  package "Reception Operations" {
+    usecase "Lookup Customer by Phone" as UC_LookupCustomerByPhone
+    usecase "Create Booking" as UC_CreateBooking
+    usecase "Cancel Booking" as UC_CancelBooking
+    usecase "Check-in" as UC_CheckIn
+    usecase "Check-out" as UC_CheckOut
+    usecase "Add Service Usage" as UC_AddServiceUsage
+    usecase "Remove Service Usage" as UC_RemoveServiceUsage
+    usecase "Apply Promotion" as UC_ApplyPromotion
+    usecase "Process Payment" as UC_ProcessPayment
+    usecase "Apply Promo & Payment" as UC_ApplyPromoPayment
+    usecase "Update Room Status" as UC_UpdateRoomStatus
+  }
+
+  package "Business Logic Validation" {
+    usecase "Validate Booking Data" as UC_ValidateBookingData
+    usecase "Check Room Availability" as UC_CheckRoomAvailability
+    usecase "Validate Check-in Conditions" as UC_ValidateCheckInConditions
+    usecase "Validate Check-out Conditions" as UC_ValidateCheckOutConditions
+    usecase "Check Outstanding Debt" as UC_ValidateDebt
+    usecase "Update Invoice Total" as UC_UpdateInvoiceTotal
+  }
+}
+
+' --- Connections: System Access ---
+Admin --> UC_Login
+Admin --> UC_Logout
+Admin --> UC_ViewDashboard
+Admin --> UC_SearchFilter
+
+Manager --> UC_Login
+Manager --> UC_Logout
+Manager --> UC_ViewDashboard
+Manager --> UC_SearchFilter
+
+Receptionist --> UC_Login
+Receptionist --> UC_Logout
+Receptionist --> UC_ViewDashboard
+Receptionist --> UC_SearchFilter
+
+' --- Connections: Admin & Manager ---
+Admin --> UC_ManageAccounts
+Admin --> UC_ManageEmployees
+Admin --> UC_ManageRooms
+Admin --> UC_ManageRoomTypes
+Admin --> UC_ManageServiceCatalog
+Admin --> UC_ManagePromotionCatalog
+Admin --> UC_ManageCustomers
+Admin --> UC_ViewReports
+Admin --> UC_ExportReports
+
+Manager --> UC_ViewReports
+Manager --> UC_ExportReports
+Manager --> UC_ManagerUpdateRooms
+Manager --> UC_ManagerUpdatePromotions
+Manager --> UC_ManagerUpdateServices
+
+' --- Connections: Receptionist ---
+Receptionist --> UC_LookupCustomerByPhone
+Receptionist --> UC_CreateBooking
+Receptionist --> UC_CancelBooking
+Receptionist --> UC_CheckIn
+Receptionist --> UC_CheckOut
+Receptionist --> UC_AddServiceUsage
+Receptionist --> UC_RemoveServiceUsage
+Receptionist --> UC_ApplyPromotion
+Receptionist --> UC_ProcessPayment
+Receptionist --> UC_ApplyPromoPayment
+Receptionist --> UC_UpdateRoomStatus
+
+' --- Relationships (Includes) ---
+UC_ViewReports ..> UC_SearchFilter : <<include>>
+UC_ExportReports ..> UC_ViewReports : <<include>>
+UC_ManageEmployees ..> UC_CreateEmployeeAccount : <<include>>
+
+UC_CreateBooking ..> UC_LookupCustomerByPhone : <<include>>
+UC_CreateBooking ..> UC_ValidateBookingData : <<include>>
+UC_CreateBooking ..> UC_CheckRoomAvailability : <<include>>
+
+UC_CheckIn ..> UC_ValidateCheckInConditions : <<include>>
+UC_CheckOut ..> UC_ValidateCheckOutConditions : <<include>>
+UC_CheckOut ..> UC_ValidateDebt : <<include>>
+
+UC_AddServiceUsage ..> UC_UpdateInvoiceTotal : <<include>>
+UC_RemoveServiceUsage ..> UC_UpdateInvoiceTotal : <<include>>
+UC_ApplyPromotion ..> UC_UpdateInvoiceTotal : <<include>>
+UC_ProcessPayment ..> UC_ValidateDebt : <<include>>
+
+UC_ApplyPromoPayment ..> UC_ApplyPromotion : <<include>>
+UC_ApplyPromoPayment ..> UC_ProcessPayment : <<include>>
+
+@enduml
