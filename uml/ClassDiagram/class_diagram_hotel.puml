@@ -1,0 +1,315 @@
+@startuml class_diagram_hotel
+skinparam classAttributeIconSize 0
+left to right direction
+
+package "model.enums" {
+	enum AccountStatus {
+		ACTIVE
+		INACTIVE
+		LOCKED
+	}
+
+	enum BookingStatus {
+		PENDING
+		CONFIRMED
+		CHECKED_IN
+		CHECKED_OUT
+		CANCELLED
+	}
+
+	enum DiscountType {
+		PERCENT
+		AMOUNT
+	}
+
+	enum EmployeeRole {
+		ADMIN
+		RECEPTIONIST
+		MANAGER
+	}
+
+	enum PaymentMethod {
+		CASH
+		CARD
+		TRANSFER
+		E_WALLET
+	}
+
+	enum RoomStatus {
+		AVAILABLE
+		OCCUPIED
+		MAINTENANCE
+		CLEANING
+	}
+}
+
+package "model.entity" {
+	class KhachHang {
+		- Long id
+		- String ten
+		- String sdt
+		- String email
+	}
+
+	class TaiKhoan {
+		- Long id
+		- String username
+		- String email
+		- String password
+		- AccountStatus trangThai
+	}
+
+	class NhanVien {
+		- Long id
+		- String ten
+		- EmployeeRole role
+	}
+
+	class LoaiPhong {
+		- Long id
+		- String tenLoai
+		- String moTa
+		- BigDecimal giaCoBan
+	}
+
+	class Phong {
+		- Long id
+		- String soPhong
+		- String imageUrl
+		- RoomStatus trangThai
+	}
+
+	class DatPhong {
+		- Long id
+		- LocalDateTime ngayDat
+		- LocalDate ngayNhan
+		- LocalDate ngayTra
+		- BookingStatus trangThai
+	}
+
+	class ChiTietDatPhong {
+		- Long id
+		- BigDecimal gia
+	}
+
+	class DichVu {
+		- Long id
+		- String ten
+		- String imageUrl
+		- BigDecimal gia
+	}
+
+	class SuDungDichVu {
+		- Long id
+		- Integer soLuong
+		- LocalDateTime thoiDiem
+	}
+
+	class KhuyenMai {
+		- Long id
+		- String ten
+		- DiscountType loaiGiam
+		- BigDecimal giaTri
+	}
+
+	class HoaDon {
+		- Long id
+		- BigDecimal tongTien
+		- LocalDateTime ngayTao
+	}
+
+	class ThanhToan {
+		- Long id
+		- BigDecimal soTien
+		- PaymentMethod phuongThuc
+		- LocalDateTime ngayThanhToan
+	}
+}
+
+package "repository" {
+	interface KhachHangRepository
+	interface TaiKhoanRepository
+	interface NhanVienRepository
+	interface LoaiPhongRepository
+	interface PhongRepository
+	interface DatPhongRepository
+	interface ChiTietDatPhongRepository
+	interface DichVuRepository
+	interface SuDungDichVuRepository
+	interface KhuyenMaiRepository
+	interface HoaDonRepository
+	interface ThanhToanRepository
+}
+
+package "service" {
+	interface IAuthService
+	interface IQuanTriTongHopService
+	interface IBangDieuKhienQuanLyService
+	interface IBaoCaoQuanLyService
+	interface IDanhMucQuanLyService
+	interface IDashboardQueryService
+	interface IDatPhongService
+	interface ICheckInOutService
+	interface IDichVuService
+	interface IPhongService
+	interface IThanhToanService
+}
+
+package "service.impl" {
+	class AuthService
+	class DieuPhoiQuanTriService
+	class DashboardQuanLyServiceImpl
+	class BaoCaoQuanLyServiceImpl
+	class DanhMucQuanLyServiceImpl
+	class DashboardQueryServiceImpl
+	class DatPhongServiceImpl
+	class CheckInOutServiceImpl
+	class DichVuServiceImpl
+	class PhongServiceImpl
+	class ThanhToanServiceImpl
+}
+
+package "controller" {
+	class AuthController
+	class RoleDashboardController
+	class AdminController
+	class AdminAccountController
+	class AdminCustomerController
+	class AdminEmployeeController
+	class AdminPromotionController
+	class AdminRoomController
+	class AdminRoomTypeController
+	class AdminServiceController
+	class ManagerDashboardController
+	class ReceptionistDashboardController
+	class ReceptionistDatPhongController
+	class ReceptionistCheckInOutController
+	class ReceptionistDichVuController
+	class ReceptionistPhongController
+	class ReceptionistThanhToanController
+}
+
+package "view" {
+	class LoginView
+	class AdminDashboardView
+	class ManagerDashboardView
+	class ReceptionistDashboardView
+}
+
+' Entity relationships (match JPA/ERD)
+KhachHang "1" <-- "0..*" DatPhong : khachHang
+NhanVien "1" <-- "0..*" DatPhong : nhanVien
+DatPhong "1" <-- "1..*" ChiTietDatPhong : datPhong
+Phong "1" <-- "0..*" ChiTietDatPhong : phong
+LoaiPhong "1" <-- "0..*" Phong : loaiPhong
+
+DatPhong "1" <-- "0..*" SuDungDichVu : datPhong
+Phong "1" <-- "0..*" SuDungDichVu : phong
+DichVu "1" <-- "0..*" SuDungDichVu : dichVu
+
+DatPhong "1" <-- "0..1" HoaDon : datPhong
+NhanVien "1" <-- "0..*" HoaDon : nhanVien
+HoaDon "1" <-- "0..*" ThanhToan : hoaDon
+HoaDon "0..*" -- "0..*" KhuyenMai : khuyenMais
+TaiKhoan "1" <-- "0..1" NhanVien : taiKhoan
+
+' Enum dependencies
+TaiKhoan --> AccountStatus
+NhanVien --> EmployeeRole
+Phong --> RoomStatus
+DatPhong --> BookingStatus
+KhuyenMai --> DiscountType
+ThanhToan --> PaymentMethod
+
+' Controller -> Service interface
+AuthController --> IAuthService
+AdminController --> IQuanTriTongHopService
+AdminAccountController --> IQuanTriTongHopService
+AdminCustomerController --> IQuanTriTongHopService
+AdminEmployeeController --> IQuanTriTongHopService
+AdminPromotionController --> IQuanTriTongHopService
+AdminRoomController --> IQuanTriTongHopService
+AdminRoomTypeController --> IQuanTriTongHopService
+AdminServiceController --> IQuanTriTongHopService
+
+ManagerDashboardController --> IBangDieuKhienQuanLyService
+ManagerDashboardController --> IBaoCaoQuanLyService
+ManagerDashboardController --> IDanhMucQuanLyService
+
+ReceptionistDashboardController --> IDashboardQueryService
+ReceptionistDatPhongController --> IDatPhongService
+ReceptionistCheckInOutController --> ICheckInOutService
+ReceptionistDichVuController --> IDichVuService
+ReceptionistPhongController --> IPhongService
+ReceptionistThanhToanController --> IThanhToanService
+
+' Service implementation -> Service interface
+AuthService ..|> IAuthService
+DieuPhoiQuanTriService ..|> IQuanTriTongHopService
+DashboardQuanLyServiceImpl ..|> IBangDieuKhienQuanLyService
+BaoCaoQuanLyServiceImpl ..|> IBaoCaoQuanLyService
+DanhMucQuanLyServiceImpl ..|> IDanhMucQuanLyService
+DashboardQueryServiceImpl ..|> IDashboardQueryService
+DatPhongServiceImpl ..|> IDatPhongService
+CheckInOutServiceImpl ..|> ICheckInOutService
+DichVuServiceImpl ..|> IDichVuService
+PhongServiceImpl ..|> IPhongService
+ThanhToanServiceImpl ..|> IThanhToanService
+
+' Service -> Repository dependencies
+AuthService --> NhanVienRepository
+
+DatPhongServiceImpl --> DatPhongRepository
+DatPhongServiceImpl --> ChiTietDatPhongRepository
+DatPhongServiceImpl --> PhongRepository
+DatPhongServiceImpl --> KhachHangRepository
+DatPhongServiceImpl --> NhanVienRepository
+DatPhongServiceImpl --> HoaDonRepository
+DatPhongServiceImpl --> ThanhToanRepository
+
+CheckInOutServiceImpl --> DatPhongRepository
+CheckInOutServiceImpl --> ChiTietDatPhongRepository
+CheckInOutServiceImpl --> PhongRepository
+CheckInOutServiceImpl --> NhanVienRepository
+CheckInOutServiceImpl --> HoaDonRepository
+CheckInOutServiceImpl --> ThanhToanRepository
+CheckInOutServiceImpl --> SuDungDichVuRepository
+
+DichVuServiceImpl --> DatPhongRepository
+DichVuServiceImpl --> DichVuRepository
+DichVuServiceImpl --> ChiTietDatPhongRepository
+DichVuServiceImpl --> SuDungDichVuRepository
+DichVuServiceImpl --> NhanVienRepository
+DichVuServiceImpl --> HoaDonRepository
+
+PhongServiceImpl --> PhongRepository
+PhongServiceImpl --> ChiTietDatPhongRepository
+
+ThanhToanServiceImpl --> DatPhongRepository
+ThanhToanServiceImpl --> ChiTietDatPhongRepository
+ThanhToanServiceImpl --> HoaDonRepository
+ThanhToanServiceImpl --> ThanhToanRepository
+ThanhToanServiceImpl --> KhuyenMaiRepository
+ThanhToanServiceImpl --> NhanVienRepository
+ThanhToanServiceImpl --> SuDungDichVuRepository
+
+DashboardQuanLyServiceImpl --> DatPhongRepository
+DashboardQuanLyServiceImpl --> HoaDonRepository
+DashboardQuanLyServiceImpl --> PhongRepository
+
+DashboardQueryServiceImpl --> DatPhongRepository
+DashboardQueryServiceImpl --> ChiTietDatPhongRepository
+DashboardQueryServiceImpl --> PhongRepository
+DashboardQueryServiceImpl --> DichVuRepository
+DashboardQueryServiceImpl --> SuDungDichVuRepository
+DashboardQueryServiceImpl --> HoaDonRepository
+DashboardQueryServiceImpl --> ThanhToanRepository
+DashboardQueryServiceImpl --> KhuyenMaiRepository
+
+' View -> Controller
+LoginView --> AuthController
+AdminDashboardView --> AdminController
+ManagerDashboardView --> ManagerDashboardController
+ReceptionistDashboardView --> ReceptionistDashboardController
+
+@enduml
