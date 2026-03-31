@@ -1,4 +1,4 @@
-package hcmute.system.hotel.cknhom11qlhotel.model.dto.api;
+package hcmute.system.hotel.cknhom11qlhotel.model.dto.admin;
 
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.RoomStatus;
 import jakarta.validation.constraints.NotBlank;

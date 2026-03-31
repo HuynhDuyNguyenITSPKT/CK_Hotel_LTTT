@@ -7,11 +7,13 @@ import hcmute.system.hotel.cknhom11qlhotel.model.enums.AccountStatus;
 import hcmute.system.hotel.cknhom11qlhotel.repository.NhanVienRepository;
 import hcmute.system.hotel.cknhom11qlhotel.service.IAuthService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
+@Transactional(readOnly = true)
 public class AuthService implements IAuthService {
 
     private final NhanVienRepository nhanVienRepository;

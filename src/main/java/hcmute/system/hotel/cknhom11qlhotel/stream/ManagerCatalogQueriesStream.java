@@ -1,8 +1,8 @@
 package hcmute.system.hotel.cknhom11qlhotel.stream;
 
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.PromotionResponse;
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RoomResponse;
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.ServiceResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.PromotionResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.RoomResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.ServiceResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.RoomStatus;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;

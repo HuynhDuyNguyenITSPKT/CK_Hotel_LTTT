@@ -1,9 +1,9 @@
 package hcmute.system.hotel.cknhom11qlhotel.service.impl;
 
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.DashboardStatsResponse;
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.InvoiceReportResponse;
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.PaymentReportResponse;
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RevenueChartResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.DashboardStatsResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.InvoiceReportResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.PaymentReportResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.RevenueChartResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.HoaDon;
 import hcmute.system.hotel.cknhom11qlhotel.model.enity.ThanhToan;
 import hcmute.system.hotel.cknhom11qlhotel.repository.DichVuRepository;

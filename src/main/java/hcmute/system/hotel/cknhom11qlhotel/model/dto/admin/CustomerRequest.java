@@ -1,4 +1,4 @@
-package hcmute.system.hotel.cknhom11qlhotel.model.dto.api;
+package hcmute.system.hotel.cknhom11qlhotel.model.dto.admin;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

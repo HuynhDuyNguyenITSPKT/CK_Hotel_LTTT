@@ -1,9 +1,9 @@
 package hcmute.system.hotel.cknhom11qlhotel.controller.manager;
 
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.LoginSession;
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.PromotionRequest;
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.RoomRequest;
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.ServiceRequest;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.PromotionRequest;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.RoomRequest;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.ServiceRequest;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.DiscountType;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.EmployeeRole;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.RoomStatus;

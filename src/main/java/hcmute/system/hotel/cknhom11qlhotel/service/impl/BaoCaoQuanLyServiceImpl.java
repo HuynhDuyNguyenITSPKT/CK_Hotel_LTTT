@@ -1,7 +1,7 @@
 package hcmute.system.hotel.cknhom11qlhotel.service.impl;
 
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.InvoiceReportResponse;
-import hcmute.system.hotel.cknhom11qlhotel.model.dto.api.PaymentReportResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.InvoiceReportResponse;
+import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.PaymentReportResponse;
 import hcmute.system.hotel.cknhom11qlhotel.service.IBaoCaoQuanLyService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
