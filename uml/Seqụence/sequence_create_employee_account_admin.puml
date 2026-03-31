@@ -1,0 +1,41 @@
+@startuml
+autonumber
+actor Admin
+boundary "admin.html" as View
+control "AdminEmployeeController" as Controller
+control "IQuanTriTongHopService" as Service
+entity "NhanVienRepository" as EmployeeRepo
+entity "TaiKhoanRepository" as AccountRepo
+database "DB" as DB
+
+Admin -> View: Fill create employee form
+View -> Controller: POST /admin/employees (form)
+Controller -> Service: createEmployeeWithAccount(form)
+Service -> Service: validateForm()
+
+alt invalid data
+  Service --> Controller: validation error
+  Controller --> View: show error message
+else valid data
+  Service -> AccountRepo: existsByUsername(username)
+  alt username exists
+    AccountRepo --> Service: true
+    Service --> Controller: duplicate username error
+    Controller --> View: show duplicate error
+  else username available
+    AccountRepo --> Service: false
+    Service -> EmployeeRepo: save(employee)
+    EmployeeRepo -> DB: INSERT employee
+    DB --> EmployeeRepo: employeeId
+    EmployeeRepo --> Service: saved employee
+
+    Service -> AccountRepo: save(account)
+    AccountRepo -> DB: INSERT account
+    DB --> AccountRepo: accountId
+    AccountRepo --> Service: saved account
+
+    Service --> Controller: success
+    Controller --> View: redirect with success message
+  end
+end
+@enduml

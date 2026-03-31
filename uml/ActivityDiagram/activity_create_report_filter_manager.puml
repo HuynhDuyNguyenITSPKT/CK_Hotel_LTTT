@@ -1,0 +1,27 @@
+@startuml
+start
+:Manager opens Report tab;
+:Choose day/month/year filter;
+:Click "View Report";
+
+if (Filter is empty?) then (yes)
+  :Load default report range;
+else (no)
+  :Apply selected filter;
+endif
+
+:Controller calls IBaoCaoQuanLyService;
+:Service queries invoice/payment repositories;
+:Build report DTO list;
+:Render report table;
+
+if (Manager clicks Export?) then (yes)
+  if (Export type is Excel?) then (yes)
+    :Generate Excel file;
+  else (no)
+    :Generate PDF file;
+  endif
+endif
+
+stop
+@enduml

@@ -1,0 +1,26 @@
+@startuml
+start
+:Admin opens Employee tab;
+:Click "Create Employee";
+:Input employee and account data;
+
+if (Required fields valid?) then (yes)
+  :Submit create request;
+  :Controller calls IQuanTriTongHopService;
+  :Service validates role and username;
+
+  if (Username exists?) then (yes)
+    :Return error message;
+  else (no)
+    :Save Employee via NhanVienRepository;
+    :Save Account via TaiKhoanRepository;
+    :Return success;
+  endif
+
+else (no)
+  :Show validation error;
+endif
+
+:Reload employee/account list;
+stop
+@enduml

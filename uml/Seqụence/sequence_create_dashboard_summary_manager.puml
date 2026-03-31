@@ -1,0 +1,50 @@
+@startuml
+autonumber
+actor Manager
+boundary "manager/dashboard.html" as View
+control "ManagerDashboardController" as Controller
+control "IBangDieuKhienQuanLyService" as DashboardService
+entity "DatPhongRepository" as BookingRepo
+entity "HoaDonRepository" as InvoiceRepo
+entity "PhongRepository" as RoomRepo
+control "ManagerDashboardQueriesStream" as QueryStream
+database "DB" as DB
+
+Manager -> View: Open dashboard tab tong-quan
+View -> Controller: GET /manager/dashboard?tab=tong-quan&days=7
+Controller -> DashboardService: layThongKeTongQuan()
+
+DashboardService -> InvoiceRepo: sumTongTien()
+InvoiceRepo -> DB: SELECT SUM(tong_tien)
+DB --> InvoiceRepo: total revenue
+InvoiceRepo --> DashboardService: doanhThu
+
+DashboardService -> RoomRepo: countByTrangThai(...)
+RoomRepo -> DB: SELECT room counts by status
+DB --> RoomRepo: status counters
+RoomRepo --> DashboardService: available/occupied/cleaning/maintenance
+
+DashboardService --> Controller: managerStats DTO
+
+Controller -> DashboardService: layTrendPhongDatTheoNgay(7)
+
+DashboardService -> BookingRepo: find bookings in range
+BookingRepo -> DB: SELECT booking data
+DB --> BookingRepo: booking rows
+BookingRepo --> DashboardService: booking entities
+
+DashboardService -> QueryStream: mapSoPhongDatTheoNgay(bookings)
+QueryStream --> DashboardService: booking trend map
+DashboardService --> Controller: managerTrend DTO
+
+Controller -> DashboardService: layBieuDoKhachDatTheoKhoangNgay(5,5)
+DashboardService -> BookingRepo: findByNgayNhanBetweenAndTrangThaiNot(...)
+BookingRepo -> DB: SELECT bookings by check-in window
+DB --> BookingRepo: booking rows
+BookingRepo --> DashboardService: booking entities
+DashboardService -> QueryStream: mapSoKhachDatTheoNgayNhan(bookings)
+QueryStream --> DashboardService: guest window map
+DashboardService --> Controller: managerGuestWindow DTO
+
+Controller --> View: render KPI and charts
+@enduml

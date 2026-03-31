@@ -1,1 +1,19 @@
-1
+@startuml
+package "view" { }
+package "controller" { }
+package "service" { }
+package "repository" { }
+package "model.entity" { }
+package "model.dto" { }
+package "model.enums" { }
+package "config" { }
+
+view --> controller
+controller --> service
+service --> repository
+repository --> "model.entity"
+service --> "model.entity"
+service --> "model.dto"
+"model.entity" --> "model.enums"
+repository --> config
+@enduml

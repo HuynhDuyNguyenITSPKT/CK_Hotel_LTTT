@@ -1,0 +1,42 @@
+@startuml
+autonumber
+actor Manager
+boundary "manager/dashboard.html" as View
+control "ManagerDashboardController" as Controller
+control "IBaoCaoQuanLyService" as ReportService
+entity "HoaDonRepository" as InvoiceRepo
+entity "ThanhToanRepository" as PaymentRepo
+database "DB" as DB
+
+Manager -> View: Select day/month/year
+View -> Controller: GET /manager/dashboard?tab=bao-cao&filters
+Controller -> ReportService: layBaoCaoHoaDon(day,month,year)
+ReportService -> InvoiceRepo: find data by filter
+InvoiceRepo -> DB: SELECT invoices
+DB --> InvoiceRepo: invoice rows
+InvoiceRepo --> ReportService: invoice entities
+ReportService --> Controller: invoice DTO list
+
+Controller -> ReportService: layBaoCaoThanhToan(day,month,year)
+ReportService -> PaymentRepo: find data by filter
+PaymentRepo -> DB: SELECT payments
+DB --> PaymentRepo: payment rows
+PaymentRepo --> ReportService: payment entities
+ReportService --> Controller: payment DTO list
+
+Controller --> View: render report tables
+
+alt manager exports excel
+  Manager -> View: Click export excel
+  View -> Controller: GET /manager/reports/invoices/excel
+  Controller -> ReportService: xuatBaoCaoHoaDonExcel(day,month,year)
+  ReportService --> Controller: byte[] excel
+  Controller --> View: file download
+else manager exports pdf
+  Manager -> View: Click export pdf
+  View -> Controller: GET /manager/reports/invoices/pdf
+  Controller -> ReportService: xuatBaoCaoHoaDonPdf(day,month,year)
+  ReportService --> Controller: byte[] pdf
+  Controller --> View: file download
+end
+@enduml

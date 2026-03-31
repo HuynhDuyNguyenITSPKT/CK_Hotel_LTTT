@@ -1,0 +1,22 @@
+@startuml
+start
+:Admin opens Room Management tab;
+:Click "Create Room";
+:Input room code, room type, status, price;
+
+if (Room code already exists?) then (yes)
+  :Show duplicate code error;
+else (no)
+  if (Price and room type valid?) then (yes)
+    :Submit request;
+    :Controller calls service;
+    :Service saves room via PhongRepository;
+    :Return success notification;
+  else (no)
+    :Show invalid data error;
+  endif
+endif
+
+:Refresh room table;
+stop
+@enduml
