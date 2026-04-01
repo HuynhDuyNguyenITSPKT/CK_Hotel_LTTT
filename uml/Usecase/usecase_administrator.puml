@@ -1,0 +1,57 @@
+@startuml
+' --- Configuration ---
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam ranksep 100
+skinparam nodesep 20
+skinparam shadowing false
+
+actor "Administrator" as Admin
+
+rectangle "Hotel Management System" {
+
+  package "System Access" {
+    usecase "Login" as UC_Login
+    usecase "Logout" as UC_Logout
+    usecase "View Dashboard" as UC_ViewDashboard
+    usecase "Search & Filter Data" as UC_SearchFilter
+  }
+
+  package "System Administration" {
+    usecase "Manage Accounts" as UC_ManageAccounts
+    usecase "Manage Employees" as UC_ManageEmployees
+    usecase "Create Employee & Account" as UC_CreateEmployeeAccount
+    usecase "Manage Rooms" as UC_ManageRooms
+    usecase "Manage Room Types" as UC_ManageRoomTypes
+    usecase "Manage Service Catalog" as UC_ManageServiceCatalog
+    usecase "Manage Promotion Catalog" as UC_ManagePromotionCatalog
+    usecase "Manage Customers" as UC_ManageCustomers
+    usecase "View Reports" as UC_ViewReports
+    usecase "Export Reports" as UC_ExportReports
+  }
+}
+
+' --- Connections ---
+Admin --> UC_Login
+Admin --> UC_Logout
+Admin --> UC_ViewDashboard
+Admin --> UC_SearchFilter
+
+Admin --> UC_ManageAccounts
+Admin --> UC_ManageEmployees
+Admin --> UC_ManageRooms
+Admin --> UC_ManageRoomTypes
+Admin --> UC_ManageServiceCatalog
+Admin --> UC_ManagePromotionCatalog
+Admin --> UC_ManageCustomers
+Admin --> UC_ViewReports
+Admin --> UC_ExportReports
+
+' --- Relationships (Includes) ---
+UC_ViewReports ..> UC_SearchFilter : <<include>>
+UC_ExportReports ..> UC_ViewReports : <<include>>
+UC_ManageEmployees ..> UC_CreateEmployeeAccount : <<include>>
+
+@enduml

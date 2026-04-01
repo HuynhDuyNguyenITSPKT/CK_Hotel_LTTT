@@ -1,0 +1,50 @@
+@startuml
+' --- Configuration ---
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam ranksep 100
+skinparam nodesep 20
+skinparam shadowing false
+
+actor "Manager" as Manager
+
+rectangle "Hotel Management System" {
+
+  package "System Access" {
+    usecase "Login" as UC_Login
+    usecase "Logout" as UC_Logout
+    usecase "View Dashboard" as UC_ViewDashboard
+    usecase "Search & Filter Data" as UC_SearchFilter
+  }
+
+  package "Management Operations" {
+    usecase "Update Room Info" as UC_ManagerUpdateRooms
+    usecase "Update Promotions" as UC_ManagerUpdatePromotions
+    usecase "Update Services" as UC_ManagerUpdateServices
+  }
+
+  package "Reports" {
+    usecase "View Reports" as UC_ViewReports
+    usecase "Export Reports" as UC_ExportReports
+  }
+}
+
+' --- Connections ---
+Manager --> UC_Login
+Manager --> UC_Logout
+Manager --> UC_ViewDashboard
+Manager --> UC_SearchFilter
+
+Manager --> UC_ViewReports
+Manager --> UC_ExportReports
+Manager --> UC_ManagerUpdateRooms
+Manager --> UC_ManagerUpdatePromotions
+Manager --> UC_ManagerUpdateServices
+
+' --- Relationships (Includes) ---
+UC_ViewReports ..> UC_SearchFilter : <<include>>
+UC_ExportReports ..> UC_ViewReports : <<include>>
+
+@enduml
