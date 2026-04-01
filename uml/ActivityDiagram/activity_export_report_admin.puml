@@ -1,23 +1,23 @@
 @startuml
 start
-:Manager requests report export;
-:Check isManager(session);
+:Admin requests report export;
+:Authorize with requireAdmin(session);
 
-if (Manager authorized?) then (Yes)
+if (Authorized?) then (Yes)
   if (Report type?) then (Invoices)
     if (Format?) then (Excel)
-      :Call xuatBaoCaoHoaDonExcel(day, month, year);
+      :Call exportInvoicesExcel(day, month, year);
       :Return xlsx file response;
     else (PDF)
-      :Call xuatBaoCaoHoaDonPdf(day, month, year);
+      :Call exportInvoicesPdf(day, month, year);
       :Return pdf file response;
     endif
   else (Payments)
     if (Format?) then (Excel)
-      :Call xuatBaoCaoThanhToanExcel(day, month, year);
+      :Call exportPaymentsExcel(day, month, year);
       :Return xlsx file response;
     else (PDF)
-      :Call xuatBaoCaoThanhToanPdf(day, month, year);
+      :Call exportPaymentsPdf(day, month, year);
       :Return pdf file response;
     endif
   endif

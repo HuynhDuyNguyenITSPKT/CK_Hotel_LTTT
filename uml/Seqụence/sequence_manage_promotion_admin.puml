@@ -1,12 +1,12 @@
 @startuml
 actor Admin
-participant "AdminEmployeeController" as Controller
+participant "AdminPromotionController" as Controller
 participant "AdminAuthorizationSupport" as Auth
 participant "IQuanTriTongHopService" as Service
 participant "RedirectAttributes" as Flash
 participant "HttpSession" as Session
 
-Admin -> Controller : POST /admin/employees
+Admin -> Controller : POST promotion action
 Controller -> Auth : requireAdmin(session)
 Auth -> Session : getAttribute(CURRENT_USER)
 Session --> Auth : LoginSession/null
@@ -15,7 +15,14 @@ Auth --> Controller : LoginSession/null
 alt Unauthorized
   Controller --> Admin : redirect:/login
 else Authorized
-  Controller -> Service : createEmployeeWithAccount(form)
+  alt Create promotion
+    Controller -> Service : createPromotion(request)
+  else Update promotion
+    Controller -> Service : updatePromotion(promotionId, request)
+  else Delete promotion
+    Controller -> Service : deletePromotion(promotionId)
+  end
+
   alt IllegalArgumentException
     Service --> Controller : throw
     Controller -> Flash : add error
@@ -23,6 +30,7 @@ else Authorized
     Service --> Controller : ok
     Controller -> Flash : add success
   end
-  Controller --> Admin : redirect:/admin/dashboard?tab=employees
+
+  Controller --> Admin : redirect:/admin/dashboard?tab=promotions
 end
 @enduml

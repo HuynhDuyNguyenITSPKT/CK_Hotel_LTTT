@@ -1,0 +1,28 @@
+@startuml
+start
+:Manager submits catalog update;
+:Check isManager(session);
+
+if (Manager authorized?) then (Yes)
+  if (Target?) then (Room)
+    :Call capNhatPhong(roomId, request);
+    :Redirect /manager/dashboard?tab=quan-ly-phong;
+  elseif (Promotion)
+    :Call capNhatKhuyenMai(promotionId, request);
+    :Redirect /manager/dashboard?tab=quan-ly-khuyen-mai;
+  else (Service)
+    :Call capNhatDichVu(serviceId, request);
+    :Redirect /manager/dashboard?tab=quan-ly-dich-vu;
+  endif
+
+  if (Service throws IllegalArgumentException?) then (Yes)
+    :Set flash error;
+  else (No)
+    :Set flash success;
+  endif
+else (No)
+  :Redirect /login;
+endif
+
+stop
+@enduml

@@ -1,0 +1,7 @@
+@startuml
+start
+:User submits POST /logout;
+:Invalidate HttpSession;
+:Redirect /login;
+stop
+@enduml

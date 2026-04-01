@@ -1,0 +1,19 @@
+@startuml
+start
+:User accesses /;
+:Read CURRENT_USER from session;
+
+if (User logged in?) then (Yes)
+  if (Role?) then (ADMIN)
+    :Redirect /admin/dashboard;
+  elseif (MANAGER)
+    :Redirect /manager/dashboard;
+  else (RECEPTIONIST)
+    :Redirect /receptionist/dashboard;
+  endif
+else (No)
+  :Redirect /login;
+endif
+
+stop
+@enduml

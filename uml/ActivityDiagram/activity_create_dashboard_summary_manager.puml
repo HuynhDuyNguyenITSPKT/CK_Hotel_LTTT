@@ -1,0 +1,17 @@
+@startuml
+start
+:Manager opens /manager/dashboard?tab=tong-quan&days=...;
+:Read CURRENT_USER from session;
+
+if (Session exists and role == MANAGER?) then (Yes)
+  :Normalize days (7/14/30);
+  :Load managerStats;
+  :Load managerTrend by soNgay;
+  :Load managerGuestWindow (5,5);
+  :Render manager/dashboard tab tong-quan;
+else (No)
+  :Redirect /login;
+endif
+
+stop
+@enduml

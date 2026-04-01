@@ -1,10 +1,10 @@
 @startuml
 start
-:Admin submits /admin/employees form;
+:Admin submits /admin/employees/{employeeId}/role;
 :Authorize with requireAdmin(session);
 
 if (Authorized?) then (Yes)
-  :Call createEmployeeWithAccount(form);
+  :Call updateEmployeeRole(employeeId, role);
   if (Service throws IllegalArgumentException?) then (Yes)
     :Set flash error;
   else (No)

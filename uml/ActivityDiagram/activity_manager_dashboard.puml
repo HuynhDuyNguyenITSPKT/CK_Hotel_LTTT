@@ -1,0 +1,35 @@
+@startuml
+start
+:Manager opens /manager/dashboard;
+:ManagerDashboardController.dashboard(...);
+:Read CURRENT_USER from session;
+
+if (Session exists and role == MANAGER?) then (Yes)
+  :Normalize days (7/14/30);
+  :Normalize tab
+  (tong-quan, bao-cao, quan-ly-*);
+  :Add common model attributes
+  (filters, enums, roomTypes);
+
+  if (activeTab == bao-cao?) then (Yes)
+    :Load invoice reports by day/month/year;
+    :Load payment reports by day/month/year;
+  elseif (activeTab == quan-ly-phong)
+    :Load room list by roomStatus + keyword;
+  elseif (activeTab == quan-ly-khuyen-mai)
+    :Load promotion list by keyword;
+  elseif (activeTab == quan-ly-dich-vu)
+    :Load service list by keyword;
+  else (tong-quan)
+    :Load manager stats;
+    :Load booking trend by selected days;
+    :Load guest window chart;
+  endif
+
+  :Return view manager/dashboard;
+else (No)
+  :Redirect to /login;
+endif
+
+stop
+@enduml

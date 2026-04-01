@@ -1,0 +1,49 @@
+@startuml
+start
+:User opens /login;
+
+if (CURRENT_USER in session?) then (Yes)
+  :Resolve role -> default path;
+  :Redirect to /admin|/manager|/receptionist dashboard;
+  stop
+else (No)
+  :Render login page;
+endif
+
+:User submits username/password;
+
+if (username or password blank?) then (Yes)
+  :Set error message;
+  :Return auth/login;
+  stop
+else (No)
+  :Find employee by username;
+endif
+
+if (Employee exists?) then (Yes)
+  :Check account status == ACTIVE;
+else (No)
+  :Set error message;
+  :Return auth/login;
+  stop
+endif
+
+if (Account ACTIVE?) then (Yes)
+  :Compare password;
+else (No)
+  :Set error message;
+  :Return auth/login;
+  stop
+endif
+
+if (Password match?) then (Yes)
+  :Create LoginSession;
+  :Set CURRENT_USER in session;
+  :Redirect to role dashboard;
+else (No)
+  :Set error message;
+  :Return auth/login;
+endif
+
+stop
+@enduml

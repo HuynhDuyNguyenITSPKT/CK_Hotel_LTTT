@@ -6,7 +6,7 @@ participant "IQuanTriTongHopService" as Service
 participant "RedirectAttributes" as Flash
 participant "HttpSession" as Session
 
-Admin -> Controller : POST /admin/employees
+Admin -> Controller : POST /admin/employees/{employeeId}/role
 Controller -> Auth : requireAdmin(session)
 Auth -> Session : getAttribute(CURRENT_USER)
 Session --> Auth : LoginSession/null
@@ -15,7 +15,7 @@ Auth --> Controller : LoginSession/null
 alt Unauthorized
   Controller --> Admin : redirect:/login
 else Authorized
-  Controller -> Service : createEmployeeWithAccount(form)
+  Controller -> Service : updateEmployeeRole(employeeId, role)
   alt IllegalArgumentException
     Service --> Controller : throw
     Controller -> Flash : add error

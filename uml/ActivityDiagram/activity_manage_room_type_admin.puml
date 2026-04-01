@@ -1,10 +1,17 @@
 @startuml
 start
-:Admin submits POST /admin/rooms;
+:Admin submits room-type action;
 :Authorize with requireAdmin(session);
 
 if (Authorized?) then (Yes)
-  :Call createRoom(request, imageFile);
+  if (Action?) then (Create)
+    :Call createRoomType(request, imageFile);
+  elseif (Update)
+    :Call updateRoomType(roomTypeId, request, imageFile);
+  else (Delete)
+    :Call deleteRoomType(roomTypeId);
+  endif
+
   if (IllegalArgumentException?) then (Yes)
     :Set flash error from service;
   elseif (Upload/other Exception?)
@@ -12,7 +19,8 @@ if (Authorized?) then (Yes)
   else (No)
     :Set flash success;
   endif
-  :Redirect /admin/dashboard?tab=rooms;
+
+  :Redirect /admin/dashboard?tab=room-types;
 else (No)
   :Redirect /login;
 endif

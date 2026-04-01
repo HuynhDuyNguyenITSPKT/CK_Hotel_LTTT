@@ -1,0 +1,57 @@
+@startuml
+actor Admin
+participant "AdminDashboard View" as View
+participant "AdminController" as Controller
+participant "AdminAuthorizationSupport" as Auth
+participant "IQuanTriTongHopService" as Service
+participant "HttpSession" as Session
+
+Admin -> View : Open /admin/dashboard?tab=...
+View -> Controller : GET /admin/dashboard
+Controller -> Auth : requireAdmin(session)
+Auth -> Session : getAttribute(CURRENT_USER)
+Session --> Auth : LoginSession/null
+Auth --> Controller : LoginSession/null
+
+alt Unauthorized
+  Controller --> View : redirect:/login
+  View --> Admin : Session expired or no permission
+else Authorized
+  Controller -> Controller : normalize size and page
+  Controller -> Service : getDashboardStats()
+  Service --> Controller : stats
+  Controller -> Service : getRevenueChart()
+  Service --> Controller : revenueChart
+
+  Controller -> Service : getInvoicesByFilters(day, month, year)
+  Service --> Controller : invoiceRows
+  Controller -> Service : getPaymentsByFilters(day, month, year)
+  Service --> Controller : paymentRows
+  Controller -> Controller : paginate invoice/payment rows
+
+  alt tab == accounts
+    Controller -> Service : getAccounts()
+    Service --> Controller : account list
+    Controller -> Controller : filter + paginate
+  else tab == employees
+    Controller -> Service : getEmployees()
+    Service --> Controller : employee list
+    Controller -> Controller : filter + paginate
+  else tab == rooms
+    Controller -> Service : getRooms()
+    Service --> Controller : room list
+    Controller -> Service : getRoomTypes()
+    Service --> Controller : roomTypes
+    Controller -> Controller : filter(status+keyword) + paginate
+  else tab == room-types/services/promotions/customers
+    Controller -> Service : get* list by tab
+    Service --> Controller : list data
+    Controller -> Controller : filter + paginate
+  else dashboard/unknown tab
+    Controller -> Controller : keep dashboard view data
+  end
+
+  Controller --> View : return dashboard/admin
+  View --> Admin : Render selected tab
+end
+@enduml

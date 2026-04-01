@@ -1,0 +1,35 @@
+@startuml
+actor Admin
+participant "AdminController" as Controller
+participant "AdminAuthorizationSupport" as Auth
+participant "IQuanTriTongHopService" as Service
+participant "HttpSession" as Session
+
+Admin -> Controller : GET /admin/reports/... (excel/pdf)
+Controller -> Auth : requireAdmin(session)
+Auth -> Session : getAttribute(CURRENT_USER)
+Session --> Auth : LoginSession/null
+Auth --> Controller : LoginSession/null
+
+alt Unauthorized
+  Controller --> Admin : HTTP 302 Location /login
+else Authorized
+  alt Invoices Excel
+    Controller -> Service : exportInvoicesExcel(day, month, year)
+    Service --> Controller : byte[]
+    Controller --> Admin : file xlsx
+  else Invoices PDF
+    Controller -> Service : exportInvoicesPdf(day, month, year)
+    Service --> Controller : byte[]
+    Controller --> Admin : file pdf
+  else Payments Excel
+    Controller -> Service : exportPaymentsExcel(day, month, year)
+    Service --> Controller : byte[]
+    Controller --> Admin : file xlsx
+  else Payments PDF
+    Controller -> Service : exportPaymentsPdf(day, month, year)
+    Service --> Controller : byte[]
+    Controller --> Admin : file pdf
+  end
+end
+@enduml

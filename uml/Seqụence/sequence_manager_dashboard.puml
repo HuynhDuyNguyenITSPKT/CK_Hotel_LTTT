@@ -1,0 +1,51 @@
+@startuml
+actor Manager
+participant "ManagerDashboard View" as View
+participant "ManagerDashboardController" as Controller
+participant "IBangDieuKhienQuanLyService" as DashboardService
+participant "IBaoCaoQuanLyService" as ReportService
+participant "IDanhMucQuanLyService" as CatalogService
+participant "HttpSession" as Session
+
+Manager -> View : Open /manager/dashboard?tab=...&days=...
+View -> Controller : GET /manager/dashboard
+Controller -> Session : getAttribute(CURRENT_USER)
+Session --> Controller : LoginSession/null
+
+alt Unauthorized or role != MANAGER
+  Controller --> View : redirect:/login
+  View --> Manager : Session expired or no permission
+else Authorized
+  Controller -> Controller : normalizeDays(7/14/30)
+  Controller -> Controller : normalizeTab(...)
+
+  Controller -> CatalogService : layLoaiPhong()
+  CatalogService --> Controller : roomTypes
+
+  alt activeTab == bao-cao
+    Controller -> ReportService : layBaoCaoHoaDon(day, month, year)
+    ReportService --> Controller : invoiceReports
+    Controller -> ReportService : layBaoCaoThanhToan(day, month, year)
+    ReportService --> Controller : paymentReports
+  else activeTab == quan-ly-phong
+    Controller -> CatalogService : layDanhSachPhong(roomStatus, q)
+    CatalogService --> Controller : rooms
+  else activeTab == quan-ly-khuyen-mai
+    Controller -> CatalogService : layDanhSachKhuyenMai(q)
+    CatalogService --> Controller : promotions
+  else activeTab == quan-ly-dich-vu
+    Controller -> CatalogService : layDanhSachDichVu(q)
+    CatalogService --> Controller : services
+  else tong-quan
+    Controller -> DashboardService : layThongKeTongQuan()
+    DashboardService --> Controller : managerStats
+    Controller -> DashboardService : layTrendPhongDatTheoNgay(soNgay)
+    DashboardService --> Controller : managerTrend
+    Controller -> DashboardService : layBieuDoKhachDatTheoKhoangNgay(5, 5)
+    DashboardService --> Controller : managerGuestWindow
+  end
+
+  Controller --> View : return manager/dashboard
+  View --> Manager : Render selected tab
+end
+@enduml

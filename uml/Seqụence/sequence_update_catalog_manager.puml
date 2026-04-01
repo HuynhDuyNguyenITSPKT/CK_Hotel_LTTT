@@ -1,0 +1,39 @@
+@startuml
+actor Manager
+participant "ManagerDashboardController" as Controller
+participant "IDanhMucQuanLyService" as CatalogService
+participant "RedirectAttributes" as Flash
+participant "HttpSession" as Session
+
+Manager -> Controller : POST /manager/.../update
+Controller -> Session : check isManager(session)
+Session --> Controller : true/false
+
+alt Unauthorized
+  Controller --> Manager : redirect:/login
+else Authorized
+  alt Update room
+    Controller -> CatalogService : capNhatPhong(roomId, request)
+  else Update promotion
+    Controller -> CatalogService : capNhatKhuyenMai(promotionId, request)
+  else Update service
+    Controller -> CatalogService : capNhatDichVu(serviceId, request)
+  end
+
+  alt IllegalArgumentException
+    CatalogService --> Controller : throw
+    Controller -> Flash : add error
+  else Success
+    CatalogService --> Controller : ok
+    Controller -> Flash : add success
+  end
+
+  alt room update
+    Controller --> Manager : redirect:/manager/dashboard?tab=quan-ly-phong
+  else promotion update
+    Controller --> Manager : redirect:/manager/dashboard?tab=quan-ly-khuyen-mai
+  else service update
+    Controller --> Manager : redirect:/manager/dashboard?tab=quan-ly-dich-vu
+  end
+end
+@enduml

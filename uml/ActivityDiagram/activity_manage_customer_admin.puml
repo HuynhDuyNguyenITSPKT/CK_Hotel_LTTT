@@ -1,0 +1,27 @@
+@startuml
+start
+:Admin submits customer action;
+:Authorize with requireAdmin(session);
+
+if (Authorized?) then (Yes)
+  if (Action?) then (Create)
+    :Call createCustomer(request);
+  elseif (Update)
+    :Call updateCustomer(customerId, request);
+  else (Delete)
+    :Call deleteCustomer(customerId);
+  endif
+
+  if (Service throws IllegalArgumentException?) then (Yes)
+    :Set flash error;
+  else (No)
+    :Set flash success;
+  endif
+
+  :Redirect /admin/dashboard?tab=customers;
+else (No)
+  :Redirect /login;
+endif
+
+stop
+@enduml

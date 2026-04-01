@@ -1,0 +1,54 @@
+@startuml
+start
+:Admin opens /admin/dashboard;
+:AdminController.dashboard(...);
+:authorizationSupport.requireAdmin(session);
+
+if (Admin authorized?) then (Yes)
+  :Normalize size (5..30) and page >= 1;
+  :Add common model attributes
+  (currentUser, tab, filters, enums);
+  :Load stats + revenue chart;
+  :Load invoice/payment reports with pagination;
+
+  if (active tab?) then (accounts)
+    :Load account list;
+    :Filter by keyword;
+    :Paginate and add to model;
+  elseif (employees)
+    :Load employee list;
+    :Filter by keyword;
+    :Paginate and add to model;
+  elseif (rooms)
+    :Load room list;
+    :Filter by roomStatus + keyword;
+    :Add roomTypes;
+    :Paginate and add to model;
+  elseif (room-types)
+    :Load room type list;
+    :Filter by keyword;
+    :Paginate and add to model;
+  elseif (services)
+    :Load service list;
+    :Filter by keyword;
+    :Paginate and add to model;
+  elseif (promotions)
+    :Load promotion list;
+    :Filter by keyword;
+    :Paginate and add to model;
+  elseif (customers)
+    :Load customer list;
+    :Filter by keyword;
+    :Paginate and add to model;
+  else (dashboard or unknown)
+    :Keep dashboard data;
+    :Set default size for dashboard tab;
+  endif
+
+  :Return view dashboard/admin;
+else (No)
+  :Redirect to /login;
+endif
+
+stop
+@enduml

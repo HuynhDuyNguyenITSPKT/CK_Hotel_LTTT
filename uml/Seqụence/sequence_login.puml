@@ -1,0 +1,47 @@
+@startuml
+actor User
+participant "Login Page" as View
+participant "AuthController" as Controller
+participant "AuthService" as Service
+participant "NhanVienRepository" as Repo
+database "MySQL / JPA" as DB
+participant "HttpSession" as Session
+
+User -> View : Open /login
+View -> Controller : GET /login
+Controller -> Session : getAttribute(CURRENT_USER)
+
+alt Already logged in
+  Controller --> View : redirect:/admin|/manager|/receptionist/dashboard
+  View --> User : Redirect by role
+else Not logged in
+  Controller --> View : render auth/login
+  View --> User : Show login form
+end
+
+User -> View : Submit username/password
+View -> Controller : POST /login
+Controller -> Service : authenticate(username, password)
+
+alt Blank username/password
+  Service --> Controller : Optional.empty()
+  Controller --> View : auth/login + error
+  View --> User : Show invalid credential message
+else Input not blank
+  Service -> Repo : findByUsername(username.trim)
+  Repo -> DB : SELECT nhan_vien by username
+  DB --> Repo : NhanVien/null
+  Repo --> Service : Optional<NhanVien>
+
+  alt Employee missing or account inactive or password mismatch
+    Service --> Controller : Optional.empty()
+    Controller --> View : auth/login + error
+    View --> User : Show invalid credential message
+  else Auth success
+    Service --> Controller : Optional<LoginSession>
+    Controller -> Session : setAttribute(CURRENT_USER, LoginSession)
+    Controller --> View : redirect:/admin|/manager|/receptionist/dashboard
+    View --> User : Redirect to dashboard
+  end
+end
+@enduml

@@ -1,0 +1,21 @@
+@startuml
+actor User
+participant "RoleDashboardController" as Controller
+participant "HttpSession" as Session
+
+User -> Controller : GET /
+Controller -> Session : getAttribute(CURRENT_USER)
+Session --> Controller : LoginSession/null
+
+alt No session
+  Controller --> User : redirect:/login
+else Has session
+  alt role == ADMIN
+    Controller --> User : redirect:/admin/dashboard
+  else role == MANAGER
+    Controller --> User : redirect:/manager/dashboard
+  else role == RECEPTIONIST
+    Controller --> User : redirect:/receptionist/dashboard
+  end
+end
+@enduml

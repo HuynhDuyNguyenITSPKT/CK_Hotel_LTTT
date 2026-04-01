@@ -1,16 +1,16 @@
 @startuml
 start
-:Admin submits /admin/employees form;
+:Admin submits /admin/accounts/{accountId}/status;
 :Authorize with requireAdmin(session);
 
 if (Authorized?) then (Yes)
-  :Call createEmployeeWithAccount(form);
+  :Call updateAccountStatus(accountId, status);
   if (Service throws IllegalArgumentException?) then (Yes)
     :Set flash error;
   else (No)
     :Set flash success;
   endif
-  :Redirect /admin/dashboard?tab=employees;
+  :Redirect /admin/dashboard?tab=accounts;
 else (No)
   :Redirect /login;
 endif

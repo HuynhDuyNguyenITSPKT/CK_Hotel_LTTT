@@ -1,0 +1,9 @@
+@startuml
+actor User
+participant "AuthController" as Controller
+participant "HttpSession" as Session
+
+User -> Controller : POST /logout
+Controller -> Session : invalidate()
+Controller --> User : redirect:/login
+@enduml
