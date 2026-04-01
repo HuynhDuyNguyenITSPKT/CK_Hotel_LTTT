@@ -80,7 +80,11 @@
                               th:classappend="${row.sacThaiThanhToan == 'amber'} ? ' bg-amber-100 text-amber-700' : (${row.sacThaiThanhToan == 'sky'} ? ' bg-sky-100 text-sky-700' : (${row.sacThaiThanhToan == 'emerald'} ? ' bg-emerald-100 text-emerald-700' : ' bg-slate-100 text-slate-700'))"
                               th:text="${row.trangThaiThanhToan}"></span>
                     </td>
-                    <td class="p-2" th:text="${row.trangThaiDatPhong}"></td>
+                    <td class="p-2">
+                        <span class="rounded-full px-2 py-1 text-xs font-semibold"
+                              th:classappend="${row.trangThaiDatPhong.name() == 'CHECKED_IN'} ? ' bg-emerald-100 text-emerald-700' : (${row.trangThaiDatPhong.name() == 'CHECKED_OUT'} ? ' bg-indigo-100 text-indigo-700' : (${row.trangThaiDatPhong.name() == 'CANCELLED'} ? ' bg-rose-100 text-rose-700' : ' bg-amber-100 text-amber-700'))"
+                              th:text="${row.trangThaiDatPhong}"></span>
+                    </td>
                     <td class="p-2">
                         <div class="space-y-2">
                             <button class="js-open-checkout-confirm w-full rounded-lg bg-emerald-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-emerald-700"
