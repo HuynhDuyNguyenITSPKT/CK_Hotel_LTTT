@@ -1,0 +1,134 @@
+@startuml
+skinparam classAttributeIconSize 0
+left to right direction
+
+package "repository" {
+  interface KhachHangRepository
+  interface TaiKhoanRepository
+  interface NhanVienRepository
+  interface LoaiPhongRepository
+  interface PhongRepository
+  interface DatPhongRepository
+  interface ChiTietDatPhongRepository
+  interface DichVuRepository
+  interface SuDungDichVuRepository
+  interface KhuyenMaiRepository
+  interface HoaDonRepository
+  interface ThanhToanRepository
+}
+
+package "service" {
+  interface IAuthService
+  interface IQuanTriTongHopService
+  interface IBangDieuKhienQuanLyService
+  interface IBaoCaoQuanLyService
+  interface IDanhMucQuanLyService
+  interface IDashboardQueryService
+  interface IDatPhongService
+  interface ICheckInOutService
+  interface IDichVuService
+  interface IPhongService
+  interface IThanhToanService
+}
+
+package "controller" {
+  class AuthController
+  class AdminController
+  class AdminAccountController
+  class AdminCustomerController
+  class AdminEmployeeController
+  class AdminPromotionController
+  class AdminRoomController
+  class AdminRoomTypeController
+  class AdminServiceController
+  class ManagerDashboardController
+  class ReceptionistDashboardController
+  class ReceptionistDatPhongController
+  class ReceptionistCheckInOutController
+  class ReceptionistDichVuController
+  class ReceptionistPhongController
+  class ReceptionistThanhToanController
+}
+
+package "view" {
+  class LoginView
+  class AdminDashboardView
+  class ManagerDashboardView
+  class ReceptionistDashboardView
+}
+
+AuthController --> IAuthService
+AdminController --> IQuanTriTongHopService
+AdminAccountController --> IQuanTriTongHopService
+AdminCustomerController --> IQuanTriTongHopService
+AdminEmployeeController --> IQuanTriTongHopService
+AdminPromotionController --> IQuanTriTongHopService
+AdminRoomController --> IQuanTriTongHopService
+AdminRoomTypeController --> IQuanTriTongHopService
+AdminServiceController --> IQuanTriTongHopService
+ManagerDashboardController --> IBangDieuKhienQuanLyService
+ManagerDashboardController --> IBaoCaoQuanLyService
+ManagerDashboardController --> IDanhMucQuanLyService
+ReceptionistDashboardController --> IDashboardQueryService
+ReceptionistDatPhongController --> IDatPhongService
+ReceptionistCheckInOutController --> ICheckInOutService
+ReceptionistDichVuController --> IDichVuService
+ReceptionistPhongController --> IPhongService
+ReceptionistThanhToanController --> IThanhToanService
+
+IAuthService --> NhanVienRepository
+IQuanTriTongHopService --> KhachHangRepository
+IQuanTriTongHopService --> TaiKhoanRepository
+IQuanTriTongHopService --> NhanVienRepository
+IQuanTriTongHopService --> LoaiPhongRepository
+IQuanTriTongHopService --> PhongRepository
+IQuanTriTongHopService --> DichVuRepository
+IQuanTriTongHopService --> KhuyenMaiRepository
+IBangDieuKhienQuanLyService --> DatPhongRepository
+IBangDieuKhienQuanLyService --> HoaDonRepository
+IBangDieuKhienQuanLyService --> PhongRepository
+IBaoCaoQuanLyService --> HoaDonRepository
+IDanhMucQuanLyService --> PhongRepository
+IDanhMucQuanLyService --> DichVuRepository
+IDanhMucQuanLyService --> KhuyenMaiRepository
+IDashboardQueryService --> DatPhongRepository
+IDashboardQueryService --> ChiTietDatPhongRepository
+IDashboardQueryService --> PhongRepository
+IDashboardQueryService --> DichVuRepository
+IDashboardQueryService --> SuDungDichVuRepository
+IDashboardQueryService --> HoaDonRepository
+IDashboardQueryService --> ThanhToanRepository
+IDashboardQueryService --> KhuyenMaiRepository
+IDatPhongService --> DatPhongRepository
+IDatPhongService --> ChiTietDatPhongRepository
+IDatPhongService --> PhongRepository
+IDatPhongService --> KhachHangRepository
+IDatPhongService --> NhanVienRepository
+IDatPhongService --> HoaDonRepository
+IDatPhongService --> ThanhToanRepository
+ICheckInOutService --> DatPhongRepository
+ICheckInOutService --> ChiTietDatPhongRepository
+ICheckInOutService --> PhongRepository
+ICheckInOutService --> NhanVienRepository
+ICheckInOutService --> ThanhToanRepository
+IDichVuService --> DatPhongRepository
+IDichVuService --> DichVuRepository
+IDichVuService --> ChiTietDatPhongRepository
+IDichVuService --> SuDungDichVuRepository
+IDichVuService --> NhanVienRepository
+IDichVuService --> HoaDonRepository
+IPhongService --> PhongRepository
+IPhongService --> ChiTietDatPhongRepository
+IThanhToanService --> DatPhongRepository
+IThanhToanService --> ChiTietDatPhongRepository
+IThanhToanService --> HoaDonRepository
+IThanhToanService --> ThanhToanRepository
+IThanhToanService --> KhuyenMaiRepository
+IThanhToanService --> NhanVienRepository
+
+LoginView --> AuthController
+AdminDashboardView --> AdminController
+ManagerDashboardView --> ManagerDashboardController
+ReceptionistDashboardView --> ReceptionistDashboardController
+
+@enduml

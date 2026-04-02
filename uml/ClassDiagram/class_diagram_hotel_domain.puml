@@ -1,0 +1,143 @@
+@startuml
+skinparam classAttributeIconSize 0
+left to right direction
+
+package "model.enums" {
+  enum AccountStatus {
+    ACTIVE
+    INACTIVE
+    LOCKED
+  }
+
+  enum BookingStatus {
+    PENDING
+    CONFIRMED
+    CHECKED_IN
+    CHECKED_OUT
+    CANCELLED
+  }
+
+  enum DiscountType {
+    PERCENT
+    AMOUNT
+  }
+
+  enum EmployeeRole {
+    ADMIN
+    RECEPTIONIST
+    MANAGER
+  }
+
+  enum PaymentMethod {
+    CASH
+    CARD
+    TRANSFER
+    E_WALLET
+  }
+
+  enum RoomStatus {
+    AVAILABLE
+    OCCUPIED
+    MAINTENANCE
+    CLEANING
+  }
+}
+
+package "model.entity" {
+  class KhachHang {
+    - Long id
+    - String ten
+    - String sdt
+    - String email
+  }
+
+  class TaiKhoan {
+    - Long id
+    - String username
+    - String email
+    - String password
+    - AccountStatus trangThai
+  }
+
+  class NhanVien {
+    - Long id
+    - String ten
+    - EmployeeRole role
+  }
+
+  class LoaiPhong {
+    - Long id
+    - String tenLoai
+    - String moTa
+    - BigDecimal giaCoBan
+  }
+
+  class Phong {
+    - Long id
+    - String soPhong
+    - String imageUrl
+    - RoomStatus trangThai
+  }
+
+  class DatPhong {
+    - Long id
+    - LocalDateTime ngayDat
+    - LocalDate ngayNhan
+    - LocalDate ngayTra
+    - BookingStatus trangThai
+  }
+
+  class ChiTietDatPhong {
+    - Long id
+    - BigDecimal gia
+  }
+
+  class DichVu {
+    - Long id
+    - String ten
+    - String imageUrl
+    - BigDecimal gia
+  }
+
+  class SuDungDichVu {
+    - Long id
+    - Integer soLuong
+    - LocalDateTime thoiDiem
+  }
+
+  class KhuyenMai {
+    - Long id
+    - String ten
+    - DiscountType loaiGiam
+    - BigDecimal giaTri
+  }
+
+  class HoaDon {
+    - Long id
+    - BigDecimal tongTien
+    - LocalDateTime ngayTao
+  }
+
+  class ThanhToan {
+    - Long id
+    - BigDecimal soTien
+    - PaymentMethod phuongThuc
+    - LocalDateTime ngayThanhToan
+  }
+}
+
+KhachHang "1" <-- "0..*" DatPhong : khachHang
+NhanVien "1" <-- "0..*" DatPhong : nhanVien
+DatPhong "1" <-- "1..*" ChiTietDatPhong : datPhong
+Phong "1" <-- "0..*" ChiTietDatPhong : phong
+LoaiPhong "1" <-- "0..*" Phong : loaiPhong
+DatPhong "1" <-- "0..*" SuDungDichVu : datPhong
+Phong "1" <-- "0..*" SuDungDichVu : phong
+DichVu "1" <-- "0..*" SuDungDichVu : dichVu
+DatPhong "1" <-- "0..1" HoaDon : datPhong
+NhanVien "1" <-- "0..*" HoaDon : nhanVien
+HoaDon "1" <-- "0..*" ThanhToan : hoaDon
+HoaDon "0..*" -- "0..*" KhuyenMai : khuyenMais
+TaiKhoan "1" <-- "0..1" NhanVien : taiKhoan
+
+@enduml
