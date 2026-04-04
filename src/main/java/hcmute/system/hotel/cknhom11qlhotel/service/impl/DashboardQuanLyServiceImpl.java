@@ -3,7 +3,7 @@ package hcmute.system.hotel.cknhom11qlhotel.service.impl;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.manager.ManagerBookingTrendDto;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.manager.ManagerDashboardStatsDto;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.manager.ManagerGuestBookingWindowDto;
-import hcmute.system.hotel.cknhom11qlhotel.model.enity.DatPhong;
+import hcmute.system.hotel.cknhom11qlhotel.model.entity.DatPhong;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.BookingStatus;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.RoomStatus;
 import hcmute.system.hotel.cknhom11qlhotel.repository.DatPhongRepository;

@@ -1,6 +1,6 @@
 package hcmute.system.hotel.cknhom11qlhotel.repository;
 
-import hcmute.system.hotel.cknhom11qlhotel.model.enity.ChiTietDatPhong;
+import hcmute.system.hotel.cknhom11qlhotel.model.entity.ChiTietDatPhong;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.BookingStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

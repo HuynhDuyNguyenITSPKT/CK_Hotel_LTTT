@@ -4,8 +4,8 @@ import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.DashboardStatsRespons
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.InvoiceReportResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.PaymentReportResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.RevenueChartResponse;
-import hcmute.system.hotel.cknhom11qlhotel.model.enity.HoaDon;
-import hcmute.system.hotel.cknhom11qlhotel.model.enity.ThanhToan;
+import hcmute.system.hotel.cknhom11qlhotel.model.entity.HoaDon;
+import hcmute.system.hotel.cknhom11qlhotel.model.entity.ThanhToan;
 import hcmute.system.hotel.cknhom11qlhotel.repository.DichVuRepository;
 import hcmute.system.hotel.cknhom11qlhotel.repository.HoaDonRepository;
 import hcmute.system.hotel.cknhom11qlhotel.repository.KhachHangRepository;

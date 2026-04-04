@@ -1,6 +1,6 @@
 package hcmute.system.hotel.cknhom11qlhotel.repository;
 
-import hcmute.system.hotel.cknhom11qlhotel.model.enity.Phong;
+import hcmute.system.hotel.cknhom11qlhotel.model.entity.Phong;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.RoomStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 

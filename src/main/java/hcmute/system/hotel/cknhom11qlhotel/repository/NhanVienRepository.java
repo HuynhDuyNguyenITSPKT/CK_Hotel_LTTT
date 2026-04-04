@@ -1,6 +1,6 @@
 package hcmute.system.hotel.cknhom11qlhotel.repository;
 
-import hcmute.system.hotel.cknhom11qlhotel.model.enity.NhanVien;
+import hcmute.system.hotel.cknhom11qlhotel.model.entity.NhanVien;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.EmployeeRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

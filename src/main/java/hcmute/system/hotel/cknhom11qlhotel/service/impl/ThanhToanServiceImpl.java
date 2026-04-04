@@ -1,11 +1,11 @@
 package hcmute.system.hotel.cknhom11qlhotel.service.impl;
 
-import hcmute.system.hotel.cknhom11qlhotel.model.enity.ChiTietDatPhong;
-import hcmute.system.hotel.cknhom11qlhotel.model.enity.DatPhong;
-import hcmute.system.hotel.cknhom11qlhotel.model.enity.HoaDon;
-import hcmute.system.hotel.cknhom11qlhotel.model.enity.KhuyenMai;
-import hcmute.system.hotel.cknhom11qlhotel.model.enity.NhanVien;
-import hcmute.system.hotel.cknhom11qlhotel.model.enity.ThanhToan;
+import hcmute.system.hotel.cknhom11qlhotel.model.entity.ChiTietDatPhong;
+import hcmute.system.hotel.cknhom11qlhotel.model.entity.DatPhong;
+import hcmute.system.hotel.cknhom11qlhotel.model.entity.HoaDon;
+import hcmute.system.hotel.cknhom11qlhotel.model.entity.KhuyenMai;
+import hcmute.system.hotel.cknhom11qlhotel.model.entity.NhanVien;
+import hcmute.system.hotel.cknhom11qlhotel.model.entity.ThanhToan;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.BookingStatus;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.PaymentMethod;
 import hcmute.system.hotel.cknhom11qlhotel.repository.ChiTietDatPhongRepository;

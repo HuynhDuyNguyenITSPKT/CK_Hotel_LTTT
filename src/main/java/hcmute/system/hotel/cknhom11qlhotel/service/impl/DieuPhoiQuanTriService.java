@@ -16,7 +16,7 @@ import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.RoomResponse;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.RoomTypeRequest;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.ServiceRequest;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.ServiceResponse;
-import hcmute.system.hotel.cknhom11qlhotel.model.enity.LoaiPhong;
+import hcmute.system.hotel.cknhom11qlhotel.model.entity.LoaiPhong;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.AccountStatus;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.EmployeeRole;
 import hcmute.system.hotel.cknhom11qlhotel.service.IQuanTriTongHopService;

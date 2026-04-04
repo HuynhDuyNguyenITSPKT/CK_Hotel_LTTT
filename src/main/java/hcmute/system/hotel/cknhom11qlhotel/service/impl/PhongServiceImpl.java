@@ -1,8 +1,8 @@
 package hcmute.system.hotel.cknhom11qlhotel.service.impl;
 
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.RoomStatus;
+import hcmute.system.hotel.cknhom11qlhotel.model.entity.Phong;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.BookingStatus;
-import hcmute.system.hotel.cknhom11qlhotel.model.enity.Phong;
 import hcmute.system.hotel.cknhom11qlhotel.repository.ChiTietDatPhongRepository;
 import hcmute.system.hotel.cknhom11qlhotel.repository.PhongRepository;
 import hcmute.system.hotel.cknhom11qlhotel.service.IPhongService;

@@ -1,9 +1,10 @@
 package hcmute.system.hotel.cknhom11qlhotel.stream;
 
-import hcmute.system.hotel.cknhom11qlhotel.model.enity.DatPhong;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import hcmute.system.hotel.cknhom11qlhotel.model.entity.DatPhong;
 
 import java.time.LocalDate;
 import java.util.List;

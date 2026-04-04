@@ -1,4 +1,4 @@
-package hcmute.system.hotel.cknhom11qlhotel.model.enity;
+package hcmute.system.hotel.cknhom11qlhotel.model.entity;
 
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.AccountStatus;
 import jakarta.persistence.Column;

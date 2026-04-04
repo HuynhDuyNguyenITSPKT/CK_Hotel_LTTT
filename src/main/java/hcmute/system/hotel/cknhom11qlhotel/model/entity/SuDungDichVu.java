@@ -1,4 +1,4 @@
-package hcmute.system.hotel.cknhom11qlhotel.model.enity;
+package hcmute.system.hotel.cknhom11qlhotel.model.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,11 +10,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "chi_tiet_dat_phong")
-public class ChiTietDatPhong {
+@Table(name = "su_dung_dich_vu")
+public class SuDungDichVu {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,8 +28,15 @@ public class ChiTietDatPhong {
     @JoinColumn(name = "phong_id", nullable = false)
     private Phong phong;
 
-    @Column(name = "gia", nullable = false, precision = 15, scale = 2)
-    private BigDecimal gia;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "dich_vu_id", nullable = false)
+    private DichVu dichVu;
+
+    @Column(name = "so_luong", nullable = false)
+    private Integer soLuong;
+
+    @Column(name = "thoi_diem", nullable = false)
+    private LocalDateTime thoiDiem;
 
     public Long getId() {
         return id;
@@ -55,12 +62,28 @@ public class ChiTietDatPhong {
         this.phong = phong;
     }
 
-    public BigDecimal getGia() {
-        return gia;
+    public DichVu getDichVu() {
+        return dichVu;
     }
 
-    public void setGia(BigDecimal gia) {
-        this.gia = gia;
+    public void setDichVu(DichVu dichVu) {
+        this.dichVu = dichVu;
+    }
+
+    public Integer getSoLuong() {
+        return soLuong;
+    }
+
+    public void setSoLuong(Integer soLuong) {
+        this.soLuong = soLuong;
+    }
+
+    public LocalDateTime getThoiDiem() {
+        return thoiDiem;
+    }
+
+    public void setThoiDiem(LocalDateTime thoiDiem) {
+        this.thoiDiem = thoiDiem;
     }
 }
 

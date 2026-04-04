@@ -1,6 +1,6 @@
 package hcmute.system.hotel.cknhom11qlhotel.stream;
 
-import hcmute.system.hotel.cknhom11qlhotel.model.enity.DatPhong;
+import hcmute.system.hotel.cknhom11qlhotel.model.entity.DatPhong;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.BookingStatus;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;

@@ -1,9 +1,10 @@
 package hcmute.system.hotel.cknhom11qlhotel.stream;
 
-import hcmute.system.hotel.cknhom11qlhotel.model.enity.KhachHang;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import hcmute.system.hotel.cknhom11qlhotel.model.entity.KhachHang;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,7 +1,7 @@
 package hcmute.system.hotel.cknhom11qlhotel.service;
 
-import hcmute.system.hotel.cknhom11qlhotel.model.enity.NhanVien;
-import hcmute.system.hotel.cknhom11qlhotel.model.enity.TaiKhoan;
+import hcmute.system.hotel.cknhom11qlhotel.model.entity.NhanVien;
+import hcmute.system.hotel.cknhom11qlhotel.model.entity.TaiKhoan;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.AccountStatus;
 import hcmute.system.hotel.cknhom11qlhotel.model.enums.EmployeeRole;
 import hcmute.system.hotel.cknhom11qlhotel.repository.NhanVienRepository;

@@ -1,7 +1,8 @@
 package hcmute.system.hotel.cknhom11qlhotel.repository;
 
-import hcmute.system.hotel.cknhom11qlhotel.model.enity.TaiKhoan;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import hcmute.system.hotel.cknhom11qlhotel.model.entity.TaiKhoan;
 
 import java.util.List;
 import java.util.Optional;

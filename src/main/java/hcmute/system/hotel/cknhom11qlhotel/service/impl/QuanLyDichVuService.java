@@ -2,7 +2,7 @@ package hcmute.system.hotel.cknhom11qlhotel.service.impl;
 
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.ServiceRequest;
 import hcmute.system.hotel.cknhom11qlhotel.model.dto.admin.ServiceResponse;
-import hcmute.system.hotel.cknhom11qlhotel.model.enity.DichVu;
+import hcmute.system.hotel.cknhom11qlhotel.model.entity.DichVu;
 import hcmute.system.hotel.cknhom11qlhotel.repository.DichVuRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
