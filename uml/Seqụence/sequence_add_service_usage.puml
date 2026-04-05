@@ -1,9 +1,9 @@
 @startuml
 actor Receptionist
-participant "InStayServicePanel" as View
+participant "dang_o_them_dich_vu.html (InStayServicePanel)" as View
 participant "ReceptionistDichVuController" as Controller
 participant "ReceptionistAuthorizationSupport" as Auth
-participant "DichVuService" as Service
+participant "IDichVuService (DichVuServiceImpl)" as Service
 participant "DatPhongRepository" as DatPhongRepo
 participant "DichVuRepository" as DichVuRepo
 participant "ChiTietDatPhongRepository" as ChiTietRepo
@@ -15,9 +15,18 @@ Receptionist -> View : Select booking, service, quantity, room scope
 Receptionist -> View : Click Add Service
 View -> Controller : themDichVu(datPhongId, dichVuId, soLuong, phongApDung)
 Controller -> Auth : requireReceptionist(session)
+Auth --> Controller : LoginSession | null
 
-alt Authorized
-  Controller -> Service : themDichVuTrongThoiGianO(datPhongId, dichVuId, soLuong, phongId, apDungTatCaPhong, employeeId)
+alt currentUser == null
+  Controller --> View : redirect:/login
+  View --> Receptionist : Redirect to login
+else currentUser != null
+  Controller -> Controller : normalize phongApDung -> apDungTatCaPhong, phongId
+  alt phongApDung invalid
+    Controller --> View : flash error + redirect dashboard
+    View --> Receptionist : Show validation error
+  else phongApDung valid
+    Controller -> Service : themDichVuTrongThoiGianO(datPhongId, dichVuId, soLuong, phongId, apDungTatCaPhong, nhanVienId)
   Service -> DatPhongRepo : findById(datPhongId)
   DatPhongRepo -> DB : SELECT dat_phong
   DB --> DatPhongRepo : DatPhong
@@ -46,15 +55,13 @@ alt Authorized
   SuDungRepo -> DB : SELECT SUM(service_total)
   DB --> SuDungRepo : totalService
 
-  Service -> HoaDonRepo : saveOrUpdateHoaDon(...)
+  Service -> HoaDonRepo : save(HoaDon) via capNhatTongTienHoaDonTheoThucTe(...)
   HoaDonRepo -> DB : INSERT/UPDATE hoa_don
   DB --> HoaDonRepo : HoaDon
 
-  Service --> Controller : success
-  Controller --> View : success message
-  View --> Receptionist : Show service added
-else Validation failed
-  Controller --> View : error message
-  View --> Receptionist : Show validation error
+    Service --> Controller : done
+    Controller --> View : flash success + redirect dashboard
+    View --> Receptionist : Show service added
+  end
 end
 @enduml
