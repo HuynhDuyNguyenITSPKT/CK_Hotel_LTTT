@@ -1,19 +1,23 @@
 @startuml
-package "view" { }
-package "controller" { }
-package "service" { }
-package "repository" { }
-package "model.entity" { }
-package "model.dto" { }
-package "model.enums" { }
-package "config" { }
+package "view (templates)" as view { }
+package "controller" as controller { }
+package "service" as service { }
+package "repository" as repository { }
+package "model" as model { }
+package "stream" as stream { }
+package "config" as config { }
+package "util" as util { }
+package "init" as init { }
 
 view --> controller
 controller --> service
+controller --> model
 service --> repository
-repository --> "model.entity"
-service --> "model.entity"
-service --> "model.dto"
-"model.entity" --> "model.enums"
-repository --> config
+service --> model
+service --> util
+service --> stream
+repository --> model
+stream --> model
+controller --> util
+init --> service
 @enduml
