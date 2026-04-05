@@ -1,12 +1,23 @@
-@startuml
+@startuml sequence_check_in
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 16
+skinparam SequenceParticipantFontSize 17
+skinparam SequenceMessageFontSize 15
+skinparam SequenceGroupFontSize 15
+skinparam ParticipantPadding 12
+skinparam maxMessageSize 75
+skinparam dpi 180
+
 actor Receptionist
 participant "CheckInPanel" as View
 participant "ReceptionistCheckInOutController" as Controller
 participant "ReceptionistAuthorizationSupport" as Auth
 participant "CheckInOutService" as Service
+participant "NhanVienRepository" as NhanVienRepo
 participant "DatPhongRepository" as DatPhongRepo
 participant "ChiTietDatPhongRepository" as ChiTietRepo
 participant "PhongRepository" as PhongRepo
+participant "HoaDonTinhTienService" as HoaDonService
 participant "HoaDonRepository" as HoaDonRepo
 participant "SuDungDichVuRepository" as SuDungRepo
 database "MySQL / JPA" as DB
@@ -16,23 +27,37 @@ Receptionist -> View : Click Check-in
 View -> Controller : checkIn(datPhongId)
 Controller -> Auth : requireReceptionist(session)
 
-alt Authorized
+alt Unauthorized
+  Controller --> View : redirect:/login
+  View --> Receptionist : Session expired
+else Authorized
   Controller -> Service : thucHienCheckIn(datPhongId, employeeId)
   Service -> DatPhongRepo : findById(datPhongId)
   DatPhongRepo -> DB : SELECT dat_phong
-  DB --> DatPhongRepo : DatPhong
+  DB --> DatPhongRepo : DatPhong / empty
 
   Service -> ChiTietRepo : findByDatPhongIdOrderByIdDesc(datPhongId)
   ChiTietRepo -> DB : SELECT chi_tiet_dat_phong
   DB --> ChiTietRepo : booking details
 
+  Service -> Service : validate status, date window, and booking details
+
   loop For each room in booking
+    Service -> Service : validate room status AVAILABLE
     Service -> ChiTietRepo : existsLichPhongTrung(..., CHECKED_IN)
     ChiTietRepo -> DB : SELECT overlap check
     DB --> ChiTietRepo : true/false
   end
 
-  alt Booking and rooms valid
+  alt Any validation fails
+    Service --> Controller : throw IllegalArgumentException
+    Controller --> View : error flash message
+    View --> Receptionist : Show validation error
+  else Booking and rooms valid
+    Service -> NhanVienRepo : findByIdWithTaiKhoan(employeeId)
+    NhanVienRepo -> DB : SELECT nhan_vien
+    DB --> NhanVienRepo : NhanVien / empty
+
     Service -> PhongRepo : saveAll(rooms -> OCCUPIED)
     PhongRepo -> DB : UPDATE phong
     DB --> PhongRepo : saved
@@ -41,24 +66,28 @@ alt Authorized
     DatPhongRepo -> DB : UPDATE dat_phong
     DB --> DatPhongRepo : saved
 
-    Service -> SuDungRepo : tinhTongTienTheoDatPhongId(datPhongId)
+    Service -> HoaDonService : capNhatTongTienHoaDonTheoThucTe(datPhong, chiTiet, nhanVien)
+    HoaDonService -> SuDungRepo : tinhTongTienTheoDatPhongId(datPhongId)
     SuDungRepo -> DB : SELECT SUM(service_total)
     DB --> SuDungRepo : totalService
 
-    Service -> HoaDonRepo : saveOrUpdateHoaDon(...)
-    HoaDonRepo -> DB : INSERT/UPDATE hoa_don
-    DB --> HoaDonRepo : HoaDon
+    alt Existing invoice
+      HoaDonService -> HoaDonRepo : save(hoaDon) if total changed
+      HoaDonRepo -> DB : UPDATE hoa_don
+      DB --> HoaDonRepo : HoaDon
+    else No invoice yet
+      HoaDonService -> HoaDonRepo : save(new HoaDon)
+      HoaDonRepo -> DB : INSERT hoa_don
+      DB --> HoaDonRepo : HoaDon
+
+      HoaDonService -> DatPhongRepo : save(datPhong with hoaDon)
+      DatPhongRepo -> DB : UPDATE dat_phong
+      DB --> DatPhongRepo : saved
+    end
 
     Service --> Controller : success
-    Controller --> View : success message
+    Controller --> View : success flash message
     View --> Receptionist : Show check-in success
-  else Validation failed
-    Service --> Controller : throw error
-    Controller --> View : error message
-    View --> Receptionist : Show validation error
   end
-else Unauthorized
-  Controller --> View : redirect:/login
-  View --> Receptionist : Session expired
 end
 @enduml

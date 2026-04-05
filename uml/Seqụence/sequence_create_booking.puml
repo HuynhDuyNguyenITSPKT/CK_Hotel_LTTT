@@ -1,4 +1,13 @@
-@startuml
+@startuml sequence_create_booking
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 16
+skinparam SequenceParticipantFontSize 17
+skinparam SequenceMessageFontSize 15
+skinparam SequenceGroupFontSize 15
+skinparam ParticipantPadding 12
+skinparam maxMessageSize 75
+skinparam dpi 180
+
 actor Receptionist
 participant "DatPhongPanel" as View
 participant "ReceptionistDatPhongController" as Controller
@@ -11,56 +20,79 @@ participant "KhachHangRepository" as KhachHangRepo
 participant "DatPhongRepository" as DatPhongRepo
 database "MySQL / JPA" as DB
 
-Receptionist -> View : Enter customer, date, room list
+Receptionist -> View : Enter customer, dates, room list
 Receptionist -> View : Click Create Booking
 View -> Controller : taoDatPhong(bookingForm)
 Controller -> Auth : requireReceptionist(session)
 
-alt Authorized
+alt Unauthorized
+  Controller --> View : redirect:/login
+  View --> Receptionist : Session expired
+else Authorized
   Controller -> Service : taoDatPhong(form, employeeId)
+  Service -> Service : kiemTraFormDatPhong(form)
   Service -> NhanVienRepo : findByIdWithTaiKhoan(employeeId)
   NhanVienRepo -> DB : SELECT nhan_vien
   DB --> NhanVienRepo : NhanVien / empty
 
-  Service -> PhongRepo : findAllById(phongIds)
-  PhongRepo -> DB : SELECT phong IN (ids)
-  DB --> PhongRepo : room list
+  alt Invalid form or employee not found
+    Service --> Controller : throw IllegalArgumentException
+    Controller --> View : error flash + bookingForm
+    View --> Receptionist : Show validation error
+  else Continue
+    Service -> Service : normalize roomIds (non-null, distinct)
+    Service -> PhongRepo : findAllById(phongIds)
+    PhongRepo -> DB : SELECT phong IN (ids)
+    DB --> PhongRepo : room list
 
-  loop For each selected room
-    Service -> ChiTietRepo : existsLichPhongTrung(phongId, ..., PENDING/CONFIRMED/CHECKED_IN/CHECKED_OUT)
-    ChiTietRepo -> DB : SELECT overlap schedule
-    DB --> ChiTietRepo : true/false
+    loop For each selected room
+      Service -> Service : validate room exists and status AVAILABLE
+      Service -> ChiTietRepo : existsLichPhongTrung(phongId, null, ngayNhan, ngayTra, PENDING/CONFIRMED/CHECKED_IN/CHECKED_OUT)
+      ChiTietRepo -> DB : SELECT overlap schedule
+      DB --> ChiTietRepo : true/false
+    end
+
+    alt Any room invalid or overlap
+      Service --> Controller : throw IllegalArgumentException
+      Controller --> View : error flash + bookingForm
+      View --> Receptionist : Show room/date error
+    else Rooms valid
+      Service -> KhachHangRepo : findBySdt(sdt)
+      KhachHangRepo -> DB : SELECT by phone
+      DB --> KhachHangRepo : existing/new
+
+      alt Phone exists
+        Service -> Service : validate name/email matches phone owner
+        opt Email provided
+          Service -> KhachHangRepo : findByEmailIgnoreCase(email)
+          KhachHangRepo -> DB : SELECT by email
+          DB --> KhachHangRepo : same customer / conflict
+        end
+      else New phone
+        opt Email provided
+          Service -> KhachHangRepo : findByEmailIgnoreCase(email)
+          KhachHangRepo -> DB : SELECT by email
+          DB --> KhachHangRepo : empty / conflict
+        end
+        Service -> KhachHangRepo : save(new KhachHang)
+        KhachHangRepo -> DB : INSERT khach_hang
+        DB --> KhachHangRepo : KhachHang
+      end
+
+      Service -> DatPhongRepo : save(DatPhong: CONFIRMED)
+      DatPhongRepo -> DB : INSERT dat_phong
+      DB --> DatPhongRepo : DatPhong
+
+      loop For each selected room
+        Service -> ChiTietRepo : save(ChiTietDatPhong)
+        ChiTietRepo -> DB : INSERT chi_tiet_dat_phong
+        DB --> ChiTietRepo : saved
+      end
+
+      Service --> Controller : success
+      Controller --> View : success flash message
+      View --> Receptionist : Show booking created
+    end
   end
-
-  Service -> KhachHangRepo : findBySdt(sdt)
-  KhachHangRepo -> DB : SELECT by phone
-  DB --> KhachHangRepo : existing/new
-
-  alt Phone exists and profile matches
-    Service -> KhachHangRepo : findByEmailIgnoreCase(email) (optional)
-    KhachHangRepo -> DB : SELECT by email
-    DB --> KhachHangRepo : valid
-  else New phone
-    Service -> KhachHangRepo : save(new KhachHang)
-    KhachHangRepo -> DB : INSERT khach_hang
-    DB --> KhachHangRepo : KhachHang
-  end
-
-  Service -> DatPhongRepo : save(DatPhong: CONFIRMED)
-  DatPhongRepo -> DB : INSERT dat_phong
-  DB --> DatPhongRepo : DatPhong
-
-  loop For each selected room
-    Service -> ChiTietRepo : save(ChiTietDatPhong)
-    ChiTietRepo -> DB : INSERT chi_tiet_dat_phong
-    DB --> ChiTietRepo : saved
-  end
-
-  Service --> Controller : success
-  Controller --> View : success flash message
-  View --> Receptionist : Show booking created
-else Validation failed
-  Controller --> View : error flash message
-  View --> Receptionist : Show validation error
 end
 @enduml

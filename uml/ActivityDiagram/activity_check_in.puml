@@ -1,18 +1,40 @@
-@startuml
+@startuml activity_check_in
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 16
+skinparam ActivityFontSize 17
+skinparam ActivityDiamondFontSize 16
+skinparam ActivityArrowFontSize 15
+skinparam dpi 180
+
 start
 :Open Check-in Panel;
 :Select booking to check-in;
 :Click Check-in;
 
 if (Session valid?) then (Yes)
+  :Validate datPhongId and load booking;
   :Validate booking status PENDING/CONFIRMED;
-  :Validate stay window ngayNhan <= today < ngayTra;
+  :Validate ngayNhan/ngayTra not null and ngayTra > ngayNhan;
   :Load booking room details;
-  if (All rooms AVAILABLE and no overlap CHECKED_IN?) then (Yes)
-    :Update booking status to CHECKED_IN;
-    :Update all rooms to OCCUPIED;
-    :Recalculate invoice total;
-    :Show check-in success message;
+  if (Booking details found?) then (Yes)
+  :Validate stay window ngayNhan <= today < ngayTra;
+    :Build distinct room list from booking details;
+    if (Room list empty?) then (Yes)
+      :Show room/state validation error;
+    else (No)
+      :Validate all rooms are AVAILABLE;
+      :Check overlap CHECKED_IN on each room (exclude current booking);
+      if (All room validations pass?) then (Yes)
+        :Set booking status to CHECKED_IN;
+        :Update all rooms to OCCUPIED and save;
+        :Save booking;
+        :Recalculate invoice via HoaDonTinhTienService;
+        :Create invoice if missing, otherwise update total;
+        :Show check-in success message;
+      else (No)
+        :Show room/state validation error;
+      endif
+    endif
   else (No)
     :Show room/state validation error;
   endif

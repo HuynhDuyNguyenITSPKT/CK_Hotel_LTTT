@@ -1,27 +1,54 @@
-@startuml
+@startuml activity_create_booking
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 16
+skinparam ActivityFontSize 17
+skinparam ActivityDiamondFontSize 16
+skinparam ActivityArrowFontSize 15
+skinparam dpi 180
+
 start
 :Open Booking Panel;
-:Enter customer info, check-in/check-out dates;
-:Select one or more available rooms;
+:Enter customer info, check-in/check-out dates, room list;
 :Click Create Booking;
 
 if (Session valid?) then (Yes)
-  :Validate required fields and date rules;
-  if (Form valid?) then (Yes)
-    :Validate selected rooms are AVAILABLE;
-    :Check room schedule overlap;
-    if (Rooms valid and no overlap?) then (Yes)
-      :Find customer by phone;
-      if (Customer exists?) then (Yes)
-        :Validate customer name/email matches existing phone;
-      else (No)
-        :Create new customer;
-      endif
-      :Create booking with CONFIRMED status;
-      :Create booking detail rows for selected rooms;
-      :Show booking created success message;
+  :Validate required fields (name, phone, dates, rooms);
+  :Validate date rules (ngayTra > ngayNhan and ngayNhan >= today);
+  :Load employee by employeeId from session;
+  if (Form and employee valid?) then (Yes)
+    :Normalize selected room IDs (non-null, distinct);
+    if (Room list empty?) then (Yes)
+      :Show booking form validation error;
     else (No)
-      :Show room availability/schedule error;
+      :Load selected rooms by IDs;
+      :Validate each room exists and is AVAILABLE;
+      :Check schedule overlap for each room;
+      if (Any room invalid or overlap?) then (Yes)
+        :Show room availability/schedule error;
+      else (No)
+        :Find customer by phone;
+        if (Customer exists?) then (Yes)
+          :Validate name/email matches existing phone owner;
+          :If email provided, ensure email belongs to same customer;
+          if (Customer profile valid?) then (Yes)
+            :Create booking with CONFIRMED status;
+            :Create booking detail rows for selected rooms;
+            :Show booking created success message;
+          else (No)
+            :Show customer identity conflict error;
+          endif
+        else (No)
+          :If email provided, ensure email is unique;
+          if (Email conflict?) then (Yes)
+            :Show customer identity conflict error;
+          else (No)
+            :Create new customer;
+            :Create booking with CONFIRMED status;
+            :Create booking detail rows for selected rooms;
+            :Show booking created success message;
+          endif
+        endif
+      endif
     endif
   else (No)
     :Show booking form validation error;
